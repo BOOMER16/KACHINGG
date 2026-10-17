@@ -517,19 +517,25 @@ html.flat body { background-image: radial-gradient(#1E1E1C 1px, transparent 1px)
   window.filmLightState = 0; window.filmLightFast = false;
   function applyLight(v, fast) {
     window.filmLightState = v; window.filmLightFast = fast;
-    root.classList.toggle('light', !!v);
+    root.classList.toggle('light', v > 0);
     switchBtn.setAttribute('aria-pressed', v ? 'true' : 'false');
     switchLabel.textContent = v ? 'LIGHTS ON' : 'LIGHTS OFF';
   }
+  // One soft waver, not a strobe: the lights come up part-way, dip once, then settle fully on.
+  // (Full-screen dark/light flashing faster than 3 times a second is a seizure risk; WCAG 2.3.1.)
   function lightsOn() {
     timers.forEach(clearTimeout); timers = [];
     if (reduce) { applyLight(1, true); return; }
-    [[0, 1], [70, 0], [150, 1], [230, 0], [440, 1]].forEach(([ms, v]) => timers.push(setTimeout(() => applyLight(v, true), ms)));
+    [[0, 0.6], [140, 0.4], [300, 1]].forEach(([ms, v]) => timers.push(setTimeout(() => applyLight(v, true), ms)));
   }
   function lightsOff() { timers.forEach(clearTimeout); timers = []; applyLight(0, false); }
+  // Hysteresis: the lights switch on at one point but only switch off noticeably further back (and the
+  // same at the end), so small scroll wobbles near the line can't flip them on and off repeatedly.
   function updateLight(story) {
     if (story < 4.2) manualOn = false;
-    const want = story < LIGHT_OFF && (story >= LIGHT_ON || (manualOn && story >= 4.2)) ? 1 : 0;
+    let want = wanted;
+    if (wanted) { if ((story < 4.36 && !manualOn) || story >= LIGHT_OFF + 0.06) want = 0; }
+    else if (story < LIGHT_OFF - 0.08 && (story >= LIGHT_ON || (manualOn && story >= 4.2))) want = 1;
     if (want !== wanted) { wanted = want; want ? lightsOn() : lightsOff(); }
   }
   switchBtn.addEventListener('click', () => {
@@ -1251,7 +1257,7 @@ async function main() {
     // Same smoothed clock as the copy (mapped to story time): a little inertia makes scrolling feel like a dolly.
     Ts = window.filmStory();
     // Lights: follow the page's switch. Fast when switching on (so the tube-light flicker shows), slow when dimming.
-    L += ((window.filmLightState || 0) - L) * (1 - Math.exp(-dt * (window.filmLightFast ? 30 : 2.5)));
+    L += ((window.filmLightState || 0) - L) * (1 - Math.exp(-dt * (window.filmLightFast ? 9 : 2.5)));
     applyTheme(L);
     update(Ts, time);
     if (composer) composer.render(dt); else renderer.render(scene, camera);
