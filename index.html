@@ -133,32 +133,38 @@ main { position: relative; z-index: 2; }
 @media (prefers-reduced-motion: reduce) { .switch .knob, .chip { transition: none; } }
 
 /* ---------- the opening receipt (always paper-coloured, in any theme) ---------- */
-.copy.art { max-width: none; margin-left: auto; margin-right: 6vw; }
-.rig { --paper: #F7F6F2; width: 340px; display: flex; flex-direction: column; align-items: center; }
+.copy.art { max-width: none; margin-left: auto; margin-right: 8vw; }
+.ch.first h1 { font-size: clamp(2.4rem, 4.2vw, 4.6rem); }
+.rig { --paper: #F7F6F2; width: 400px; display: flex; flex-direction: column; align-items: center; position: relative; }
+/* A soft spotlight: the receipt is the star of the first screen. */
+.rig::before { content: ""; position: absolute; left: 50%; top: 45%; width: 760px; height: 760px; transform: translate(-50%, -50%); z-index: -1; pointer-events: none;
+  background: radial-gradient(circle, rgba(110, 231, 183, .13) 0%, rgba(110, 231, 183, .04) 38%, transparent 62%); }
+.copy .r-cap { margin: 16px 0 0; max-width: none; line-height: 1.4; font-family: var(--f-mono); font-size: 11px; letter-spacing: .2em; color: var(--muted); white-space: nowrap; }
+.copy .r-cap.done { color: var(--mint); }
 /* The feed clips the paper; the paper slides up out of the slot with a transform (GPU-animated, so it stays
    smooth even while the 3D scene is busy loading). */
-.feed { width: 300px; overflow: hidden; flex-shrink: 0; }
+.feed { width: 360px; overflow: hidden; flex-shrink: 0; }
 .paper { transform: translateY(101%); }
 .paper.printing { transform: translateY(0); transition: transform 2.2s cubic-bezier(.3, 0, .2, 1); }
 .paper.printed { transform: none; }
-.r-inner { position: relative; background: var(--paper); color: #111111; padding: 26px 26px 22px; border-radius: 4px 4px 0 0;
-  font-family: var(--f-mono); font-size: 13px; line-height: 1.9; box-shadow: 0 20px 40px rgba(0,0,0,.35); }
-.r-head { text-align: center; font-weight: 700; font-size: 15px; letter-spacing: .34em; line-height: 1.4; }
-.r-sub { text-align: center; color: #8A8984; font-size: 10px; letter-spacing: .16em; margin: 4px 0 18px; }
+.r-inner { position: relative; background: var(--paper); color: #111111; padding: 32px 32px 26px; border-radius: 4px 4px 0 0;
+  font-family: var(--f-mono); font-size: 15px; line-height: 1.9; box-shadow: 0 20px 40px rgba(0,0,0,.35); }
+.r-head { text-align: center; font-weight: 700; font-size: 18px; letter-spacing: .34em; line-height: 1.4; }
+.r-sub { text-align: center; color: #8A8984; font-size: 11px; letter-spacing: .16em; margin: 4px 0 18px; }
 .r-line { display: flex; justify-content: space-between; gap: 12px; }
 .r-rule { border-top: 1px dashed #B9B8B2; margin: 12px 0 10px; }
-.r-total { font-weight: 700; font-size: 15px; }
-.r-q { color: #6B6A66; font-size: 12px; letter-spacing: .06em; }
+.r-total { font-weight: 700; font-size: 18px; }
+.r-q { color: #6B6A66; font-size: 13px; letter-spacing: .06em; }
 .r-q .qq { color: #D93A2B; font-weight: 700; }
 .r-q .qq.done { color: #13A070; }
-.r-more { color: #8A8984; font-size: 11px; letter-spacing: .06em; }
+.r-more { color: #8A8984; font-size: 12px; letter-spacing: .06em; }
 .stamp.on.off { animation: none; transform: translateX(-50%) rotate(-6deg) scale(1); opacity: 0; transition: opacity .5s ease; }
 .stamp { position: absolute; left: 50%; top: 0; white-space: nowrap; padding: 5px 10px; border: 2px solid #13A070; border-radius: 5px; color: #13A070;
-  font-family: var(--f-mono); font-weight: 700; font-size: 11px; letter-spacing: .16em; line-height: 1.4;
+  font-family: var(--f-mono); font-weight: 700; font-size: 13px; letter-spacing: .16em; line-height: 1.4;
   transform: translateX(-50%) rotate(-6deg) scale(1.7); opacity: 0; mix-blend-mode: multiply; pointer-events: none; }
 .stamp.on { animation: thump .22s cubic-bezier(.2, 1.6, .4, 1) forwards; }
 @keyframes thump { to { transform: translateX(-50%) rotate(-6deg) scale(1); opacity: .95; } }
-.slot { width: 340px; height: 42px; box-sizing: border-box; padding: 0 16px; margin-top: -2px; border-radius: 12px; background: #000; border: 1px solid #1E1E1D;
+.slot { width: 400px; height: 46px; box-sizing: border-box; padding: 0 16px; margin-top: -2px; border-radius: 12px; background: #000; border: 1px solid #1E1E1D;
   box-shadow: inset 0 6px 8px -6px rgba(255,255,255,.15); display: flex; align-items: center; justify-content: space-between;
   font-family: var(--f-mono); font-size: 10px; letter-spacing: .18em; color: #8A8A85; position: relative; z-index: 2; } /* paper feeds out from under the slot */
 .slot::before { content: ""; position: absolute; left: 14px; right: 14px; top: 6px; height: 3px; border-radius: 2px; background: #2E2E2C; }
@@ -166,7 +172,7 @@ main { position: relative; z-index: 2; }
 .slot i.on { background: #6EE7B7; box-shadow: 0 0 10px rgba(110,231,183,.8); }
 @media (max-width: 900px) {
   .copy.art { position: absolute; top: calc(env(safe-area-inset-top, 0px) + 64px); left: 50%; margin: 0; transform-origin: top center; }
-  .copy.art .rig { transform: translateX(-50%) scale(.7); transform-origin: top center; }
+  .copy.art .rig { transform: translateX(-50%) scale(.62); transform-origin: top center; }
 }
 
 /* With JS, every scene's copy lives on one fixed layer and the script alone decides where it is and how visible,
@@ -211,7 +217,27 @@ h2 { font-size: clamp(2.6rem, 5.2vw, 5.6rem); }
 .steps li { display: flex; gap: 14px; }
 .steps li::before { counter-increment: s; content: "0" counter(s); color: var(--red); font-weight: 700; }
 
-.ch.credits { height: 100vh; }
+.ch.post { height: 100vh; }
+/* The post-credits ticket: mint card stock, a perforation, a stub you tear off to download. */
+.ticket { display: flex; align-self: flex-start; transform: rotate(-3deg); filter: drop-shadow(0 16px 30px rgba(0,0,0,.35)); max-width: 100%; }
+.t-main, .t-stub { background: var(--mint-fill); color: #0A0A0A; font-family: var(--f-mono); }
+.t-main { padding: 22px 24px; border-radius: 12px 0 0 12px; display: flex; flex-direction: column; gap: 4px; min-width: 0;
+  -webkit-mask: radial-gradient(circle 9px at 100% 0, #0000 98%, #000) top right / 100% 51% no-repeat, radial-gradient(circle 9px at 100% 100%, #0000 98%, #000) bottom right / 100% 51% no-repeat;
+          mask: radial-gradient(circle 9px at 100% 0, #0000 98%, #000) top right / 100% 51% no-repeat, radial-gradient(circle 9px at 100% 100%, #0000 98%, #000) bottom right / 100% 51% no-repeat; }
+.t-kick { font-size: 10px; letter-spacing: .3em; }
+.t-title { font-family: var(--f-dots); font-weight: 900; font-size: 34px; line-height: 1.1; }
+.t-sub { font-size: 11px; letter-spacing: .2em; margin-bottom: 12px; }
+.t-rows { margin: 0; display: grid; grid-template-columns: auto 1fr; gap: 6px 16px; font-size: 11px; letter-spacing: .1em; }
+.t-rows dt { opacity: .6; }
+.t-rows dd { margin: 0; font-weight: 700; }
+.t-stub { display: flex; flex-direction: column; justify-content: center; gap: 10px; padding: 18px 20px; border-radius: 0 12px 12px 0; text-decoration: none;
+  border-left: 2px dashed rgba(10,10,10,.35); writing-mode: vertical-rl; transform-origin: left center; transition: transform .45s cubic-bezier(.3,1.3,.5,1), opacity .45s ease; }
+.t-stub span { font-size: 10px; letter-spacing: .3em; opacity: .6; }
+.t-stub b { font-size: 13px; letter-spacing: .2em; }
+.t-stub:hover { background: #8BF0C8; }
+.t-stub:focus-visible { outline: 2px solid var(--fg); outline-offset: 3px; }
+.t-stub.torn { transform: translate(28px, 46px) rotate(24deg); opacity: 0; }
+@media (prefers-reduced-motion: reduce) { .t-stub { transition: none; } }
 .credits dl { margin: 0; display: grid; grid-template-columns: auto auto; gap: 14px 28px; font-family: var(--f-mono); font-size: 13px; letter-spacing: .16em; }
 .credits dt { color: var(--muted); }
 .credits dd { margin: 0; color: var(--fg); }
@@ -281,6 +307,7 @@ html.flat body { background-image: radial-gradient(#1E1E1C 1px, transparent 1px)
           </div>
         </div>
         <div class="slot" aria-hidden="true"><span>KCH-01 · PRINTER</span><i id="slotLed"></i></div>
+        <p class="r-cap" id="rcap" data-to="▲ WHAT KACHINGG SHOWS YOU">▲ WHAT YOUR BANK SHOWS YOU</p>
       </div>
     </div></div>
   </section>
@@ -467,18 +494,41 @@ html.flat body { background-image: radial-gradient(#1E1E1C 1px, transparent 1px)
     </div></div>
   </section>
 
-  <footer class="ch credits" data-t="14" data-chapter="DOWNLOAD" data-no="CREDITS" data-title="CREDITS" data-pos="r" data-move="0,-1">
+  <section class="ch credits" data-t="14" data-chapter="THE END" data-no="CREDITS" data-title="CREDITS" data-pos="r" data-move="0,-1">
     <div class="stick"><div class="copy">
       <span class="eyebrow"><i class="in"></i>END CREDITS</span>
       <dl>
-        <dt>WRITTEN, DESIGNED &amp; BUILT BY</dt><dd>ARY</dd>
-        <dt>WITH</dt><dd>SYNTAX TERROR</dd>
+        <dt>DIRECTED, WRITTEN &amp; BUILT BY</dt><dd>ARY</dd>
+        <dt>PRODUCED WITH</dt><dd>SYNTAX TERROR</dd>
         <dt>STARRING</dt><dd>YOUR ₹<span class="js-perday">95</span> A DAY</dd>
         <dt>SPECIAL APPEARANCE</dt><dd>2 AM MAGGI</dd>
+        <dt>BEST SUPPORTING HABIT</dt><dd>"JUST ONE" COLD COFFEE</dd>
+        <dt>STUNTS</dt><dd>THE AUTO DRIVER WITH NO CHANGE</dd>
         <dt>FEEDBACK</dt><dd>SETTINGS → SEND FEEDBACK</dd>
       </dl>
       <span class="end">KaChingg</span>
       <span class="fine">NO RUPEES WERE HARMED IN THE MAKING OF THIS FILM · © 2026</span>
+    </div></div>
+  </section>
+
+  <footer class="ch post" data-t="15" data-chapter="THE END" data-no="POST-CREDITS" data-title="POST-CREDITS" data-pos="r" data-move="0,-1">
+    <div class="stick"><div class="copy">
+      <span class="eyebrow"><i class="in"></i>POST-CREDITS SCENE</span>
+      <h2>Oh, you stayed. Here's your ticket.</h2>
+      <div class="ticket">
+        <div class="t-main">
+          <span class="t-kick">ADMIT ONE</span>
+          <span class="t-title">KACHINGG</span>
+          <span class="t-sub">THE 3-DAY BETA</span>
+          <dl class="t-rows">
+            <dt>SEAT</dt><dd>YOUR HOME SCREEN</dd>
+            <dt>RUNTIME</dt><dd>3 DAYS</dd>
+            <dt>YOUR LEAK</dt><dd>₹<span class="js-perday">95</span> / DAY</dd>
+            <dt>PLOT TWIST</dt><dd id="ticketGoal">HEADPHONES IN 32 DAYS</dd>
+          </dl>
+        </div>
+        <a class="t-stub" id="apk2" href="#get"><span>TEAR HERE</span><b>GET THE APP</b></a>
+      </div>
     </div></div>
   </footer>
 </main>
@@ -525,8 +575,11 @@ html.flat body { background-image: radial-gradient(#1E1E1C 1px, transparent 1px)
   const film = document.getElementById('film');
   const apk = document.getElementById('apk');
   const url = (film.dataset.apkUrl || '').trim();
-  if (url) { apk.href = url; apk.target = '_blank'; apk.rel = 'noopener'; }
+  const stub = document.getElementById('apk2');
+  if (url) { [apk, stub].forEach((a) => { a.href = url; a.target = '_blank'; a.rel = 'noopener'; }); }
   else { apk.setAttribute('aria-disabled', 'true'); document.getElementById('apkLabel').textContent = 'APK LINK COMING SOON'; }
+  // Tear the stub off as the download starts (the link still opens normally).
+  stub.addEventListener('click', () => { stub.classList.add('torn'); setTimeout(() => stub.classList.remove('torn'), 2500); });
 
   // ---------- the visitor's own numbers: their daily habits and the thing they'd save for ----------
   const DAYS = 1460; // a 4-year degree
@@ -553,6 +606,7 @@ html.flat body { background-image: radial-gradient(#1E1E1C 1px, transparent 1px)
       ? 'Zero rupees. You might not even need this app. <strong>Stay anyway.</strong>'
       : "That's <strong>" + lakh(pd * DAYS) + "</strong> over a 4-year degree. On stuff you won't even remember buying.";
     document.getElementById('goalHeadline').textContent = pd === 0 ? 'Pick a daily habit first. Scroll back up.' : g.line.replace('{n}', fmt(g.days));
+    document.getElementById('ticketGoal').textContent = pd === 0 ? 'SAVING EVERYTHING' : g.name + ' IN ' + fmt(g.days) + ' DAYS';
     lastDays = -1;
   }
   habitBtns.forEach((b) => b.addEventListener('click', () => { b.setAttribute('aria-pressed', pressed(b) ? 'false' : 'true'); renderNumbers(); }));
@@ -712,7 +766,7 @@ html.flat body { background-image: radial-gradient(#1E1E1C 1px, transparent 1px)
   // Prints by itself as soon as the film is ready, and again whenever you come back to the first screen.
   const printer = (function () {
     const paper = document.getElementById('paper'), stamp = document.getElementById('stamp'), led = document.getElementById('slotLed');
-    const swaps = Array.from(paper.querySelectorAll('[data-to]'));
+    const swaps = Array.from(paper.querySelectorAll('[data-to]')).concat(document.getElementById('rcap'));
     swaps.forEach((el) => { el.dataset.from = el.textContent; });
     const noise = '#/*0123456789XUPIQ';
     let timers = [], loops = [];
@@ -1228,6 +1282,7 @@ async function main() {
     [12.75, [0, 0.4, 9.4, 0.3, 0.1, 0]],
     [13, [0, 0.4, 9.0, 0.3, 0.1, 0]],
     [14, [0, 2.8, 12.0, 0, 0, 0]],
+    [15, [0, 0.8, 9.5, 0, 0.2, 0]],
   ];
   const PHONE = [ // [T, [x, y, z, rx, ry, rz]]
     [4.5, [0, -9, 0, 0.6, -2.4, 0]],
@@ -1272,7 +1327,7 @@ async function main() {
     const h = track(HERO, T);
     hero.position.set(h[0], h[1] + Math.sin(time * 1.2) * 0.08, h[2]);
     hero.scale.setScalar(h[3]);
-    hero.rotation.y = time * 0.7 + T * 3.2;
+    hero.rotation.y = time * 0.7 + T * 3.2 + outCubic(range(T, 13.2, 13.6)) * Math.PI * 4;   // a celebratory spin at 100%
     hero.visible = h[1] < 7;
 
     // ---- the stack: fall in (scene 01), leak away (02-04), sink (05) ----
@@ -1330,6 +1385,17 @@ async function main() {
     const pickVis = range(T, -2.6, -2.3) * (1 - range(T, -1.45, -1.15));
     const picks = window.filmPicks ? window.filmPicks() : [];
     catches.forEach((c, j) => {
+      if (T > 13.1) {   // KA-CHING: the download hits 100% and coins burst out
+        const bt = range(T, 13.24 + j * 0.015, 13.62 + j * 0.015);
+        c.visible = bt > 0 && bt < 1;
+        if (c.visible) {
+          const a = (j / 6) * Math.PI * 2 + 0.4, d = 0.6 + 3.2 * outCubic(bt);
+          c.position.set(hero.position.x + Math.cos(a) * d, hero.position.y + Math.sin(a) * d * 0.7 + Math.sin(bt * Math.PI) * 0.8, hero.position.z + 0.6);
+          c.rotation.set(time * 4 + j, time * 5, 0);
+          c.scale.setScalar(0.4 * (1 - bt * bt));
+        }
+        return;
+      }
       if (T < 0) {
         const u = c.userData;
         u.ps = (u.ps || 0) + ((picks[j] ? 1 : 0) * pickVis - (u.ps || 0)) * 0.14;   // eases in = a little pop
@@ -1364,7 +1430,7 @@ async function main() {
     } else if (T < 10.75) {
       // The goal screen: the dots fly in, the savings bar fills, then the same phone prints the receipt.
       const g = window.filmGoal ? window.filmGoal() : { name: 'HEADPHONES', cost: 3000, perDay: 95, days: 32 };
-      const fill = Math.round(100 * smooth(range(T, 9.0, 9.4))) / 100, printing = T > 9.62;
+      const fill = Math.round(100 * smooth(range(T, 8.8, 9.35))) / 100, printing = T > 9.62;  // fills as the dots arrive
       setScreen(lit01 + 'g' + g.name + g.perDay + fill + printing, () => drawGoal(g, fill, printing));
     } else setScreen(lit01 + 'lock', drawLock);
 
@@ -1389,7 +1455,8 @@ async function main() {
     // grid (where it went) -> an empty ring (pick a goal) -> they fly into the phone's savings bar ->
     // stars, or the maker's name -> a download progress ring around the coin -> the credits orbit.
     origin.set(0, 0, PD / 2); phone.localToWorld(origin); stage.worldToLocal(origin);
-    bar.set(0, -0.62, PD / 2 + 0.05); phone.localToWorld(bar); stage.worldToLocal(bar);
+    // The savings bar under the goal name on the phone's goal screen (canvas y≈523 of 1140, starting x≈66 of 540).
+    bar.set(-0.45, 0.17, PD / 2 + 0.05); phone.localToWorld(bar); stage.worldToLocal(bar);
     const pre = smooth(range(T, -1.75, -1.35)) * (1 - smooth(range(T, -0.6, -0.2)));
     const preLit = Math.round(100 * (window.filmDays() - 1) / (window.filmDayCount - 1));
     const dl = smooth(range(T, 12.85, 13.25)), dlLit = Math.floor(100 * dl);
@@ -1465,7 +1532,7 @@ async function main() {
       ringLabel.position.set(hero.position.x, hero.position.y - 2.15, hero.position.z + 0.3); ringLabel.material.opacity = dlVis; ringLabel.scale.set(2.0, 1.0, 1);
       drawLabel('d' + dlLit, () => {
         mono(rg, 26, false, 6); rg.fillStyle = C.muted; rg.fillText(dlLit < 100 ? 'DOWNLOADING' : 'READY TO INSTALL', 256, 96);
-        mono(rg, 64, true, -2); rg.fillStyle = C.mint; rg.fillText(dlLit + '%', 256, 172);
+        mono(rg, 64, true, -2); rg.fillStyle = C.mint; rg.fillText(dlLit < 100 ? dlLit + '%' : 'KA-CHING!', 256, 172);
       }, false);
     }
   }
