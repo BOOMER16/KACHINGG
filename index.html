@@ -19,7 +19,7 @@
 <style>body { margin: 0; }</style>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Doto:wght@900&family=Space+Grotesk:wght@400;500;700&family=Space+Mono:wght@400;700&display=swap">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Caveat:wght@600&family=Doto:wght@900&family=Space+Grotesk:wght@400;500;700&family=Space+Mono:wght@400;700&display=swap">
 <style>
 /* Layout: a film. A fixed WebGL stage fills the screen; one short scene of copy at a time sits over it,
    and the 3D plays on the other side. Scroll position = film time.
@@ -158,12 +158,15 @@ main { position: relative; z-index: 2; }
 .r-q .qq { color: #D93A2B; font-weight: 700; }
 .r-q .qq.done { color: #13A070; }
 .r-more { color: #8A8984; font-size: 12px; letter-spacing: .06em; }
-.stamp.on.off { animation: none; transform: translateX(-50%) rotate(-6deg) scale(1); opacity: 0; transition: opacity .5s ease; }
-.stamp { position: absolute; left: 50%; top: 0; white-space: nowrap; padding: 5px 10px; border: 2px solid #13A070; border-radius: 5px; color: #13A070;
-  font-family: var(--f-mono); font-weight: 700; font-size: 13px; letter-spacing: .16em; line-height: 1.4;
-  transform: translateX(-50%) rotate(-6deg) scale(1.7); opacity: 0; mix-blend-mode: multiply; pointer-events: none; }
-.stamp.on { animation: thump .22s cubic-bezier(.2, 1.6, .4, 1) forwards; }
-@keyframes thump { to { transform: translateX(-50%) rotate(-6deg) scale(1); opacity: .95; } }
+/* KaChingg reading the statement: a scanner line sweeps down and each line decodes as it passes. Nothing covers the text. */
+.r-scan { position: absolute; left: 12px; right: 12px; top: 0; height: 2px; border-radius: 2px; background: #13A070;
+  box-shadow: 0 0 14px 3px rgba(19, 160, 112, .35); opacity: 0; pointer-events: none; }
+.r-scan.go { opacity: .9; transition: transform var(--scan-ms, 2400ms) linear, opacity .2s ease; }
+.r-scan.gone { opacity: 0; transition: opacity .4s ease; }
+/* ...and the answer gets stamped. An outline, so stamping it can't shift the layout. */
+.r-q .qq { display: inline-block; }
+.r-q .qq.stamped { outline: 2px solid #13A070; outline-offset: 2px; border-radius: 3px; transform: rotate(-4deg); animation: thump .24s cubic-bezier(.2, 1.6, .4, 1); }
+@keyframes thump { from { transform: rotate(-4deg) scale(1.9); opacity: 0; } to { transform: rotate(-4deg) scale(1); opacity: 1; } }
 .slot { width: 400px; height: 46px; box-sizing: border-box; padding: 0 16px; margin-top: -2px; border-radius: 12px; background: #000; border: 1px solid #1E1E1D;
   box-shadow: inset 0 6px 8px -6px rgba(255,255,255,.15); display: flex; align-items: center; justify-content: space-between;
   font-family: var(--f-mono); font-size: 10px; letter-spacing: .18em; color: #8A8A85; position: relative; z-index: 2; } /* paper feeds out from under the slot */
@@ -174,6 +177,7 @@ main { position: relative; z-index: 2; }
   .copy.art { position: absolute; top: calc(env(safe-area-inset-top, 0px) + 64px); left: 50%; margin: 0; transform-origin: top center; }
   .copy.art .rig { transform: translateX(-50%) scale(.62); transform-origin: top center; }
 }
+
 
 /* With JS, every scene's copy lives on one fixed layer and the script alone decides where it is and how visible,
    so text can never drift into the top bar or under the 3D. Hidden copies get visibility:hidden (no stray clicks). */
@@ -263,6 +267,7 @@ html.flat body { background-image: radial-gradient(#1E1E1C 1px, transparent 1px)
 </style>
 </head>
 <body>
+
 <canvas id="stage" aria-hidden="true"></canvas>
 <div class="veil veil-l" id="veilL" aria-hidden="true"></div>
 <div class="veil veil-r" id="veilR" aria-hidden="true"></div>
@@ -285,7 +290,7 @@ html.flat body { background-image: radial-gradient(#1E1E1C 1px, transparent 1px)
       <p><strong>KaChingg</strong> is a tiny budgeting app for students that shows you where it all went.</p>
       <span class="cue"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M12 4v15"></path><path d="M6 13l6 6 6-6"></path></svg>SCROLL TO PLAY</span>
     </div>
-    <!-- The opening receipt: prints itself out of the slot, line by line, then gets stamped. -->
+    <!-- The opening receipt: prints what the bank shows, then KaChingg reads it line by line and sorts it. -->
     <div class="copy art" aria-label="A bank statement of cryptic UPI payments totalling 3,894 rupees, which KaChingg sorts into chai, auto, Swiggy and cold coffee">
       <div class="rig" id="rig">
         <div class="feed">
@@ -302,7 +307,7 @@ html.flat body { background-image: radial-gradient(#1E1E1C 1px, transparent 1px)
               <div class="r-rule"></div>
               <div class="r-line r-total"><span>TOTAL</span><span>₹3,894</span></div>
               <div class="r-line r-q"><span>WHERE IT WENT</span><span class="qq" data-to="SORTED">???</span></div>
-              <span class="stamp" id="stamp">SORTED BY KACHINGG</span>
+              <span class="r-scan" id="rscan" aria-hidden="true"></span>
             </div>
           </div>
         </div>
@@ -502,6 +507,7 @@ html.flat body { background-image: radial-gradient(#1E1E1C 1px, transparent 1px)
         <dt>PRODUCED WITH</dt><dd>SYNTAX TERROR</dd>
         <dt>STARRING</dt><dd>YOUR ₹<span class="js-perday">95</span> A DAY</dd>
         <dt>SPECIAL APPEARANCE</dt><dd>2 AM MAGGI</dd>
+        <dt>CATERING</dt><dd>₹350 POPCORN. WORTH IT.</dd>
         <dt>BEST SUPPORTING HABIT</dt><dd>"JUST ONE" COLD COFFEE</dd>
         <dt>STUNTS</dt><dd>THE AUTO DRIVER WITH NO CHANGE</dd>
         <dt>FEEDBACK</dt><dd>SETTINGS → SEND FEEDBACK</dd>
@@ -659,12 +665,14 @@ html.flat body { background-image: radial-gradient(#1E1E1C 1px, transparent 1px)
   }
   // One soft waver, not a strobe: the lights come up part-way, dip once, then settle fully on.
   // (Full-screen dark/light flashing faster than 3 times a second is a seizure risk; WCAG 2.3.1.)
+  // The clapperboard snaps first (the 3D reads filmClapAt), and the lights answer it 0.2 s later.
   function lightsOn() {
     timers.forEach(clearTimeout); timers = [];
+    window.filmClapAt = performance.now();
     if (reduce) { applyLight(1, true); return; }
-    [[0, 0.6], [140, 0.4], [300, 1]].forEach(([ms, v]) => timers.push(setTimeout(() => applyLight(v, true), ms)));
+    [[200, 0.6], [340, 0.4], [500, 1]].forEach(([ms, v]) => timers.push(setTimeout(() => applyLight(v, true), ms)));
   }
-  function lightsOff() { timers.forEach(clearTimeout); timers = []; applyLight(0, false); }
+  function lightsOff() { timers.forEach(clearTimeout); timers = []; window.filmClapAt = 0; applyLight(0, false); }
   // Hysteresis: the lights switch on at one point but only switch off noticeably further back (and the
   // same at the end), so small scroll wobbles near the line can't flip them on and off repeatedly.
   function updateLight(story) {
@@ -761,21 +769,17 @@ html.flat body { background-image: radial-gradient(#1E1E1C 1px, transparent 1px)
       });
     }
   }
-  // ---------- the opening receipt prints itself (once), then gets stamped ----------
   // ---------- the opening receipt: prints what the bank shows, then KaChingg sorts it ----------
   // Prints by itself as soon as the film is ready, and again whenever you come back to the first screen.
   const printer = (function () {
-    const paper = document.getElementById('paper'), stamp = document.getElementById('stamp'), led = document.getElementById('slotLed');
+    const paper = document.getElementById('paper'), scan = document.getElementById('rscan'), led = document.getElementById('slotLed');
+    const qq = paper.querySelector('.qq'), rcap = document.getElementById('rcap');
     const swaps = Array.from(paper.querySelectorAll('[data-to]')).concat(document.getElementById('rcap'));
     swaps.forEach((el) => { el.dataset.from = el.textContent; });
     const noise = '#/*0123456789XUPIQ';
     let timers = [], loops = [];
     const later = (fn, ms) => timers.push(setTimeout(fn, ms));
     function stop() { timers.forEach(clearTimeout); loops.forEach(clearInterval); timers = []; loops = []; }
-    function placeStamp() {   // over the middle of the payment lines
-      const rows = paper.querySelectorAll('.r-line'), a = rows[0], z = rows[3];
-      stamp.style.top = ((a.offsetTop + z.offsetTop + z.offsetHeight) / 2 - stamp.offsetHeight / 2) + 'px';
-    }
     // Each line scrambles, then settles letter by letter into its real meaning.
     function decrypt(el, to) {
       let f = 0;
@@ -783,25 +787,32 @@ html.flat body { background-image: radial-gradient(#1E1E1C 1px, transparent 1px)
         f++;
         el.textContent = [...to].map((c, i) => (c === ' ' || f > 5 + i ? c : noise[Math.floor(Math.random() * noise.length)])).join('');
         if (f > 5 + to.length) { clearInterval(id); el.textContent = to; el.classList.add('done'); }
-      }, 26);
+      }, 32);
       loops.push(id);
     }
+    // The scanner sweeps top to bottom; each line decodes the moment the scanner reaches it.
+    const SCAN_MS = 2600;
     function sortIt() {
-      led.classList.remove('on'); placeStamp(); stamp.classList.add('on');
-      later(() => swaps.forEach((el, i) => later(() => decrypt(el, el.dataset.to), i * 90)), 420);
-      later(() => stamp.classList.add('off'), 1100);
+      led.classList.remove('on');
+      const onPaper = swaps.filter((el) => paper.contains(el));
+      const mid = (el) => el.offsetTop + el.offsetHeight / 2;   // relative to .r-inner
+      const y0 = mid(onPaper[0]) - 14, y1 = mid(qq) + 14;
+      scan.classList.remove('go', 'gone'); scan.style.setProperty('--scan-ms', SCAN_MS + 'ms');
+      scan.style.transform = 'translateY(' + y0 + 'px)'; void scan.offsetWidth;
+      scan.classList.add('go'); scan.style.transform = 'translateY(' + y1 + 'px)';
+      onPaper.forEach((el) => later(() => decrypt(el, el.dataset.to), ((mid(el) - y0) / (y1 - y0)) * SCAN_MS));
+      later(() => { scan.classList.add('gone'); qq.classList.add('stamped'); decrypt(rcap, rcap.dataset.to); }, SCAN_MS + 350);
     }
     function print() {
       stop();
       swaps.forEach((el) => { el.textContent = el.dataset.from; el.classList.remove('done'); });
-      stamp.classList.remove('on', 'off'); paper.classList.remove('printing', 'printed');
-      if (reduce) { paper.classList.add('printed'); swaps.forEach((el) => { el.textContent = el.dataset.to; el.classList.add('done'); }); return; }
+      scan.classList.remove('go', 'gone'); qq.classList.remove('stamped'); paper.classList.remove('printing', 'printed');
+      if (reduce) { paper.classList.add('printed'); swaps.forEach((el) => { el.textContent = el.dataset.to; el.classList.add('done'); }); qq.classList.add('stamped'); return; }
       void paper.offsetWidth;            // commit the "hidden in the slot" position before animating
       led.classList.add('on');
       paper.classList.add('printing');
       later(sortIt, 2900);               // let the cryptic version sink in for a moment first
     }
-    window.addEventListener('resize', placeStamp);
     // Start when the fonts are in AND the 3D has drawn its first frames (its setup is heavy); never wait over 3s.
     const fonts = document.fonts ? document.fonts.ready : Promise.resolve();
     const film = new Promise((r) => { window.addEventListener('film-ready', r, { once: true }); setTimeout(r, 3000); });
@@ -919,6 +930,7 @@ async function main() {
   })();
   const bgDark = new THREE.Color(C.ink), bgLight = new THREE.Color('#F4F4F5');
   let L = 0; // 0 = dark, 1 = lights on
+  const SLATE_AT = [-0.9, -2.1, -3.8]; // where the clapperboard stands for LIGHTS ON
 
   // ---------- the coin (the app icon: mint, dot-matrix K) ----------
   const coinFace = (() => {
@@ -1151,6 +1163,136 @@ async function main() {
   const receipt = new THREE.Mesh(new THREE.PlaneGeometry(RW, RH), receiptMat);
   phone.add(receipt);
 
+  // ---------- the clapperboard (LIGHTS ON): "Take 2" of their month ----------
+  // Every field is a fact about the visitor's month, not the shot. It snaps when the lights come on.
+  const slate = new THREE.Group(); slate.scale.setScalar(0.74); stage.add(slate);
+  const slateBody = new THREE.Group(); slate.add(slateBody);
+  const slateCv = document.createElement('canvas'); slateCv.width = 1440; slateCv.height = 1000;
+  const sg2 = slateCv.getContext('2d');
+  const slateTex = new THREE.CanvasTexture(slateCv); slateTex.colorSpace = THREE.SRGBColorSpace; slateTex.anisotropy = 8;
+  function drawSlate() {
+    const g = sg2, chalk = 'rgba(240, 239, 230, .9)';
+    g.fillStyle = '#141414'; g.fillRect(0, 0, 1440, 1000);
+    g.strokeStyle = chalk; g.lineWidth = 6; g.strokeRect(30, 30, 1380, 940); g.lineWidth = 4;
+    [[30, 330, 1410, 330], [30, 650, 1410, 650], [490, 330, 490, 970], [950, 330, 950, 970]].forEach(([a, b, c, d]) => { g.beginPath(); g.moveTo(a, b); g.lineTo(c, d); g.stroke(); });
+    const label = (t, x, y) => { g.font = '700 30px "Space Mono", monospace'; if ('letterSpacing' in g) g.letterSpacing = '6px'; g.fillStyle = 'rgba(240,239,230,.6)'; g.fillText(t, x, y); if ('letterSpacing' in g) g.letterSpacing = '0px'; };
+    // chalk handwriting, shrunk until it fits its box (so a fallback font can't spill into the next cell)
+    const hand = (t, x, y, px, maxW, col) => {
+      do { g.font = '600 ' + px + 'px Caveat, "Segoe Print", "Comic Sans MS", cursive'; px -= 4; } while (g.measureText(t).width > maxW && px > 30);
+      g.fillStyle = col || chalk; g.fillText(t, x, y); return g.measureText(t).width;
+    };
+    label('PROD.', 58, 86);     hand('Broke by the 20th', 66, 268, 176, 1300);
+    label('SCENE', 58, 388);    hand('Week 3', 74, 585, 170, 380);
+    label('TAKE', 518, 388);    hand('1', 560, 590, 200, 120);
+    g.strokeStyle = chalk; g.lineWidth = 12; g.beginPath(); g.moveTo(540, 540); g.lineTo(640, 450); g.stroke();
+    hand('2', 720, 600, 240, 160, '#9FF0CF');
+    label('BUDGET', 978, 388);  const vw = hand('vibes', 1000, 575, 170, 380);
+    g.strokeStyle = 'rgba(240,239,230,.7)'; g.lineWidth = 6; g.beginPath();                      // a wobbly underline: the budget is a feeling
+    for (let x = 0; x <= vw; x += 8) g.lineTo(1000 + x, 605 + Math.sin(x / 18) * 9); g.stroke();
+    label('DIRECTOR', 58, 708); hand('You', 90, 905, 170, 380);
+    label('CAMERA', 518, 708);  hand('KaChingg', 530, 900, 120, 400);
+    label('DATE', 978, 708);    hand('Every month', 990, 895, 120, 400);
+    for (let i = 0; i < 14000; i++) { g.fillStyle = 'rgba(20,20,20,.55)'; g.fillRect(Math.random() * 1440, Math.random() * 1000, 2, 2); }
+    for (let i = 0; i < 16; i++) {
+      const x = Math.random() * 1440, y = Math.random() * 1000, r = 60 + Math.random() * 160, gr = g.createRadialGradient(x, y, 0, x, y, r);
+      gr.addColorStop(0, 'rgba(240,239,230,.05)'); gr.addColorStop(1, 'rgba(240,239,230,0)'); g.fillStyle = gr; g.fillRect(x - r, y - r, r * 2, r * 2);
+    }
+    slateTex.needsUpdate = true;
+  }
+  drawSlate();
+  document.fonts.load('600 80px Caveat').then(drawSlate, () => {});
+  const stripeTex = (flip) => {
+    const c = document.createElement('canvas'); c.width = 1024; c.height = 104; const g = c.getContext('2d');
+    g.fillStyle = '#B9B8B1'; g.fillRect(0, 0, 1024, 104); g.fillStyle = '#111';   // off-white, so the bloom doesn't turn the stripes into neon
+    for (let x = -128; x < 1150; x += 128) { const k = flip ? -1 : 1; g.beginPath(); g.moveTo(x, 0); g.lineTo(x + 64, 0); g.lineTo(x + 64 + k * 60, 104); g.lineTo(x + k * 60, 104); g.closePath(); g.fill(); }
+    const t = new THREE.CanvasTexture(c); t.colorSpace = THREE.SRGBColorSpace; return t;
+  };
+  const slateEdge = new THREE.MeshStandardMaterial({ color: 0x161616, roughness: 0.85, envMapIntensity: 0.4 });
+  const slateFace = new THREE.MeshStandardMaterial({ map: slateTex, roughness: 0.9, envMapIntensity: 0.3 });
+  const slateBoard = new THREE.Mesh(new THREE.BoxGeometry(3.6, 2.5, 0.1), [slateEdge, slateEdge, slateEdge, slateEdge, slateFace, slateEdge]);
+  slateBody.add(slateBoard);
+  const stickLow = new THREE.Mesh(new THREE.BoxGeometry(3.6, 0.36, 0.12), new THREE.MeshStandardMaterial({ map: stripeTex(false), roughness: 0.7, envMapIntensity: 0.25 }));
+  stickLow.position.y = 1.43; slateBody.add(stickLow);
+  const clapPivot = new THREE.Group(); clapPivot.position.set(-1.8, 1.61, 0); slateBody.add(clapPivot);
+  const clapArm = new THREE.Mesh(new THREE.BoxGeometry(3.6, 0.36, 0.12), new THREE.MeshStandardMaterial({ map: stripeTex(true), roughness: 0.7, envMapIntensity: 0.25 }));
+  clapArm.position.set(1.8, 0.18, 0); clapPivot.add(clapArm);
+  const clapHinge = new THREE.Mesh(new THREE.CylinderGeometry(0.07, 0.07, 0.2, 20), new THREE.MeshStandardMaterial({ color: 0x9a9a95, metalness: 0.9, roughness: 0.3 }));
+  clapHinge.rotation.x = Math.PI / 2; clapHinge.position.set(-1.72, 1.61, 0); slateBody.add(clapHinge);
+  let clapSeen = 0, slateAway = 0, armOpen = 0.55, slateLast = 0, audio = null;
+  function clack() {   // only if the visitor has already clicked something: no surprise sound from a scroll
+    if (!(navigator.userActivation && navigator.userActivation.hasBeenActive)) return;
+    try {
+      audio = audio || new (window.AudioContext || window.webkitAudioContext)(); const c = audio, t = c.currentTime;
+      const n = c.createBufferSource(), b = c.createBuffer(1, c.sampleRate * 0.12, c.sampleRate), ch = b.getChannelData(0);
+      for (let i = 0; i < ch.length; i++) ch[i] = Math.random() * 2 - 1;
+      n.buffer = b; const f = c.createBiquadFilter(); f.type = 'bandpass'; f.frequency.value = 2400; f.Q.value = 0.7;
+      const g = c.createGain(); g.gain.setValueAtTime(0.0001, t); g.gain.exponentialRampToValueAtTime(0.6, t + 0.004); g.gain.exponentialRampToValueAtTime(0.0001, t + 0.09);
+      n.connect(f).connect(g).connect(c.destination); n.start(t);
+      const o = c.createOscillator(), g2 = c.createGain(); o.frequency.setValueAtTime(190, t); o.frequency.exponentialRampToValueAtTime(70, t + 0.1);
+      g2.gain.setValueAtTime(0.0001, t); g2.gain.exponentialRampToValueAtTime(0.35, t + 0.004); g2.gain.exponentialRampToValueAtTime(0.0001, t + 0.12);
+      o.connect(g2).connect(c.destination); o.start(t); o.stop(t + 0.15);
+    } catch (e) { /* no sound is fine */ }
+  }
+
+  // ---------- the ending: a KaChingg popcorn bucket. The dots become the popcorn. ----------
+  const bucket = new THREE.Group(); stage.add(bucket);
+  {
+    const c = document.createElement('canvas'); c.width = 2048; c.height = 512; const g = c.getContext('2d');
+    for (let i = 0; i < 24; i++) { g.fillStyle = i % 2 ? '#D8D5CB' : '#56C99C'; g.fillRect(i * (2048 / 24), 0, 2048 / 24 + 1, 512); }   // toned down: bloom
+    g.fillStyle = '#0E0E0D'; g.fillRect(0, 196, 2048, 120);
+    g.font = '700 58px "Space Mono", monospace'; g.fillStyle = '#6EE7B7'; g.textBaseline = 'middle';
+    if ('letterSpacing' in g) g.letterSpacing = '10px';
+    for (let x = 30; x < 2048; x += 1024) g.fillText('KACHINGG · NOW SHOWING ·', x, 258);
+    const t = new THREE.CanvasTexture(c); t.colorSpace = THREE.SRGBColorSpace; t.anisotropy = 8;
+    const cup = new THREE.Mesh(new THREE.CylinderGeometry(1.0, 0.74, 1.9, 64, 1, true), new THREE.MeshStandardMaterial({ map: t, roughness: 0.65, side: THREE.DoubleSide, envMapIntensity: 0.5 }));
+    bucket.add(cup);
+    const rimR = new THREE.Mesh(new THREE.TorusGeometry(1.0, 0.045, 12, 64), new THREE.MeshStandardMaterial({ color: 0xD8D5CB, roughness: 0.5 }));
+    rimR.rotation.x = Math.PI / 2; rimR.position.y = 0.95; bucket.add(rimR);
+    // a buttery mound under the kernels, so no gaps show through to the inside of the bucket
+    const mound = new THREE.Mesh(new THREE.SphereGeometry(0.97, 32, 12, 0, Math.PI * 2, 0, Math.PI / 2), new THREE.MeshStandardMaterial({ color: 0xC9B98A, roughness: 0.9 }));
+    mound.scale.y = 0.42; mound.position.y = 0.9; bucket.add(mound);
+    bucket.userData.hit = [cup, mound];
+  }
+  const POP_N = 100, popPos = [], popScale = [], popSeed = [], popCol = [];
+  {
+    let seed = 7; const rnd = () => ((seed = (seed * 16807) % 2147483647) / 2147483647);
+    for (let k = 0; k < POP_N; k++) {
+      const r = 0.93 * Math.sqrt(rnd()), a = rnd() * Math.PI * 2;
+      const h = 0.04 + 0.5 * (1 - (r / 0.95) ** 2) + rnd() * 0.14;
+      popPos.push(new THREE.Vector3(Math.cos(a) * r, h, Math.sin(a) * r));
+      popScale.push(1.25 + rnd() * 0.55); popSeed.push(rnd() * 40);
+      const butter = rnd() < 0.28;
+      popCol.push(new THREE.Color(butter ? 0xEFCB6A : 0xF4EEDC).multiplyScalar(0.82 + 0.18 * (h / 0.68)));   // lower kernels a touch darker
+    }
+  }
+  const bucketTop = new THREE.Vector3(), popNow = new THREE.Vector3(), popCast = new THREE.Raycaster(), popNdc = new THREE.Vector2();
+  let popAt = -99, bucketIn = 0;
+  function ching() {
+    if (!(navigator.userActivation && navigator.userActivation.hasBeenActive)) return;
+    try {
+      audio = audio || new (window.AudioContext || window.webkitAudioContext)(); const c = audio, t = c.currentTime;
+      [1318.5, 1975.5, 2637].forEach((f, i) => {
+        const o = c.createOscillator(), g = c.createGain(); o.frequency.value = f;
+        g.gain.setValueAtTime(0.0001, t + i * 0.06); g.gain.exponentialRampToValueAtTime(0.06, t + i * 0.06 + 0.005); g.gain.exponentialRampToValueAtTime(0.0001, t + i * 0.06 + 0.6);
+        o.connect(g).connect(c.destination); o.start(t + i * 0.06); o.stop(t + i * 0.06 + 0.65);
+      });
+    } catch (e) { /* no sound is fine */ }
+  }
+  // Click the bucket: everything pops at once.
+  const overBucket = (e) => {
+    popNdc.set((e.clientX / window.innerWidth) * 2 - 1, -(e.clientY / window.innerHeight) * 2 + 1);
+    popCast.setFromCamera(popNdc, camera);
+    return popCast.intersectObjects(bucket.userData.hit, false).length > 0;
+  };
+  window.addEventListener('click', (e) => {
+    if (bucketIn < 0.9 || e.target.closest('a, button, input, label')) return;
+    if (overBucket(e)) { popAt = performance.now() / 1000; ching(); }
+  });
+  window.addEventListener('pointermove', (e) => {
+    if (bucketIn < 0.9) { if (document.body.style.cursor) document.body.style.cursor = ''; return; }
+    document.body.style.cursor = !e.target.closest('a, button') && overBucket(e) ? 'pointer' : '';
+  }, { passive: true });
+
   // ---------- the lock cage (scene 11) ----------
   const cageMat = new THREE.LineBasicMaterial({ color: 0x6ee7b7, transparent: true, opacity: 0, toneMapped: false });
   const cage = new THREE.Group();
@@ -1307,11 +1449,14 @@ async function main() {
     [0.7, [0, 7.5, -1, 1.2]],
     [12.45, [0, 7.5, -1, 1.2]],
     [12.85, [0.3, 0.3, 0, 1.0]],               // back for the download, inside its progress ring
+    [13.62, [0.3, 0.3, 0, 1.0]],
+    [13.95, [0.3, -0.35, 0, 0.5]],             // ...and drops into the popcorn bucket
   ];
 
   const m4 = new THREE.Matrix4(), q = new THREE.Quaternion(), e3 = new THREE.Euler(), v = new THREE.Vector3(), sc = new THREE.Vector3(), col = new THREE.Color();
   let lastGoal = '', pulseAt = -10;
   const ringNow = new THREE.Vector3(), ringAlt = new THREE.Color('#9DEFCB');
+  const yAxis = new THREE.Vector3(0, 1, 0);
   const origin = new THREE.Vector3(), orbit = new THREE.Vector3(), look = new THREE.Vector3(), bar = new THREE.Vector3(), dlPos = new THREE.Vector3();
 
   function update(T, time) {
@@ -1328,10 +1473,10 @@ async function main() {
     hero.position.set(h[0], h[1] + Math.sin(time * 1.2) * 0.08, h[2]);
     hero.scale.setScalar(h[3]);
     hero.rotation.y = time * 0.7 + T * 3.2 + outCubic(range(T, 13.2, 13.6)) * Math.PI * 4;   // a celebratory spin at 100%
-    hero.visible = h[1] < 7;
+    hero.visible = h[1] < 7 && T < 13.93;
 
     // ---- the stack: fall in (scene 01), leak away (02-04), sink (05) ----
-    const sink = range(T, 4.55, 5.0);
+    const sink = range(T, 4.1, 4.4);   // the last coins step aside for the clapperboard
     const dim = range(T, 3.4, 4.0) * (1 - range(T, 4.6, 5.0));
     // House lights down for the maker's scene.
     const spot = range(T, 11.5, 11.9) * (1 - range(T, 12.45, 12.8));
@@ -1367,7 +1512,7 @@ async function main() {
           labelIdx++;
         }
       } else {
-        // The last two coins: wobble in the dark, then sink when the idea arrives.
+        // The last two coins: wobble in the dark, then sink as the clapperboard comes in.
         rz = Math.sin(time * 3 + i) * 0.12 * dim * (i === 1 ? 1 : 0.3);
         y -= sink * 2.5; op *= 1 - sink;
       }
@@ -1380,6 +1525,40 @@ async function main() {
     phone.position.set(p[0], p[1], p[2]); phone.rotation.set(p[3], p[4], p[5]);
     phone.visible = T > 4.45 && p[1] > -8.5;
 
+    // ---- the clapperboard: brought in for LIGHTS ON, snaps when the lights come on, pulled out of shot ----
+    {
+      const now = performance.now(), dts = Math.min(0.05, (now - (slateLast || now)) / 1000); slateLast = now;
+      const clapAt = window.filmClapAt || 0, since = clapAt ? (now - clapAt) / 1000 : -1;
+      const enter = smooth(range(T, 4.02, 4.4)) * (1 - range(T, 5.2, 5.5));
+      if (clapAt && clapAt !== clapSeen) { clapSeen = clapAt; if (enter > 0.5 && !reduceMotion) clack(); }
+      let jolt = 0;
+      if (since >= 0) {
+        if (reduceMotion) { armOpen = 0; slateAway = 1; }
+        else {
+          armOpen = since < 0.12 ? 0.55 * (1 - Math.pow(since / 0.12, 3)) : 0.06 * Math.max(0, Math.sin(Math.PI * clamp((since - 0.12) / 0.16)));
+          slateAway = clamp((since - 0.95) / 0.6);
+          jolt = since > 0.12 ? Math.exp(-(since - 0.12) * 14) * 0.06 : 0;
+        }
+      } else {   // lights back off (scrolled up): the slate comes back in, arm up, ready for take 2 again
+        slateAway += (0 - slateAway) * (1 - Math.exp(-dts * 5));
+        armOpen += (0.55 + Math.sin(time * 1.7) * 0.03 - armOpen) * (1 - Math.exp(-dts * 6));
+      }
+      slate.visible = enter > 0.01 && slateAway < 0.999;
+      if (slate.visible) {
+        clapPivot.rotation.z = armOpen;
+        slate.position.set(SLATE_AT[0] + (Math.random() - 0.5) * jolt, SLATE_AT[1] - (1 - enter) * 5 + Math.sin(time * 0.9) * 0.05 - slateAway * slateAway * 8 + (Math.random() - 0.5) * jolt, SLATE_AT[2]);
+        slate.rotation.set(-0.06 + (1 - enter) * 0.5, -0.38 + Math.sin(time * 0.6) * 0.06, -0.05 + slateAway * 0.3 - (1 - enter) * 0.3);
+      }
+    }
+
+    // ---- the popcorn bucket (credits + post-credits) ----
+    bucketIn = smooth(range(T, 13.45, 13.85));
+    bucket.visible = bucketIn > 0.01;
+    bucket.position.set(0.3, -1.25 - (1 - bucketIn) * 6, 0);
+    bucket.rotation.set(0.1, time * 0.15, 0);
+    bucketTop.set(bucket.position.x, bucket.position.y + 0.95, bucket.position.z);
+    const burstT = performance.now() / 1000 - popAt;
+
     // screen content
     let caught = 0, pressed = false;
     const pickVis = range(T, -2.6, -2.3) * (1 - range(T, -1.45, -1.15));
@@ -1387,6 +1566,17 @@ async function main() {
     catches.forEach((c, j) => {
       if (T > 13.1) {   // KA-CHING: the download hits 100% and coins burst out
         const bt = range(T, 13.24 + j * 0.015, 13.62 + j * 0.015);
+        if (bt >= 1 && bucketIn > 0.9) {   // a coin pops out of the popcorn now and then (all of them when you click)
+          let u = ((time * 0.42 + j * 1.37) % 6.5) / 1.15;
+          if (burstT >= 0 && burstT < 1.3) u = clamp((burstT - j * 0.05) / 1.15);
+          c.visible = u > 0 && u < 1;
+          if (c.visible) {
+            const a = j * 1.05;
+            c.position.set(bucketTop.x + Math.cos(a) * (0.3 + u * 1.3), bucketTop.y + 0.3 + Math.sin(u * Math.PI) * 1.8, bucketTop.z + Math.sin(a) * 0.4 + 0.3);
+            c.rotation.set(time * 4 + j, time * 5, 0); c.scale.setScalar(0.34 * (1 - range(u, 0.8, 1)));
+          }
+          return;
+        }
         c.visible = bt > 0 && bt < 1;
         if (c.visible) {
           const a = (j / 6) * Math.PI * 2 + 0.4, d = 0.6 + 3.2 * outCubic(bt);
@@ -1505,10 +1695,14 @@ async function main() {
       const da = Math.PI / 2 - (Math.PI * 2 * k) / N;
       dlPos.set(hero.position.x + Math.cos(da) * 1.6, hero.position.y + Math.sin(da) * 1.6, hero.position.z + 0.25);
       v.lerp(dlPos, e13); s = lerp(s, 0.62, e13); col.lerp(k < dlLit ? mint : dimRing, e13);
-      // 6. the credits orbit
-      const a = (Math.PI * 2 * k) / N + time * 0.25;
-      orbit.set(0.3 + Math.cos(a) * 1.85, 0.4 + Math.sin(a) * 0.95, Math.sin(a) * 1.35);
-      v.lerp(orbit, e14); s = lerp(s, 0.6, e14); col.lerp(k % 3 === 0 ? mint : starCol, e14);
+      // 6. popcorn: piled over the bucket's rim, a kernel popping every so often (the lot when you click)
+      if (e14 > 0) {
+        orbit.copy(popPos[k]).applyAxisAngle(yAxis, bucket.rotation.y).add(bucketTop);
+        let u = ((time * 0.5 + popSeed[k]) % 8) / 0.75;                       // u in 0..1 = this kernel is mid-pop
+        if (burstT >= 0 && burstT < 1.2) u = clamp((burstT - (k % 12) * 0.025) / 0.9);
+        if (u < 1) { orbit.y += Math.sin(u * Math.PI) * (burstT < 1.2 ? 1.9 : 1.1); orbit.x += (popSeed[k] % 1 - 0.5) * u * 0.8; orbit.z += 0.25 * u; }
+        v.lerp(orbit, e14); s = lerp(s, popScale[k], e14); col.lerp(popCol[k], e14);
+      }
       sc.setScalar(Math.max(s, 0.0001));
       m4.compose(v, q.identity(), sc);
       dots.setMatrixAt(k, m4); dots.setColorAt(k, col);
