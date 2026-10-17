@@ -21,9 +21,10 @@
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Doto:wght@900&family=Space+Grotesk:wght@400;500&family=Space+Mono:wght@400;700&display=swap">
 <style>
-/* Layout: a film. A fixed WebGL stage fills the screen; one short scene of copy per screen-height
-   scrolls over it on the left, and the 3D action plays on the right. Scroll position = film time.
-   One committed dark look (a cinema), so no light theme. */
+/* Layout: a film. A fixed WebGL stage fills the screen; one short scene of copy at a time sits over it,
+   and the 3D plays on the other side. Scroll position = film time.
+   Theme is part of the story: the problem plays in the dark, the lights come on (html.light) for the
+   solution, and dim again for the credits. Both palettes are KaChingg's own app themes. */
 :root {
   --ink: #0A0A0A;        /* the theatre */
   --panel: #121211;      /* raised surfaces */
@@ -33,10 +34,20 @@
   --muted: #8A8A85;      /* labels */
   --mint: #6EE7B7;       /* money in, the coin, "go" */
   --red: #F0442E;        /* money out */
+  --mint-fill: #6EE7B7;   /* mint as a fill, always with dark text on it */
+  --veil: 10, 10, 10;     /* the page colour, for the readability veils */
+  --tick-done: #4A4A47;
+  --cat-food: #EDEDE8; --cat-fun: #F0442E; --cat-travel: #8A8A85; --cat-other: #4A4A47;
   --f-display: "Doto", "Space Mono", ui-monospace, monospace;   /* dot-matrix, like the app icon's K */
   --f-body: "Space Grotesk", system-ui, sans-serif;
   --f-mono: "Space Mono", ui-monospace, monospace;
   color-scheme: dark;
+}
+html.light {
+  --ink: #F4F4F5; --panel: #FFFFFF; --line: #E2E2E4; --fg: #111111; --dim: #3F3F44; --muted: #6B6B70;
+  --mint: #0E8A5F; --veil: 244, 244, 245; --tick-done: #B5B5BA;
+  --cat-food: #1A1A1A; --cat-travel: #8E8E94; --cat-other: #D4D4D8;
+  color-scheme: light;
 }
 html { background: var(--ink); scroll-behavior: auto; }
 body { background: var(--ink); color: var(--fg); font-family: var(--f-body); }
@@ -46,9 +57,9 @@ body::before { content: ""; position: fixed; inset: 0 0 auto; height: env(safe-a
 /* Keeps copy readable over the 3D: darkens the left (desktop) or bottom (phone) edge only. */
 /* Veils keep copy readable over the 3D. The film fades between them as the text changes sides. */
 .veil { position: fixed; inset: 0; z-index: 1; pointer-events: none; }
-.veil-l { background: linear-gradient(90deg, rgba(10,10,10,.82) 0%, rgba(10,10,10,.45) 34%, rgba(10,10,10,0) 55%); }
-.veil-r { background: linear-gradient(270deg, rgba(10,10,10,.82) 0%, rgba(10,10,10,.45) 34%, rgba(10,10,10,0) 55%); opacity: 0; }
-.veil-b { display: none; background: linear-gradient(0deg, rgba(10,10,10,.92) 0%, rgba(10,10,10,.6) 38%, rgba(10,10,10,0) 60%); }
+.veil-l { background: linear-gradient(90deg, rgba(var(--veil), .82) 0%, rgba(var(--veil), .45) 34%, rgba(var(--veil), 0) 55%); }
+.veil-r { background: linear-gradient(270deg, rgba(var(--veil), .82) 0%, rgba(var(--veil), .45) 34%, rgba(var(--veil), 0) 55%); opacity: 0; }
+.veil-b { display: none; background: linear-gradient(0deg, rgba(var(--veil), .92) 0%, rgba(var(--veil), .6) 38%, rgba(var(--veil), 0) 60%); }
 
 /* ---------- chrome: top bar + film timeline ---------- */
 .bar { position: fixed; top: 0; left: 0; right: 0; z-index: 5; display: flex; align-items: center; justify-content: space-between; gap: 16px;
@@ -70,7 +81,7 @@ body::before { content: ""; position: fixed; inset: 0 0 auto; height: env(safe-a
 .timeline .title { font-family: var(--f-mono); font-size: 11px; letter-spacing: .18em; color: var(--muted); min-width: 11em; white-space: nowrap; }
 .ticks { flex: 1; display: grid; grid-auto-flow: column; grid-auto-columns: minmax(0, 1fr); gap: 6px; align-items: center; }
 .ticks span { height: 2px; background: var(--line); border-radius: 1px; transition: background-color .3s ease, height .3s ease; }
-.ticks span.done { background: #4A4A47; }
+.ticks span.done { background: var(--tick-done); }
 .ticks span.now { background: var(--mint); height: 4px; }
 
 /* ---------- the scenes ---------- */
@@ -83,6 +94,35 @@ main { position: relative; z-index: 2; }
   padding-left: max(24px, env(safe-area-inset-left, 0px)); padding-right: max(24px, env(safe-area-inset-right, 0px)); }
 .copy { max-width: min(34rem, 42vw); margin-left: 4vw; display: flex; flex-direction: column; gap: 22px; will-change: opacity, transform; }
 /* Where each scene's copy sits (data-pos): l / r, optionally t(op) or b(ottom). The 3D pans to the other side. */
+/* Centre (the cold open): copy low and centred, the 3D above it. */
+.ch[data-pos="c"] .stick { justify-content: center; align-items: flex-end; padding-bottom: 11vh; }
+.ch[data-pos="c"] .copy { margin: 0 auto; max-width: min(52rem, 92vw); align-items: center; text-align: center; }
+/* .copy .hook, not .hook: it must outrank the generic ".copy p" rule (specificity 0,1,1). */
+.copy .hook { margin: 0; max-width: none; color: var(--fg); font-family: var(--f-display); font-weight: 900; font-size: clamp(2.8rem, 7vw, 7rem); line-height: .95; white-space: nowrap; letter-spacing: -.01em; }
+.hook .rs { font-family: var(--f-mono); font-weight: 700; font-size: .78em; vertical-align: .06em; margin-right: .04em; } /* Doto has no ₹; Space Mono does */
+.copy .hook-sub { margin: 0; max-width: 34rem; font-size: clamp(1.15rem, 1.6vw, 1.5rem); color: var(--dim); }
+.tally-line { font-family: var(--f-mono); font-size: 13px; letter-spacing: .2em; color: var(--muted); font-variant-numeric: tabular-nums; }
+.copy .tally { color: var(--mint); text-shadow: 0 0 28px rgba(110, 231, 183, .35); font-variant-numeric: tabular-nums; }
+
+.rs-mini { font-family: var(--f-mono); }
+.chips { display: flex; flex-wrap: wrap; justify-content: center; gap: 10px; max-width: 42rem; }
+.ch:not([data-pos="c"]) .chips { justify-content: flex-start; }
+.chip { min-height: 44px; padding: 0 16px; border-radius: 999px; border: 1px solid var(--line); background: var(--panel); color: var(--fg);
+  font-family: var(--f-mono); font-size: 12px; letter-spacing: .12em; cursor: pointer; display: inline-flex; align-items: center; gap: 10px;
+  transition: background-color .15s ease, color .15s ease, transform .15s ease; }
+.chip b { font-weight: 700; color: var(--muted); }
+.chip[aria-pressed="true"] { background: var(--mint-fill); border-color: var(--mint-fill); color: #0A0A0A; }
+.chip[aria-pressed="true"] b { color: #0A0A0A; }
+.chip:active { transform: translateY(2px); }
+.chip:focus-visible, .switch:focus-visible { outline: 2px solid var(--mint); outline-offset: 3px; }
+.switch { align-self: flex-start; display: inline-flex; align-items: center; gap: 16px; min-height: 64px; padding: 8px 24px 8px 8px; border-radius: 999px; border: 1px solid var(--line);
+  background: var(--panel); color: var(--fg); font-family: var(--f-mono); font-size: 13px; letter-spacing: .2em; cursor: pointer; }
+.switch .knob-track { width: 84px; height: 48px; border-radius: 24px; background: #1A1A19; position: relative; box-shadow: inset 0 2px 6px rgba(0,0,0,.6); }
+.switch .knob { position: absolute; top: 6px; left: 6px; width: 36px; height: 36px; border-radius: 50%; background: #3A3A38;
+  transition: transform .25s cubic-bezier(.3, 1.4, .5, 1), background-color .2s ease, box-shadow .2s ease; }
+.switch[aria-pressed="true"] .knob { transform: translateX(36px); background: #6EE7B7; box-shadow: 0 0 18px rgba(110, 231, 183, .7); }
+@media (prefers-reduced-motion: reduce) { .switch .knob, .chip { transition: none; } }
+
 /* With JS, every scene's copy lives on one fixed layer and the script alone decides where it is and how visible,
    so text can never drift into the top bar or under the 3D. Hidden copies get visibility:hidden (no stray clicks). */
 html.js .stick { position: fixed; inset: 0; height: auto; pointer-events: none; }
@@ -115,7 +155,7 @@ h2 { font-size: clamp(2.6rem, 5.2vw, 5.6rem); }
 .tag { align-self: flex-start; font-family: var(--f-mono); font-weight: 700; font-size: 12px; letter-spacing: .24em; color: var(--ink); background: var(--fg); padding: 7px 12px; border-radius: 6px; }
 
 .cta-row { display: flex; flex-wrap: wrap; gap: 12px; align-items: center; }
-.btn-mint { background: var(--mint); color: var(--ink); min-height: 60px; padding: 0 26px; font-size: 13px; font-weight: 700; box-shadow: 0 3px 0 #2E9C73; }
+.btn-mint { background: var(--mint-fill); color: #0A0A0A; min-height: 60px; padding: 0 26px; font-size: 13px; font-weight: 700; box-shadow: 0 3px 0 #2E9C73; }
 .btn-mint:hover { background: #8BF0C8; }
 .btn-mint[aria-disabled="true"] { background: var(--panel); color: var(--muted); box-shadow: 0 3px 0 #050505; border-color: var(--line); cursor: default; }
 .fine { font-family: var(--f-mono); font-size: 11px; letter-spacing: .16em; color: var(--muted); }
@@ -135,6 +175,8 @@ h2 { font-size: clamp(2.6rem, 5.2vw, 5.6rem); }
   .veil-b { display: block; }
   .ch[data-pos] .stick { justify-content: flex-start; align-items: flex-end; padding-top: 0; padding-bottom: 96px; }
   .ch[data-pos] .copy { margin-left: 0; margin-right: 0; }
+  .ch[data-pos="c"] .stick { justify-content: center; }
+  .ch[data-pos="c"] .copy { margin: 0 auto; }
   .copy { max-width: 100%; margin-left: 0; gap: 16px; }
   .scene-no { display: none; }
   .timeline .title { min-width: 0; }
@@ -159,115 +201,187 @@ html.flat body { background-image: radial-gradient(#1E1E1C 1px, transparent 1px)
   <a class="btn btn-light" href="#get">GET THE BETA</a>
 </header>
 
-<!-- The APK link: paste it into data-apk-url below. Empty = the download button says "coming soon". -->
-<!-- data-pos: where the copy sits (l, r, tl, tr, bl, br). Sides change by act (problem = left, the app = right),
-     so the camera only pans a few times. data-move: which way the copy drifts as you scroll (x,y). -->
+<!-- data-t: the 3D story time this scene plays at. data-pos: where its copy sits (c, l, r, tl, tr, bl, br).
+     data-move: which way the copy drifts as you scroll (x,y). data-no: the label in the top bar.
+     The APK link goes in data-apk-url; empty = the download button says "coming soon". -->
 <main id="film" data-apk-url="https://github.com/BOOMER16/KACHINGG/releases/latest/download/KaChingg.apk">
-  <section class="ch first" id="top" data-title="OPENING" data-pos="l" data-move="0,-1">
+
+  <section class="ch first" id="top" data-t="-3" data-no="COLD OPEN" data-title="COLD OPEN" data-pos="c" data-move="0,-1">
+    <div class="stick"><div class="copy">
+      <p class="hook"><span class="rs">₹</span>20 a day.</p>
+      <p class="hook-sub">Doesn't sound like much, right?</p>
+      <span class="cue"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M12 4v15"></path><path d="M6 13l6 6 6-6"></path></svg>SCROLL</span>
+    </div></div>
+  </section>
+
+  <section class="ch" data-t="-2" data-no="COLD OPEN" data-title="YOUR HABITS" data-pos="c" data-move="0,-1">
+    <div class="stick"><div class="copy">
+      <span class="tally-line">WHAT DO YOU SPEND ON, MOST DAYS?</span>
+      <div class="chips" role="group" aria-label="Your daily spends">
+        <button type="button" class="chip habit" id="h-chai" data-cost="20" aria-pressed="true">CHAI <b>₹20</b></button>
+        <button type="button" class="chip habit" id="h-auto" data-cost="45" aria-pressed="true">AUTO <b>₹45</b></button>
+        <button type="button" class="chip habit" id="h-snacks" data-cost="30" aria-pressed="true">SNACKS <b>₹30</b></button>
+        <button type="button" class="chip habit" id="h-momos" data-cost="60" aria-pressed="false">MOMOS <b>₹60</b></button>
+        <button type="button" class="chip habit" id="h-coffee" data-cost="90" aria-pressed="false">COLD COFFEE <b>₹90</b></button>
+        <button type="button" class="chip habit" id="h-swiggy" data-cost="150" aria-pressed="false">SWIGGY <b>₹150</b></button>
+      </div>
+      <p class="hook" aria-live="polite"><span class="rs">₹</span><span class="js-perday">95</span> a day.</p>
+      <p class="hook-sub" id="perDaySub">Tap what's true for you. Be honest, nobody's watching.</p>
+    </div></div>
+  </section>
+
+  <section class="ch" data-t="-1" data-no="COLD OPEN" data-title="THE MATHS" data-pos="c" data-move="0,-1">
+    <div class="stick"><div class="copy">
+      <span class="tally-line"><span class="rs-mini">₹</span><span class="js-perday">95</span> × DAY <span id="tallyDays">1,460</span></span>
+      <p class="hook tally"><span class="rs">₹</span><span id="tally">1,38,700</span></p>
+      <p class="hook-sub" id="degreeLine">That's <strong>₹1.39 lakh</strong> over a 4-year degree. On stuff you won't even remember buying.</p>
+    </div></div>
+  </section>
+
+  <section class="ch" data-t="0" data-no="OPENING" data-title="OPENING" data-pos="l" data-move="0,-1">
     <div class="stick"><div class="copy">
       <span class="eyebrow"><i class="in"></i>A SHORT FILM ABOUT YOUR MONEY</span>
       <h1>Know where it went.</h1>
-      <p><strong>KaChingg</strong> is a tiny budgeting app for every college student who has ever said <strong>"bro, where did my money go?"</strong></p>
-      <span class="cue"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M12 4v15"></path><path d="M6 13l6 6 6-6"></path></svg>SCROLL TO PLAY</span>
+      <p><strong>KaChingg.</strong> A tiny budgeting app for college students.</p>
     </div></div>
   </section>
-  <section class="ch" data-title="DAY ONE" data-pos="l" data-move="-1,0">
+
+  <section class="ch" data-t="1" data-no="SC. 01 / 15" data-title="DAY ONE" data-pos="l" data-move="-1,0">
     <div class="stick"><div class="copy">
       <span class="eyebrow"><i class="in"></i>SC. 01 · DAY ONE</span>
       <h2>It starts on the 1st.</h2>
       <p>The allowance lands. <strong>₹5,000.</strong> For about 48 hours, you're basically a billionaire.</p>
     </div></div>
   </section>
-  <section class="ch" data-title="THE LEAK" data-pos="bl" data-move="-1,1">
+
+  <section class="ch" data-t="2" data-no="SC. 02 / 15" data-title="THE LEAK" data-pos="bl" data-move="-1,1">
     <div class="stick"><div class="copy">
       <span class="eyebrow"><i></i>SC. 02 · THE LEAK</span>
       <h2>Then it leaks.</h2>
       <p>Chai ₹20. Auto ₹45. Maggi ₹30. <strong>Not one of them felt like spending.</strong></p>
     </div></div>
   </section>
-  <section class="ch" data-title="INVISIBLE" data-pos="l" data-move="-1,-1">
+
+  <section class="ch" data-t="3" data-no="SC. 03 / 15" data-title="INVISIBLE" data-pos="l" data-move="-1,-1">
     <div class="stick"><div class="copy">
       <span class="eyebrow"><i></i>SC. 03 · INVISIBLE</span>
       <h2>UPI made it invisible.</h2>
       <p>Scan. Beep. Done. No cash leaves your hand, so your brain never files it under "spent".</p>
     </div></div>
   </section>
-  <section class="ch" data-title="WEEK THREE" data-pos="tl" data-move="0,-1">
+
+  <section class="ch" data-t="4" data-no="SC. 04 / 15" data-title="WEEK THREE" data-pos="tl" data-move="0,-1">
     <div class="stick"><div class="copy">
       <span class="eyebrow"><i></i>SC. 04 · WEEK THREE</span>
       <h2>Where did it all go?</h2>
       <p>Week three. You open your bank app like it's your exam result.</p>
     </div></div>
   </section>
-  <section class="ch" data-title="THE IDEA" data-pos="r" data-move="-1,0">
+
+  <section class="ch" data-t="4.5" data-no="SC. 05 / 15" data-title="LIGHTS ON" data-pos="l" data-move="0,-1">
     <div class="stick"><div class="copy">
-      <span class="eyebrow"><i class="in"></i>SC. 05 · THE IDEA</span>
+      <span class="eyebrow"><i class="in"></i>SC. 05 · LIGHTS ON</span>
+      <h2>Okay. Enough sad music.</h2>
+      <p class="hook-sub">Most money apps feel like a dark room full of charts. Let's turn the lights on.</p>
+      <button type="button" class="switch" id="lightSwitch" aria-pressed="false">
+        <span class="knob-track" aria-hidden="true"><span class="knob"></span></span>
+        <span id="lightLabel">LIGHTS OFF</span>
+      </button>
+      <span class="fine">PSST · THE APP HAS A LIGHT MODE TOO</span>
+    </div></div>
+  </section>
+
+  <section class="ch" data-t="5" data-no="SC. 06 / 15" data-title="THE IDEA" data-pos="r" data-move="-1,0">
+    <div class="stick"><div class="copy">
+      <span class="eyebrow"><i class="in"></i>SC. 06 · THE IDEA</span>
       <h2>Make logging faster than forgetting.</h2>
       <p>If writing it down takes longer than paying, you won't do it. Nobody does. So it takes two taps.</p>
     </div></div>
   </section>
-  <section class="ch" data-title="TWO TAPS" data-pos="br" data-move="-1,1">
+
+  <section class="ch" data-t="6" data-no="SC. 07 / 15" data-title="TWO TAPS" data-pos="br" data-move="-1,1">
     <div class="stick"><div class="copy">
-      <span class="eyebrow"><i class="in"></i>SC. 06 · TWO TAPS</span>
+      <span class="eyebrow"><i class="in"></i>SC. 07 · TWO TAPS</span>
       <h2>Spent. Amount. Done.</h2>
       <p>Straight from your home screen, before the auto even pulls away.</p>
     </div></div>
   </section>
-  <section class="ch" data-title="ONE NUMBER" data-pos="r" data-move="-1,-1">
+
+  <section class="ch" data-t="7" data-no="SC. 08 / 15" data-title="ONE NUMBER" data-pos="r" data-move="-1,-1">
     <div class="stick"><div class="copy">
-      <span class="eyebrow"><i class="in"></i>SC. 07 · ONE NUMBER</span>
+      <span class="eyebrow"><i class="in"></i>SC. 08 · ONE NUMBER</span>
       <h2>Safe to spend today.</h2>
       <p>One number that answers <strong>"can I afford the momos?"</strong> before you order them.</p>
     </div></div>
   </section>
-  <section class="ch" data-title="WHERE IT WENT" data-pos="tr" data-move="0,-1">
+
+  <section class="ch" data-t="8" data-no="SC. 09 / 15" data-title="WHERE IT WENT" data-pos="tr" data-move="0,-1">
     <div class="stick"><div class="copy">
-      <span class="eyebrow"><i class="in"></i>SC. 08 · WHERE IT WENT</span>
+      <span class="eyebrow"><i class="in"></i>SC. 09 · WHERE IT WENT</span>
       <h2>Every rupee, as 100 dots.</h2>
       <p>Plot twist: 23 of them were "just one more Swiggy order".</p>
       <div class="legend" aria-label="This month: food 41, fun 23, travel 21, other 15">
-        <span><b style="background: #EDEDE8"></b>FOOD 41</span>
-        <span><b style="background: #F0442E"></b>FUN 23</span>
-        <span><b style="background: #8A8A85"></b>TRAVEL 21</span>
-        <span><b style="background: #4A4A47"></b>OTHER 15</span>
+        <span><b style="background: var(--cat-food)"></b>FOOD 41</span>
+        <span><b style="background: var(--cat-fun)"></b>FUN 23</span>
+        <span><b style="background: var(--cat-travel)"></b>TRAVEL 21</span>
+        <span><b style="background: var(--cat-other)"></b>OTHER 15</span>
       </div>
     </div></div>
   </section>
-  <section class="ch" data-title="SAVING FOR" data-pos="r" data-move="-1,0">
+
+  <section class="ch" data-t="8.55" data-no="SC. 10 / 15" data-title="SAVING FOR" data-pos="r" data-move="-1,0">
     <div class="stick"><div class="copy">
-      <span class="eyebrow"><i class="in"></i>SC. 09 · SAVING FOR</span>
-      <h2>Save up for the thing you want.</h2>
-      <p>Headphones. The Goa trip. Concert tickets. Watch the ring fill, and know the day you'll get there.</p>
+      <span class="eyebrow"><i class="in"></i>SC. 10 · SAVING FOR</span>
+      <h2>What would you save up for?</h2>
+      <div class="chips" role="group" aria-label="Pick a goal">
+        <button type="button" class="chip goal" id="g-headphones" data-cost="3000" data-name="HEADPHONES" data-line="New headphones in {n} days." aria-pressed="true">HEADPHONES <b>~₹3K</b></button>
+        <button type="button" class="chip goal" id="g-concert" data-cost="5000" data-name="CONCERT" data-line="That concert in {n} days." aria-pressed="false">CONCERT <b>~₹5K</b></button>
+        <button type="button" class="chip goal" id="g-goa" data-cost="12000" data-name="GOA TRIP" data-line="Goa in {n} days." aria-pressed="false">GOA TRIP <b>~₹12K</b></button>
+        <button type="button" class="chip goal" id="g-phone" data-cost="15000" data-name="NEW PHONE" data-line="A new phone in {n} days." aria-pressed="false">NEW PHONE <b>~₹15K</b></button>
+      </div>
+      <p>Pick one. We'll do the maths with your <strong>₹<span class="js-perday">95</span> a day</strong>.</p>
     </div></div>
   </section>
-  <section class="ch" data-title="THE RECEIPT" data-pos="tr" data-move="-1,1">
+
+  <section class="ch" data-t="9" data-no="SC. 11 / 15" data-title="YOUR GOAL" data-pos="r" data-move="0,-1">
     <div class="stick"><div class="copy">
-      <span class="eyebrow"><i class="in"></i>SC. 10 · THE RECEIPT</span>
+      <span class="eyebrow"><i class="in"></i>SC. 11 · YOUR GOAL</span>
+      <h2 id="goalHeadline">New headphones in 32 days.</h2>
+      <p>That's just your ₹<span class="js-perday">95</span> a day, kept instead of leaked. KaChingg sets it aside and counts the days down with you.</p>
+    </div></div>
+  </section>
+
+  <section class="ch" data-t="10" data-no="SC. 12 / 15" data-title="THE RECEIPT" data-pos="tr" data-move="-1,1">
+    <div class="stick"><div class="copy">
+      <span class="eyebrow"><i class="in"></i>SC. 12 · THE RECEIPT</span>
       <h2>Print today's receipt.</h2>
       <p>Close out the day like a shopkeeper. Went over? It just says so. No lecture. Tomorrow's a fresh receipt.</p>
     </div></div>
   </section>
-  <section class="ch" data-title="PRIVATE" data-pos="br" data-move="-1,-1">
+
+  <section class="ch" data-t="11" data-no="SC. 13 / 15" data-title="PRIVATE" data-pos="br" data-move="-1,-1">
     <div class="stick"><div class="copy">
-      <span class="eyebrow"><i class="in"></i>SC. 11 · PRIVATE</span>
+      <span class="eyebrow"><i class="in"></i>SC. 13 · PRIVATE</span>
       <h2>It stays on your phone.</h2>
       <p>No account. No bank login. No servers. <strong>Not even I can see what you spend.</strong></p>
     </div></div>
   </section>
-  <section class="ch long" data-title="A FILM BY ARY" data-pos="l" data-move="0,-1">
+
+  <section class="ch long" data-t="12" data-no="SC. 14 / 15" data-title="A FILM BY ARY" data-pos="l" data-move="0,-1">
     <div class="stick"><div class="copy maker">
-      <span class="eyebrow"><i class="in"></i>SC. 12 · A FILM BY</span>
+      <span class="eyebrow"><i class="in"></i>SC. 14 · A FILM BY</span>
       <h2 class="hello">Hi, I'm<span class="name" id="aryName" aria-hidden="true">ARY</span><span class="sr">ARY</span></h2>
       <p>First-year B.Tech CSE, specialising in cybersecurity. I made KaChingg.</p>
       <span class="tag">SYNTAX TERROR</span>
       <p>A community I started with my friends. B.Tech students, learning and building together.</p>
     </div></div>
   </section>
-  <section class="ch" id="get" data-title="YOUR TURN" data-pos="r" data-move="-1,0">
+
+  <section class="ch" id="get" data-t="13" data-no="SC. 15 / 15" data-title="YOUR TURN" data-pos="r" data-move="-1,0">
     <div class="stick"><div class="copy">
-      <span class="eyebrow"><i class="in"></i>SC. 13 · YOUR TURN</span>
+      <span class="eyebrow"><i class="in"></i>SC. 15 · YOUR TURN</span>
       <h2>Try it for three days.</h2>
-      <p>Log everything, even the ₹10 chai. Then roast it. I want to know what felt off.</p>
+      <p>Your ₹<span class="js-perday">95</span> a day is in there somewhere. Go find it. Log everything, then roast the app. I want to know what felt off.</p>
       <div class="cta-row">
         <a class="btn btn-mint" id="apk" href="#get">
           <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" aria-hidden="true"><path d="M12 4v12"></path><path d="M6 10l6 6 6-6"></path><path d="M4 20h16"></path></svg>
@@ -283,13 +397,13 @@ html.flat body { background-image: radial-gradient(#1E1E1C 1px, transparent 1px)
     </div></div>
   </section>
 
-  <footer class="ch credits" data-title="CREDITS" data-pos="r" data-move="0,-1">
+  <footer class="ch credits" data-t="14" data-no="CREDITS" data-title="CREDITS" data-pos="r" data-move="0,-1">
     <div class="stick"><div class="copy">
       <span class="eyebrow"><i class="in"></i>END CREDITS</span>
       <dl>
         <dt>WRITTEN, DESIGNED &amp; BUILT BY</dt><dd>ARY</dd>
         <dt>WITH</dt><dd>SYNTAX TERROR</dd>
-        <dt>STARRING</dt><dd>YOUR ALLOWANCE</dd>
+        <dt>STARRING</dt><dd>YOUR ₹<span class="js-perday">95</span> A DAY</dd>
         <dt>SPECIAL APPEARANCE</dt><dd>2 AM MAGGI</dd>
         <dt>FEEDBACK</dt><dd>SETTINGS → SEND FEEDBACK</dd>
       </dl>
@@ -312,10 +426,15 @@ html.flat body { background-image: radial-gradient(#1E1E1C 1px, transparent 1px)
 </script>
 
 <script>
-// ---- Copy, timeline and download link: plain DOM, works even if the 3D never loads. ----
+// ---- Copy, the visitor's numbers, the lights and the timeline: plain DOM, works even if the 3D never loads. ----
 (function () {
-  document.documentElement.classList.add('js');
+  const root = document.documentElement;
+  root.classList.add('js');
   const sections = Array.from(document.querySelectorAll('#film > section, #film > footer'));
+  const STORY = sections.map((s, i) => (s.dataset.t !== undefined ? parseFloat(s.dataset.t) : i));
+  const clamp = (x) => Math.max(0, Math.min(1, x));
+  const reduce = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+
   const ticks = document.getElementById('ticks');
   sections.forEach(() => ticks.appendChild(document.createElement('span')));
   const tickEls = Array.from(ticks.children);
@@ -328,26 +447,105 @@ html.flat body { background-image: radial-gradient(#1E1E1C 1px, transparent 1px)
   if (url) { apk.href = url; apk.target = '_blank'; apk.rel = 'noopener'; }
   else { apk.setAttribute('aria-disabled', 'true'); document.getElementById('apkLabel').textContent = 'APK LINK COMING SOON'; }
 
-  // Film time: scene i plays at time i. Each scene's "anchor" is the scroll position where its copy
-  // sits pinned mid-screen, so scenes can be different lengths and the 3D still lines up.
+  // ---------- the visitor's own numbers: their daily habits and the thing they'd save for ----------
+  const DAYS = 1460; // a 4-year degree
+  const fmt = (n) => n.toLocaleString('en-IN');
+  const habitBtns = Array.from(document.querySelectorAll('.habit'));
+  const goalBtns = Array.from(document.querySelectorAll('.goal'));
+  const pressed = (b) => b.getAttribute('aria-pressed') === 'true';
+  const perDay = () => habitBtns.reduce((t, b) => t + (pressed(b) ? +b.dataset.cost : 0), 0);
+  function goal() {
+    const b = goalBtns.find(pressed) || goalBtns[0], pd = perDay(), cost = +b.dataset.cost;
+    return { name: b.dataset.name, line: b.dataset.line, cost, days: pd > 0 ? Math.ceil(cost / pd) : 0 };
+  }
+  window.filmPicks = () => habitBtns.map(pressed);
+  window.filmGoal = goal;
+  const lakh = (n) => (n >= 100000 ? '₹' + (n / 100000).toFixed(2).replace(/\.?0+$/, '') + ' lakh' : '₹' + fmt(n));
+  let lastDays = -1, lastPd = -1;
+  function renderNumbers() {
+    const pd = perDay(), g = goal();
+    document.querySelectorAll('.js-perday').forEach((el) => { el.textContent = fmt(pd); });
+    document.getElementById('perDaySub').textContent = pd === 0
+      ? "Zero? Respect. Tap anything that's true for you."
+      : "Tap what's true for you. Be honest, nobody's watching.";
+    document.getElementById('degreeLine').innerHTML = pd === 0
+      ? 'Zero rupees. You might not even need this app. <strong>Stay anyway.</strong>'
+      : "That's <strong>" + lakh(pd * DAYS) + "</strong> over a 4-year degree. On stuff you won't even remember buying.";
+    document.getElementById('goalHeadline').textContent = pd === 0 ? 'Pick a daily habit first. Scroll back up.' : g.line.replace('{n}', fmt(g.days));
+    lastDays = -1;
+  }
+  habitBtns.forEach((b) => b.addEventListener('click', () => { b.setAttribute('aria-pressed', pressed(b) ? 'false' : 'true'); renderNumbers(); }));
+  goalBtns.forEach((b) => b.addEventListener('click', () => { goalBtns.forEach((g) => g.setAttribute('aria-pressed', g === b ? 'true' : 'false')); renderNumbers(); }));
+
+  // ---------- film time ----------
+  // Each scene's "anchor" is the scroll position where its copy sits mid-screen. The copy follows the
+  // scene index; the 3D follows story time (data-t), so a scene can be added without retiming the 3D.
   let anchors = [];
   function measure() {
     const vh = window.innerHeight;
     anchors = sections.map((s, i) => (i === 0 || s.tagName === 'FOOTER') ? s.offsetTop : s.offsetTop + (s.offsetHeight - vh) / 2);
     lastH = -1;
   }
-  window.filmTime = function () {
+  function rawIndex() {
     const y = window.scrollY, a = anchors, n = a.length;
     if (y <= a[0]) return 0;
     for (let i = 0; i < n - 1; i++) if (y < a[i + 1]) return i + (y - a[i]) / (a[i + 1] - a[i]);
     return n - 1;
-  };
-  const reduce = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
-  // Which way each scene's copy drifts as you scroll through it (data-move="x,y").
+  }
+  function storyOf(x) {
+    const n = STORY.length;
+    if (x <= 0) return STORY[0];
+    if (x >= n - 1) return STORY[n - 1];
+    const i = Math.floor(x);
+    return STORY[i] + (STORY[i + 1] - STORY[i]) * (x - i);
+  }
+  let smoothI = 0;
+  window.filmSmoothIndex = () => smoothI;
+  window.filmIndexRaw = rawIndex;
+  window.filmStory = () => storyOf(smoothI);
+  // DAY 1 -> DAY 1,460 as you scroll through "the maths".
+  window.filmDays = () => { const f = clamp((smoothI - 1.62) / 0.5); return 1 + Math.round((DAYS - 1) * f * f * (3 - 2 * f)); };
+  window.filmDayCount = DAYS;
+  const tallyEl = document.getElementById('tally'), daysEl = document.getElementById('tallyDays');
+
+  // ---------- the lights ----------
+  // The problem plays in the dark. The lights flicker on (like a tube light) for the solution,
+  // and dim again for the maker and the credits, like a cinema.
+  const LIGHT_ON = 4.62, LIGHT_OFF = 11.55;
+  const switchBtn = document.getElementById('lightSwitch'), switchLabel = document.getElementById('lightLabel');
+  let wanted = 0, manualOn = false, timers = [];
+  window.filmLightState = 0; window.filmLightFast = false;
+  function applyLight(v, fast) {
+    window.filmLightState = v; window.filmLightFast = fast;
+    root.classList.toggle('light', !!v);
+    switchBtn.setAttribute('aria-pressed', v ? 'true' : 'false');
+    switchLabel.textContent = v ? 'LIGHTS ON' : 'LIGHTS OFF';
+  }
+  function lightsOn() {
+    timers.forEach(clearTimeout); timers = [];
+    if (reduce) { applyLight(1, true); return; }
+    [[0, 1], [70, 0], [150, 1], [230, 0], [440, 1]].forEach(([ms, v]) => timers.push(setTimeout(() => applyLight(v, true), ms)));
+  }
+  function lightsOff() { timers.forEach(clearTimeout); timers = []; applyLight(0, false); }
+  function updateLight(story) {
+    if (story < 4.2) manualOn = false;
+    const want = story < LIGHT_OFF && (story >= LIGHT_ON || (manualOn && story >= 4.2)) ? 1 : 0;
+    if (want !== wanted) { wanted = want; want ? lightsOn() : lightsOff(); }
+  }
+  switchBtn.addEventListener('click', () => {
+    if (wanted) { // flipping it back off before you've scrolled on
+      if (storyOf(smoothI) < LIGHT_ON) { manualOn = false; wanted = 0; lightsOff(); }
+      return;
+    }
+    manualOn = true; wanted = 1; lightsOn();
+    const next = sections.findIndex((s) => s.dataset.title === 'THE IDEA');
+    window.scrollTo({ top: anchors[next], behavior: reduce ? 'auto' : 'smooth' });
+  });
+
+  // ---------- the maker's name decrypts (cybersecurity nod) ----------
   const moves = sections.map((s) => (s.dataset.move || '0,-1').split(',').map(Number));
   const nameEl = document.getElementById('aryName');
   let nameShown = false, nameTimer = 0;
-  // Cybersecurity nod: the name "decrypts" out of noise, letter by letter, each time it arrives.
   function decrypt() {
     if (reduce) return;
     clearInterval(nameTimer);
@@ -360,31 +558,28 @@ html.flat body { background-image: radial-gradient(#1E1E1C 1px, transparent 1px)
     }, 45);
   }
 
-  var lastY = -1, lastH = -1, current = -1;
-  // One smoothed clock drives both the copy and the 3D, so they glide together instead of the text
-  // jumping a notch per wheel click while the 3D eases behind it.
-  let smoothT = 0, painted = -1, lastNow = performance.now();
-  window.filmSmoothTime = () => smoothT;
+  // ---------- one smoothed clock for the copy and the 3D ----------
+  let lastH = -1, current = -1, painted = -1, lastNow = performance.now();
   function tick(now) {
     const dt = Math.min(0.05, (now - lastNow) / 1000); lastNow = now;
-    const target = window.filmTime();
-    smoothT = reduce ? target : smoothT + (target - smoothT) * (1 - Math.exp(-dt * 3.6));
-    if (Math.abs(smoothT - target) < 0.0004) smoothT = target;
-    paintCopy();
+    const target = rawIndex();
+    smoothI = reduce ? target : smoothI + (target - smoothI) * (1 - Math.exp(-dt * 3.6));
+    if (Math.abs(smoothI - target) < 0.0004) smoothI = target;
+    paint();
+    updateLight(storyOf(smoothI));
     requestAnimationFrame(tick);
   }
-  function paintCopy() {
-    const h = window.innerHeight;
-    if (smoothT === painted && h === lastH) return;
-    painted = smoothT; lastH = h;
-    // Each scene's copy is fully visible while it's pinned, and fades as the film moves on:
-    // one idea on screen at a time.
-    const T = smoothT;
+  function paint() {
+    const h = window.innerHeight, pd = perDay(), days = window.filmDays();
+    if (days !== lastDays || pd !== lastPd) { lastDays = days; lastPd = pd; daysEl.textContent = fmt(days); tallyEl.textContent = fmt(pd * days); }
+    if (smoothI === painted && h === lastH) return;
+    painted = smoothI; lastH = h;
+    const I = smoothI;
     sections.forEach((s, k) => {
       const copy = s.querySelector('.copy');
       if (!copy) return;
-      const d = T - k;
-      const o = Math.max(0, Math.min(1, 1 - Math.max(0, Math.abs(d) - 0.24) * 3.6));
+      const d = I - k;
+      const o = clamp(1 - Math.max(0, Math.abs(d) - 0.24) * 3.6);
       copy.style.opacity = o.toFixed(3);
       copy.style.visibility = o < 0.02 ? 'hidden' : 'visible';
       const k2 = reduce ? 0 : (window.innerWidth > 900 ? 1 : 0.4);
@@ -394,17 +589,18 @@ html.flat body { background-image: radial-gradient(#1E1E1C 1px, transparent 1px)
         if (o < 0.05) nameShown = false;
       }
     });
-    const i = Math.max(0, Math.min(sections.length - 1, Math.round(T)));
+    const i = Math.max(0, Math.min(sections.length - 1, Math.round(I)));
     if (i !== current) {
       current = i;
       tickEls.forEach((t, k) => { t.className = k < i ? 'done' : (k === i ? 'now' : ''); });
       sceneTitle.textContent = sections[i].dataset.title || '';
-      sceneNo.textContent = 'SC. ' + String(Math.min(i, 13)).padStart(2, '0') + ' / 13';
+      sceneNo.textContent = sections[i].dataset.no || '';
     }
   }
   window.addEventListener('resize', () => { measure(); lastH = -1; });
   measure();
-  smoothT = window.filmTime();
+  renderNumbers();
+  smoothI = rawIndex();
   requestAnimationFrame(tick);
 })();
 </script>
@@ -484,7 +680,7 @@ async function main() {
   scene.add(stage);
 
   // ---------- light ----------
-  scene.add(new THREE.HemisphereLight(0xdfe8ff, 0x0a0a0a, 0.45));
+  const hemi = new THREE.HemisphereLight(0xdfe8ff, 0x0a0a0a, 0.45); scene.add(hemi);
   const key = new THREE.DirectionalLight(0xffffff, 2.4); key.position.set(5, 7, 6); scene.add(key);
   const rim = new THREE.PointLight(0x6ee7b7, 40, 22, 2); rim.position.set(-3.5, 2.5, -3); scene.add(rim);
   const leakLight = new THREE.PointLight(0xf0442e, 0, 18, 2); leakLight.position.set(3, 0, 3); scene.add(leakLight);
@@ -497,6 +693,16 @@ async function main() {
     const floor = new THREE.Mesh(new THREE.PlaneGeometry(80, 80), new THREE.MeshStandardMaterial({ map: t, roughness: 0.95, metalness: 0, envMapIntensity: 0.2 }));
     floor.rotation.x = -Math.PI / 2; floor.position.y = -3.2; scene.add(floor);
   }
+  // The light-theme floor fades in over the dark one when the lights come on.
+  const lightFloor = (() => {
+    const [c, g] = makeCanvas(64, 64);
+    g.fillStyle = '#ECECEE'; g.fillRect(0, 0, 64, 64); dot(g, 32, 32, 3.2, '#D2D2D6');
+    const t = canvasTex(c); t.wrapS = t.wrapT = THREE.RepeatWrapping; t.repeat.set(110, 110);
+    const m = new THREE.Mesh(new THREE.PlaneGeometry(80, 80), new THREE.MeshBasicMaterial({ map: t, transparent: true, opacity: 0, depthWrite: false, toneMapped: false, fog: true }));
+    m.rotation.x = -Math.PI / 2; m.position.y = -3.19; m.renderOrder = 1; scene.add(m); return m;
+  })();
+  const bgDark = new THREE.Color(C.ink), bgLight = new THREE.Color('#F4F4F5');
+  let L = 0; // 0 = dark, 1 = lights on
 
   // ---------- the coin (the app icon: mint, dot-matrix K) ----------
   const coinFace = (() => {
@@ -571,74 +777,81 @@ async function main() {
   screen.position.z = PD / 2 + 0.002; phone.add(screen);
 
   const CATCH = ['−₹20 · CHAI', '−₹45 · AUTO', '−₹30 · MAGGI', '−₹120 · MOVIE', '−₹60 · XEROX', '−₹90 · COFFEE'];
+  // The phone shows the app's real theme: dark in the dark, light once the lights are on.
+  // (The black display panel stays black in both, exactly like the app.)
+  const SCR = {
+    dark: { bg1: '#151514', bg2: '#070707', fg: C.fg, muted: C.muted, card: '#111110', line: C.line, lip: '#050505', key: '#1A1A19', keyDown: '#2A2A28', bar: '#2E2E2C', track: '#242422', icon: '#1A1A19', accent: C.mint },
+    light: { bg1: '#F4F4F5', bg2: '#ECECEE', fg: '#111111', muted: '#6B6B70', card: '#FFFFFF', line: '#E2E2E4', lip: '#DCDCDF', key: '#FFFFFF', keyDown: '#EDEDEF', bar: '#D9D9DD', track: '#E4E4E7', icon: '#FFFFFF', accent: '#13A070' },
+  };
+  let S = SCR.dark;
   function screenBg() {
-    const grd = sg.createLinearGradient(0, 0, 0, 1140); grd.addColorStop(0, '#151514'); grd.addColorStop(1, '#070707');
+    const grd = sg.createLinearGradient(0, 0, 0, 1140); grd.addColorStop(0, S.bg1); grd.addColorStop(1, S.bg2);
     sg.fillStyle = grd; sg.fillRect(0, 0, 540, 1140);
   }
   function drawHome(pressed, n) {
     screenBg(); sg.textBaseline = 'alphabetic';
-    mono(sg, 24, false, 4); sg.fillStyle = C.muted; sg.fillText('SAT 17 OCT', 52, 120);
-    mono(sg, 72, true, 0); sg.fillStyle = C.fg; sg.fillText('21:40', 48, 200);
+    mono(sg, 24, false, 4); sg.fillStyle = S.muted; sg.fillText('SAT 17 OCT', 52, 120);
+    mono(sg, 72, true, 0); sg.fillStyle = S.fg; sg.fillText('21:40', 48, 200);
     const x = 36, y = 270, w = 468, h = 380;
-    rr(sg, x, y, w, h, 40); sg.fillStyle = '#111110'; sg.fill(); sg.strokeStyle = C.line; sg.lineWidth = 2; sg.stroke();
-    mono(sg, 20, false, 3); sg.fillStyle = C.muted; sg.fillText('BANK / UPI', x + 32, y + 54);
-    dot(sg, x + w - 60, y + 47, 6, C.fg); sg.strokeStyle = C.muted; sg.lineWidth = 2; sg.beginPath(); sg.arc(x + w - 38, y + 47, 6, 0, Math.PI * 2); sg.stroke();
+    rr(sg, x, y, w, h, 40); sg.fillStyle = S.card; sg.fill(); sg.strokeStyle = S.line; sg.lineWidth = 2; sg.stroke();
+    mono(sg, 20, false, 3); sg.fillStyle = S.muted; sg.fillText('BANK / UPI', x + 32, y + 54);
+    dot(sg, x + w - 60, y + 47, 6, S.fg); sg.strokeStyle = S.muted; sg.lineWidth = 2; sg.beginPath(); sg.arc(x + w - 38, y + 47, 6, 0, Math.PI * 2); sg.stroke();
     rr(sg, x + 26, y + 80, w - 52, 112, 24); sg.fillStyle = '#000'; sg.fill(); sg.strokeStyle = '#1E1E1D'; sg.stroke();
     mono(sg, 34, false, 0); sg.fillStyle = C.muted; sg.fillText('₹', x + 56, y + 150);
     for (let i = 0; i < 5; i++) dot(sg, x + 112 + i * 30, y + 138, 8, C.fg);
-    mono(sg, 18, false, 3); sg.fillText('TAP', x + w - 92, y + 145);
+    mono(sg, 18, false, 3); sg.fillStyle = C.muted; sg.fillText('TAP', x + w - 92, y + 145);
     const kw = (w - 52 - 16) / 2, ky = y + 214;
     [0, 1].forEach((i) => {
       const kx = x + 26 + i * (kw + 16), down = i === 0 && pressed ? 5 : 0;
-      rr(sg, kx, ky + 5, kw, 88, 22); sg.fillStyle = '#050505'; sg.fill();
-      rr(sg, kx, ky + down, kw, 88, 22); sg.fillStyle = down ? '#2A2A28' : '#1A1A19'; sg.fill(); sg.strokeStyle = C.line; sg.stroke();
-      mono(sg, 22, false, 4); sg.fillStyle = C.fg;
+      rr(sg, kx, ky + 5, kw, 88, 22); sg.fillStyle = S.lip; sg.fill();
+      rr(sg, kx, ky + down, kw, 88, 22); sg.fillStyle = down ? S.keyDown : S.key; sg.fill(); sg.strokeStyle = S.line; sg.stroke();
+      mono(sg, 22, false, 4); sg.fillStyle = S.fg;
       if (i === 0) { dot(sg, kx + 52, ky + down + 44, 9, C.red); sg.fillText('SPENT', kx + 76, ky + down + 52); }
-      else { rr(sg, kx + 30, ky + 29, 30, 30, 6); sg.fillStyle = '#7CE0B6'; sg.fill(); sg.fillStyle = '#0A0A0A'; mono(sg, 26, true, 0); sg.fillText('+', kx + 37, ky + 54); mono(sg, 22, false, 4); sg.fillStyle = C.fg; sg.fillText('RECEIVED', kx + 72, ky + 52); }
+      else { rr(sg, kx + 30, ky + 29, 30, 30, 6); sg.fillStyle = '#7CE0B6'; sg.fill(); sg.fillStyle = '#0A0A0A'; mono(sg, 26, true, 0); sg.fillText('+', kx + 37, ky + 54); mono(sg, 22, false, 4); sg.fillStyle = S.fg; sg.fillText('RECEIVED', kx + 72, ky + 52); }
     });
-    mono(sg, 19, false, 2); sg.fillStyle = C.muted;
+    mono(sg, 19, false, 2); sg.fillStyle = S.muted;
     sg.fillText(n === 0 ? 'NO ENTRIES YET' : 'LAST  ' + CATCH[n - 1], x + 30, y + 348);
-    if (n > 0) { mono(sg, 19, true, 3); sg.fillStyle = C.fg; sg.fillText('UNDO', x + w - 92, y + 348); }
-    if (n > 0) { mono(sg, 22, true, 3); sg.fillStyle = C.mint; sg.fillText(n + ' LOGGED', x + 4, y + h + 64); }
-    for (let r = 0; r < 2; r++) for (let c = 0; c < 4; c++) { rr(sg, 52 + c * 116, 820 + r * 124, 88, 88, 24); sg.fillStyle = '#1A1A19'; sg.fill(); }
+    if (n > 0) { mono(sg, 19, true, 3); sg.fillStyle = S.fg; sg.fillText('UNDO', x + w - 92, y + 348); }
+    if (n > 0) { mono(sg, 22, true, 3); sg.fillStyle = S.accent; sg.fillText(n + ' LOGGED', x + 4, y + h + 64); }
+    for (let r = 0; r < 2; r++) for (let c = 0; c < 4; c++) { rr(sg, 52 + c * 116, 820 + r * 124, 88, 88, 24); sg.fillStyle = S.icon; sg.fill(); sg.strokeStyle = S.line; sg.lineWidth = 2; sg.stroke(); }
   }
-  function drawStats(v, printing) {
+  function drawStats(v, printing, goalName) {
     screenBg(); sg.textBaseline = 'alphabetic';
-    mono(sg, 24, true, 8); sg.fillStyle = C.fg; sg.fillText('KACHINGG', 44, 104);
-    mono(sg, 20, false, 4); sg.fillText('STATS', 44, 176); sg.fillStyle = C.muted; sg.fillText('LOG', 170, 176);
-    sg.fillStyle = C.mint; sg.fillRect(44, 190, 76, 4);
+    mono(sg, 24, true, 8); sg.fillStyle = S.fg; sg.fillText('KACHINGG', 44, 104);
+    mono(sg, 20, false, 4); sg.fillText('STATS', 44, 176); sg.fillStyle = S.muted; sg.fillText('LOG', 170, 176);
+    sg.fillStyle = S.accent; sg.fillRect(44, 190, 76, 4);
     rr(sg, 36, 226, 468, 240, 34); sg.fillStyle = '#000'; sg.fill(); sg.strokeStyle = '#1E1E1D'; sg.lineWidth = 2; sg.stroke();
     mono(sg, 18, false, 4); sg.fillStyle = C.muted; sg.fillText('SAFE TO SPEND TODAY', 70, 284);
     mono(sg, 40, false, 0); sg.fillText('₹', 70, 404);
     mono(sg, 116, true, -4); sg.fillStyle = C.fg; sg.fillText(String(v), 112, 412);
     const vw = sg.measureText(String(v)).width;
     mono(sg, 24, false, 2); sg.fillStyle = C.muted; sg.fillText('/DAY', 124 + vw, 408);
-    mono(sg, 18, false, 4); sg.fillText('THIS WEEK', 44, 540);
+    mono(sg, 18, false, 4); sg.fillStyle = S.muted; sg.fillText('THIS WEEK', 44, 540);
     const hs = [0.5, 0.8, 0.35, 0.6, 0.95, 0.3, 0.12];
     hs.forEach((hh, i) => {
       const bx = 52 + i * 64, bh = 130 * hh;
-      rr(sg, bx, 700 - bh, 40, bh, 8); sg.fillStyle = i === 5 ? C.mint : '#2E2E2C'; sg.fill();
-      mono(sg, 18, false, 0); sg.fillStyle = i === 5 ? C.fg : C.muted; sg.fillText('MTWTFSS'[i], bx + 12, 738);
+      rr(sg, bx, 700 - bh, 40, bh, 8); sg.fillStyle = i === 5 ? '#7CE0B6' : S.bar; sg.fill();
+      mono(sg, 18, false, 0); sg.fillStyle = i === 5 ? S.fg : S.muted; sg.fillText('MTWTFSS'[i], bx + 12, 738);
     });
-    rr(sg, 36, 790, 468, 160, 30); sg.fillStyle = '#111110'; sg.fill(); sg.strokeStyle = C.line; sg.stroke();
-    mono(sg, 17, false, 3); sg.fillStyle = C.fg; sg.fillText('SAVING FOR · HEADPHONES', 64, 846);
+    rr(sg, 36, 790, 468, 160, 30); sg.fillStyle = S.card; sg.fill(); sg.strokeStyle = S.line; sg.stroke();
+    mono(sg, 17, false, 3); sg.fillStyle = S.fg; sg.fillText('SAVING FOR · ' + goalName, 64, 846);
     mono(sg, 20, true, 0); sg.fillText('42%', 430, 846);
-    rr(sg, 64, 880, 412, 18, 9); sg.fillStyle = '#242422'; sg.fill();
+    rr(sg, 64, 880, 412, 18, 9); sg.fillStyle = S.track; sg.fill();
     rr(sg, 64, 880, 412 * 0.42, 18, 9); sg.fillStyle = '#7CE0B6'; sg.fill();
     if (printing) {
-      rr(sg, 36, 990, 468, 84, 24); sg.fillStyle = C.paper; sg.fill();
+      rr(sg, 36, 990, 468, 84, 24); sg.fillStyle = C.paper; sg.fill(); sg.strokeStyle = S.line; sg.stroke();
       mono(sg, 17, true, 3); sg.fillStyle = '#111'; sg.textAlign = 'center'; sg.fillText("PRINTING TODAY'S RECEIPT", 270, 1040); sg.textAlign = 'left';
     }
   }
   function drawLock() {
     screenBg(); sg.textBaseline = 'alphabetic';
-    sg.strokeStyle = C.mint; sg.lineWidth = 12; sg.lineCap = 'round';
+    sg.strokeStyle = S.accent; sg.lineWidth = 12; sg.lineCap = 'round';
     sg.beginPath(); sg.moveTo(212, 470); sg.lineTo(212, 410); sg.arc(270, 410, 58, Math.PI, 0); sg.lineTo(328, 470); sg.stroke();
     rr(sg, 180, 466, 180, 150, 26); sg.stroke();
-    dot(sg, 270, 530, 14, C.mint); sg.fillStyle = C.mint; sg.fillRect(264, 530, 12, 40);
+    dot(sg, 270, 530, 14, S.accent); sg.fillStyle = S.accent; sg.fillRect(264, 530, 12, 40);
     sg.textAlign = 'center';
-    mono(sg, 36, true, 6); sg.fillStyle = C.fg; sg.fillText('LOCAL ONLY', 270, 720);
-    mono(sg, 18, false, 3); sg.fillStyle = C.muted; sg.fillText('NO ACCOUNT · NO BANK LOGIN', 270, 780); sg.fillText('NO SERVERS · JUST YOUR PHONE', 270, 816);
+    mono(sg, 36, true, 6); sg.fillStyle = S.fg; sg.fillText('LOCAL ONLY', 270, 720);
+    mono(sg, 18, false, 3); sg.fillStyle = S.muted; sg.fillText('NO ACCOUNT · NO BANK LOGIN', 270, 780); sg.fillText('NO SERVERS · JUST YOUR PHONE', 270, 816);
     sg.textAlign = 'left';
   }
   let screenSig = '';
@@ -704,13 +917,15 @@ async function main() {
   stage.add(dots);
   const cats = [[C.fg, 41], [C.red, 23], [C.muted, 21], ['#4A4A47', 15]];
   const catColor = []; cats.forEach(([col, n]) => { for (let i = 0; i < n; i++) catColor.push(new THREE.Color(col)); });
+  const catsLight = [['#1A1A1A', 41], [C.red, 23], ['#8E8E94', 21], ['#D4D4D8', 15]];
+  const catLight = []; catsLight.forEach(([col, n]) => { for (let i = 0; i < n; i++) catLight.push(new THREE.Color(col)); });
   const gridPos = [], ringPos = [], starPos = [], aryPos = [];
   const sr = seeded(3);
   for (let k = 0; k < N; k++) {
     gridPos.push(new THREE.Vector3(((k % 10) - 4.5) * 0.34 + 0.3, (4.5 - Math.floor(k / 10)) * 0.34 - 0.35, 0.8));
     const a = Math.PI / 2 - (Math.PI * 2 * k) / N;
-    ringPos.push(new THREE.Vector3(Math.cos(a) * 1.75 + 0.3, Math.sin(a) * 1.75, 0.6));
-    starPos.push(new THREE.Vector3((sr() - 0.5) * 22, -2 + sr() * 9, -6 - sr() * 12));
+    ringPos.push(new THREE.Vector3(Math.cos(a) * 1.5 + 0.3, Math.sin(a) * 1.5, 0.6));
+    starPos.push(new THREE.Vector3((sr() - 0.5) * 22, -2 + sr() * 9, -9 - sr() * 12));
   }
   // ARY in the same 5x7 dot font as the coin's K.
   const FONT = {
@@ -731,28 +946,33 @@ async function main() {
   scan.position.set(0, 0.1, 1.05); stage.add(scan);
   const aryWhite = new THREE.Color(C.fg);
 
-  const mint = new THREE.Color(C.mint), dimRing = new THREE.Color('#2E2E2C'), starCol = new THREE.Color('#5A5A57');
+  const mintD = new THREE.Color(C.mint), dimRingD = new THREE.Color('#2E2E2C'), starColD = new THREE.Color('#5A5A57');
+  const mintL = new THREE.Color('#2BB582'), dimRingL = new THREE.Color('#DCDCE0'), starColL = new THREE.Color('#D6D6DA');
+  const mint = new THREE.Color(), dimRing = new THREE.Color(), starCol = new THREE.Color(), catNow = new THREE.Color();
 
   // Ring label "42% · HEADPHONES" (scene 09)
   const [ringC, rg] = makeCanvas(512, 256);
   const ringTex = canvasTex(ringC);
   const ringLabel = new THREE.Sprite(new THREE.SpriteMaterial({ map: ringTex, transparent: true, depthWrite: false, toneMapped: false, fog: false }));
   ringLabel.scale.set(2.0, 1.0, 1); ringLabel.position.set(0.3, 0, 0.6); stage.add(ringLabel);
-  let ringSig = -1;
-  function drawRing(pct) {
-    if (pct === ringSig) return; ringSig = pct;
+  let ringSig = '';
+  function drawRing(day, total, name, light) {
+    const sig = day + '/' + total + name + light;
+    if (sig === ringSig) return; ringSig = sig;
     rg.clearRect(0, 0, 512, 256); rg.textAlign = 'center'; rg.textBaseline = 'alphabetic';
-    mono(rg, 110, true, -2); rg.fillStyle = C.mint; rg.fillText(pct + '%', 256, 140);
-    mono(rg, 26, false, 6); rg.fillStyle = C.muted; rg.fillText('HEADPHONES', 256, 200);
+    mono(rg, 30, false, 6); rg.fillStyle = light ? '#6B6B70' : C.muted; rg.fillText('DAY', 256, 62);
+    mono(rg, 110, true, -2); rg.fillStyle = light ? '#0E8A5F' : C.mint; rg.fillText(total ? String(day) : '–', 256, 168);
+    mono(rg, 24, false, 4); rg.fillStyle = light ? '#6B6B70' : C.muted; rg.fillText(total ? 'OF ' + total + ' · ' + name : name, 256, 214);
     ringTex.needsUpdate = true;
   }
 
   // ---------- post: a little bloom, so mint things glow like a screen in a dark room ----------
-  let composer = null;
+  let composer = null, bloom = null;
   try {
     composer = new EffectComposer(renderer);
     composer.addPass(new RenderPass(scene, camera));
-    composer.addPass(new UnrealBloomPass(new THREE.Vector2(window.innerWidth / 2, window.innerHeight / 2), 0.45, 0.5, 0.9));
+    bloom = new UnrealBloomPass(new THREE.Vector2(window.innerWidth / 2, window.innerHeight / 2), 0.45, 0.5, 0.9);
+    composer.addPass(bloom);
     composer.addPass(new OutputPass());
   } catch (e) { composer = null; }
 
@@ -771,7 +991,7 @@ async function main() {
 
   // Where the stage sits on screen, scene by scene: always opposite the copy.
   // sx > 0 pushes the 3D right, sy > 0 lifts it. Shifting the picture (not the world) keeps the camera moves intact.
-  const SIDE = { l: [0.2, 0], r: [-0.2, 0], tl: [0.2, -0.04], tr: [-0.2, -0.04], bl: [0.2, 0], br: [-0.2, 0] }; // never lift: the phone is tall
+  const SIDE = { c: [0, 0.12], l: [0.2, 0], r: [-0.2, 0], tl: [0.2, -0.04], tr: [-0.2, -0.04], bl: [0.2, 0], br: [-0.2, 0] }; // never lift: the phone is tall
   // Each side is held while that scene's text is readable; the pan happens only in the crossfade between scenes.
   const VIEW = Array.from(document.querySelectorAll('#film > section, #film > footer'))
     .flatMap((el, i) => { const v = SIDE[el.dataset.pos] || SIDE.l; return [[i - 0.24, v], [i + 0.24, v]]; });
@@ -792,6 +1012,8 @@ async function main() {
 
   // ---------- the script: camera and phone keyframes, scene by scene ----------
   const CAM = [ // [T, [px, py, pz, lx, ly, lz]]
+    [-3, [0, 0.5, 8.4, 0, 0.5, 0]],     // cold open: a small coin, alone
+    [-1, [0, 0.5, 8.4, 0, 0.5, 0]],
     [0, [0, 0.3, 7.2, 0, 0.2, 0]],
     [1, [0, 1.8, 10.5, 0, -1.3, 0]],
     [2, [2.6, 2.4, 9.6, 0, -0.8, 0]],
@@ -825,6 +1047,8 @@ async function main() {
     [11.85, [0, -9, -2, 0.8, 1.5, 0]],
   ];
   const HERO = [ // [T, [x, y, z, scale]]
+    [-3, [0, 0.55, 0, 0.6]],
+    [-1, [0, 0.55, 0, 0.6]],
     [0, [0, 0.2, 0, 1.6]],
     [0.9, [0, 7.5, -1, 1.2]],
     [12.7, [0, 7.5, -1, 1.2]],
@@ -836,7 +1060,7 @@ async function main() {
 
   function update(T, time) {
     // ---- camera ----
-    frameStage(T);
+    frameStage(window.filmSmoothIndex());
     const cam = track(CAM, T);
     pointer.sx += (pointer.x - pointer.sx) * 0.05; pointer.sy += (pointer.y - pointer.sy) * 0.05;
     camera.position.set(cam[0] + pointer.sx * 0.6, cam[1] - pointer.sy * 0.35, cam[2] * distMul);
@@ -851,7 +1075,7 @@ async function main() {
     hero.visible = h[1] < 7;
 
     // ---- the stack: fall in (scene 01), leak away (02-04), sink (05) ----
-    const sink = range(T, 4.4, 4.95);
+    const sink = range(T, 4.55, 5.0);
     const dim = range(T, 3.4, 4.0) * (1 - range(T, 4.6, 5.0));
     // House lights down for the maker's scene.
     const spot = range(T, 11.5, 11.9) * (1 - range(T, 12.45, 12.8));
@@ -902,7 +1126,21 @@ async function main() {
 
     // screen content
     let caught = 0, pressed = false;
+    const pickVis = range(T, -2.6, -2.3) * (1 - range(T, -1.45, -1.15));
+    const picks = window.filmPicks ? window.filmPicks() : [];
     catches.forEach((c, j) => {
+      if (T < 0) {
+        const u = c.userData;
+        u.ps = (u.ps || 0) + ((picks[j] ? 1 : 0) * pickVis - (u.ps || 0)) * 0.14;   // eases in = a little pop
+        c.visible = u.ps > 0.01;
+        if (c.visible) {
+          const a = time * 0.8 + (j * Math.PI * 2) / 6;
+          c.position.set(hero.position.x + Math.cos(a) * 1.15, hero.position.y + Math.sin(a) * 0.4, hero.position.z + Math.sin(a) * 0.9);
+          c.rotation.set(0, time * 2 + j, 0);
+          c.scale.setScalar(0.32 * u.ps);
+        }
+        return;
+      }
       const t = range(T, 5.55 + j * 0.12, 5.95 + j * 0.12);
       if (t >= 1) caught++;
       if (t > 0.7 && t < 1) pressed = true;
@@ -910,17 +1148,19 @@ async function main() {
       if (c.visible) {
         const e = outCubic(t);
         origin.set(0, -0.15, PD / 2 + 0.1); phone.localToWorld(origin); stage.worldToLocal(origin);
-        c.position.set(lerp(3.8 + j * 0.35, origin.x, e), lerp(3.2 + (j % 2) * 0.6, origin.y, e) + Math.sin(t * Math.PI) * 0.8, lerp(1.6, origin.z, e));
+        c.position.set(lerp(-3.8 - j * 0.35, origin.x, e), lerp(3.2 + (j % 2) * 0.6, origin.y, e) + Math.sin(t * Math.PI) * 0.8, lerp(1.6, origin.z, e));
         c.rotation.set(time * 2 + j, time * 3, 0);
         c.scale.setScalar(lerp(0.45, 0.06, inQuad(t)));
       }
     });
-    if (T < 6.45) setScreen('h' + pressed + caught, () => drawHome(pressed, caught));
+    const lit01 = L > 0.5 ? 'L' : 'D';
+    S = L > 0.5 ? SCR.light : SCR.dark;
+    if (T < 6.45) setScreen(lit01 + 'h' + pressed + caught, () => drawHome(pressed, caught));
     else if (T < 10.75) {
       const val = Math.round(344 * outCubic(range(T, 6.55, 7.1)));
-      const printing = T > 9.6;
-      setScreen('s' + val + printing, () => drawStats(val, printing));
-    } else setScreen('lock', drawLock);
+      const printing = T > 9.6, gname = window.filmGoal ? window.filmGoal().name : 'HEADPHONES';
+      setScreen(lit01 + 's' + val + printing + gname, () => drawStats(val, printing, gname));
+    } else setScreen(lit01 + 'lock', drawLock);
 
     // receipt: rises out of the top edge; the top of the paper (the header) comes out first
     const pr = range(T, 9.75, 10.6) * (1 - range(T, 10.8, 11.1));
@@ -941,11 +1181,21 @@ async function main() {
 
     // ---- dots ----
     origin.set(0, 0, PD / 2); phone.localToWorld(origin); stage.worldToLocal(origin);
-    const e9fill = range(T, 8.7, 9.1);
-    const lit = Math.floor(42 * e9fill);
+    const e9fill = range(T, 8.65, 9.1);
+    const lit = Math.floor(100 * e9fill);
+    const pre = smooth(range(T, -1.75, -1.35)) * (1 - smooth(range(T, -0.6, -0.2)));
+    const preLit = Math.round(100 * (window.filmDays() - 1) / (window.filmDayCount - 1));
     for (let k = 0; k < N; k++) {
+      if (pre > 0.001) {
+        const a = Math.PI / 2 - (Math.PI * 2 * k) / N;
+        v.set(hero.position.x + Math.cos(a) * 1.05 * pre, hero.position.y + Math.sin(a) * 1.05 * pre, hero.position.z + 0.2);
+        sc.setScalar(Math.max(0.0001, pre * 0.62));
+        col.copy(k < preLit ? mint : dimRing);
+        m4.compose(v, q.identity(), sc); dots.setMatrixAt(k, m4); dots.setColorAt(k, col);
+        continue;
+      }
       const e8 = range(T, 7.35 + k * 0.003, 7.7 + k * 0.003);
-      const e9 = smooth(range(T, 8.3 + k * 0.002, 8.65 + k * 0.002));
+      const e9 = smooth(range(T, 8.15 + k * 0.0015, 8.45 + k * 0.0015));
       const e10 = smooth(range(T, 9.5 + k * 0.003, 10.1 + k * 0.003));
       const ary = k < aryPos.length;
       const e12 = ary ? smooth(range(T, 11.45 + k * 0.005, 11.85 + k * 0.005)) : 0;
@@ -961,7 +1211,8 @@ async function main() {
       if (e10 > 0 && !(ary && e12 > 0)) s *= 0.8 + 0.4 * Math.sin(time * 2 + k * 1.7) * e10; // stars twinkle
       if (ary) s = lerp(s, 0.85 * (1 + 0.28 * ripple * Math.sin(time * 4 - aryPos[k].x * 1.8)), e12);
       s = lerp(s, 0.6, e13);
-      col.copy(catColor[k]).lerp(k < lit ? mint : dimRing, e9).lerp(starCol, e10);
+      catNow.copy(catColor[k]).lerp(catLight[k], L);
+      col.copy(catNow).lerp(k < lit ? mint : dimRing, e9).lerp(starCol, clamp(e10 * 2.5)); // fade to background quickly
       // The name arrives white, and turns mint as the scanline passes over each column.
       if (ary) col.lerp(aryWhite, e12).lerp(mint, e12 * clamp((scanX - aryPos[k].x) / 0.3));
       col.lerp(k % 3 === 0 ? mint : starCol, e13);
@@ -971,18 +1222,37 @@ async function main() {
     }
     dots.instanceMatrix.needsUpdate = true; dots.instanceColor.needsUpdate = true;
 
-    const ringVis = range(T, 8.55, 8.8) * (1 - range(T, 9.45, 9.7));
+    const ringVis = range(T, 8.4, 8.6) * (1 - range(T, 9.45, 9.7));
     ringLabel.visible = ringVis > 0.01; ringLabel.material.opacity = ringVis;
-    if (ringLabel.visible) drawRing(lit);
+    if (ringLabel.visible) {
+      const g = window.filmGoal ? window.filmGoal() : { name: 'HEADPHONES', days: 32 };
+      drawRing(Math.round(g.days * e9fill), g.days, g.name, L > 0.5);
+    }
+  }
+
+  // ---------- theme: dark film, lights-on light act ----------
+  const cageD = new THREE.Color(0x6ee7b7), cageL = new THREE.Color('#13A070');
+  function applyTheme(l) {
+    scene.background.copy(bgDark).lerp(bgLight, l);
+    scene.fog.color.copy(scene.background);
+    lightFloor.material.opacity = l;
+    hemi.intensity = 0.45 + 0.85 * l;
+    renderer.toneMappingExposure = 1.05 - 0.1 * l;
+    if (bloom) bloom.strength = 0.45 * (1 - l);   // a bright page would bloom into a white haze
+    cageMat.color.copy(cageD).lerp(cageL, l);
+    mint.copy(mintD).lerp(mintL, l); dimRing.copy(dimRingD).lerp(dimRingL, l); starCol.copy(starColD).lerp(starColL, l);
   }
 
   // ---------- the loop ----------
-  let Ts = window.filmSmoothTime(), last = performance.now(), time = 0;
+  let Ts = window.filmStory(), last = performance.now(), time = 0;
   function frame(now) {
     const dt = Math.min(0.05, (now - last) / 1000); last = now;
     if (!reduceMotion) time += dt;
-    // Same smoothed clock as the copy: a little inertia makes scrolling feel like a dolly, not a jump cut.
-    Ts = window.filmSmoothTime();
+    // Same smoothed clock as the copy (mapped to story time): a little inertia makes scrolling feel like a dolly.
+    Ts = window.filmStory();
+    // Lights: follow the page's switch. Fast when switching on (so the tube-light flicker shows), slow when dimming.
+    L += ((window.filmLightState || 0) - L) * (1 - Math.exp(-dt * (window.filmLightFast ? 30 : 2.5)));
+    applyTheme(L);
     update(Ts, time);
     if (composer) composer.render(dt); else renderer.render(scene, camera);
     requestAnimationFrame(frame);
