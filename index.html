@@ -133,8 +133,8 @@ main { position: relative; z-index: 2; }
 
 /* ---------- the opening receipt (always paper-coloured, in any theme) ---------- */
 .copy.art { max-width: none; margin-left: auto; margin-right: 6vw; }
-.rig { --paper: #F5F4EF; width: 360px; height: min(560px, 64vh); display: flex; flex-direction: column; justify-content: flex-end; align-items: center; }
-.paper { flex-shrink: 0; width: 320px; height: 0; overflow: hidden; transition: height .16s ease-out; transform: rotate(-1.5deg); transform-origin: bottom center;
+.rig { --paper: #F5F4EF; width: 360px; height: min(460px, 60vh); display: flex; flex-direction: column; justify-content: flex-end; align-items: center; }
+.paper { flex-shrink: 0; width: 320px; height: 0; overflow: hidden; transform: rotate(-1.5deg); transform-origin: bottom center;
   filter: drop-shadow(0 18px 30px rgba(0,0,0,.35)); }
 .r-inner { position: relative; background: var(--paper); color: #111111; padding: 0 22px 18px; font-family: var(--f-mono); font-size: 13px; letter-spacing: .03em; }
 .zig { height: 10px; margin: 0 -22px 10px; background: linear-gradient(135deg, #0000 50%, var(--ink) 50%) 0 0 / 14px 14px, linear-gradient(225deg, #0000 50%, var(--ink) 50%) 0 0 / 14px 14px; }
@@ -253,33 +253,27 @@ html.flat body { background-image: radial-gradient(#1E1E1C 1px, transparent 1px)
 
   <section class="ch first" id="top" data-t="-4" data-chapter="HELLO" data-no="KACHINGG" data-title="HELLO" data-pos="l" data-move="0,-1">
     <div class="stick"><div class="copy">
-      <span class="eyebrow"><i class="in"></i>MEET KACHINGG · A SHORT FILM</span>
-      <h1>Your month has a receipt. You've just never <em>seen it</em>.</h1>
-      <p><strong>KaChingg</strong> is a tiny budgeting app for college students. Log a spend in two taps from your home screen, and always know where it went.</p>
+      <h1>Your month has a <em>receipt</em>.</h1>
+      <p><strong>KaChingg</strong> is a tiny budgeting app for students that shows you where it all went.</p>
       <span class="cue"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M12 4v15"></path><path d="M6 13l6 6 6-6"></path></svg>SCROLL TO PLAY</span>
     </div>
     <!-- The opening receipt: prints itself out of the slot, line by line, then gets stamped. -->
-    <div class="copy art" aria-label="A receipt for a student's month: total 4,853 rupees, where it went: unknown, sorted by KaChingg">
+    <div class="copy art" aria-label="A receipt for a student's month: total 3,894 rupees, where it went: unknown, sorted by KaChingg">
       <div class="rig" id="rig">
         <div class="paper" id="paper">
           <div class="r-inner">
             <div class="zig" aria-hidden="true"></div>
             <div class="r-line r-c r-b r-brand">KACHINGG</div>
-            <div class="r-line r-c r-f">RECEIPT · YOUR MONTH SO FAR</div>
             <div class="r-line r-rule"></div>
             <div class="r-line"><span>CHAI ×30</span><span>₹600</span></div>
             <div class="r-line"><span>AUTO ×22</span><span>₹990</span></div>
-            <div class="r-line"><span>MAGGI ×14</span><span>₹420</span></div>
-            <div class="r-line"><span>RECHARGE</span><span>₹299</span></div>
             <div class="r-line"><span>SWIGGY ×6</span><span>₹1,494</span></div>
             <div class="r-line"><span>"JUST ONE" COLD COFFEE ×9</span><span>₹810</span></div>
-            <div class="r-line"><span>MOVIE</span><span>₹240</span></div>
             <div class="r-line r-rule"></div>
-            <div class="r-line r-b r-total"><span>TOTAL</span><span>₹4,853</span></div>
+            <div class="r-line r-b r-total"><span>TOTAL</span><span>₹3,894</span></div>
             <div class="r-line r-q"><span>WHERE IT WENT</span><span class="qq">???</span></div>
             <div class="r-line r-rule"></div>
             <div class="r-line r-code" aria-hidden="true"></div>
-            <div class="r-line r-c r-f">THANK YOU · COME AGAIN (YOU WILL)</div>
             <span class="stamp" id="stamp">SORTED BY KACHINGG</span>
           </div>
         </div>
@@ -351,7 +345,7 @@ html.flat body { background-image: radial-gradient(#1E1E1C 1px, transparent 1px)
     </div></div>
   </section>
 
-  <section class="ch" data-t="4.5" data-chapter="LIGHTS ON" data-no="SC. 05 / 15" data-title="LIGHTS ON" data-pos="c" data-move="0,-1">
+  <section class="ch" data-t="4.5" data-chapter="LIGHTS ON" data-no="SC. 05 / 15" data-title="LIGHTS ON" data-pos="l" data-move="0,-1">
     <div class="stick"><div class="copy">
       <span class="eyebrow"><i class="in"></i>SC. 05 · LIGHTS ON</span>
       <h2>Cut. Let's <em>reshoot</em> this month.</h2>
@@ -416,7 +410,7 @@ html.flat body { background-image: radial-gradient(#1E1E1C 1px, transparent 1px)
     </div></div>
   </section>
 
-  <section class="ch" data-t="9" data-chapter="GOALS" data-no="SC. 11 / 15" data-title="YOUR GOAL" data-pos="r" data-move="0,-1">
+  <section class="ch" data-t="9.2" data-chapter="GOALS" data-no="SC. 11 / 15" data-title="YOUR GOAL" data-pos="r" data-move="0,-1">
     <div class="stick"><div class="copy">
       <span class="eyebrow"><i class="in"></i>SC. 11 · YOUR GOAL</span>
       <h2 id="goalHeadline">New headphones in 32 days.</h2>
@@ -688,6 +682,10 @@ html.flat body { background-image: radial-gradient(#1E1E1C 1px, transparent 1px)
       copy.style.visibility = o < 0.02 ? 'hidden' : 'visible';
       const k2 = reduce ? 0 : (window.innerWidth > 900 ? 1 : 0.4);
       copy.style.transform = 'translate(' + (d * moves[k][0] * 56 * k2).toFixed(1) + 'px, ' + (d * moves[k][1] * 44 * k2).toFixed(1) + 'px)';
+      if (copy.classList.contains('art')) {   // reprint when you come back to the first screen
+        if (o < 0.05) helloAway = true;
+        else if (o > 0.6 && helloAway) { helloAway = false; printer.print(); }
+      }
       if (copy.classList.contains('maker')) {
         if (o > 0.6 && !nameShown) { nameShown = true; decrypt(); }
         if (o < 0.05) nameShown = false;
@@ -707,27 +705,35 @@ html.flat body { background-image: radial-gradient(#1E1E1C 1px, transparent 1px)
     }
   }
   // ---------- the opening receipt prints itself (once), then gets stamped ----------
-  (function printReceipt() {
-    const paper = document.getElementById('paper'), lines = Array.from(paper.querySelectorAll('.r-line')), stamp = document.getElementById('stamp'), led = document.getElementById('slotLed');
-    const upTo = (k) => { const l = lines[k]; return l.offsetTop + l.offsetHeight + (k === lines.length - 1 ? 18 : 4); };
+  // ---------- the opening receipt: one continuous paper feed, then the stamp ----------
+  // Prints by itself on load, and again whenever you come back to the first screen.
+  const printer = (function () {
+    const paper = document.getElementById('paper'), inner = paper.querySelector('.r-inner'), stamp = document.getElementById('stamp'), led = document.getElementById('slotLed');
+    let raf = 0, timer = 0;
     const placeStamp = () => { const q = paper.querySelector('.r-q'); stamp.style.top = (q.offsetTop + q.offsetHeight / 2 - stamp.offsetHeight / 2) + 'px'; };
-    // Once printed, stop clipping: a late font swap or a resize can't cut the receipt off.
-    const done = () => { paper.style.height = 'auto'; placeStamp(); };
-    // Measure only after the webfonts are in: Space Mono is bigger than the fallback font.
-    const fontsReady = Promise.race([document.fonts ? document.fonts.ready : Promise.resolve(), new Promise((r) => setTimeout(r, 1500))]);
-    fontsReady.then(() => {
-      if (reduce) { paper.style.transition = 'none'; done(); stamp.style.opacity = '.92'; stamp.style.transform = 'translateX(-50%) rotate(-7deg)'; return; }
-      let k = -1;
-      led.classList.add('on');
-      setTimeout(function next() {
-        k++;
-        paper.style.height = upTo(k) + 'px';
-        if (k < lines.length - 1) setTimeout(next, lines[k].classList.contains('r-rule') ? 90 : 150);
-        else setTimeout(() => { done(); led.classList.remove('on'); stamp.classList.add('on'); paper.classList.add('jolt'); }, 450);
-      }, 400);
-    });
+    const finish = () => { paper.style.height = 'auto'; placeStamp(); led.classList.remove('on'); };
+    function print() {
+      cancelAnimationFrame(raf); clearTimeout(timer);
+      stamp.classList.remove('on'); paper.classList.remove('jolt'); void stamp.offsetWidth; // restart the CSS animations
+      if (reduce) { finish(); stamp.style.opacity = '.92'; stamp.style.transform = 'translateX(-50%) rotate(-7deg)'; return; }
+      const H = inner.offsetHeight, dur = 2400;
+      paper.style.height = '0px'; led.classList.add('on');
+      let t0 = 0;
+      const feed = (now) => {
+        if (!t0) t0 = now;
+        const f = Math.min(1, (now - t0) / dur);
+        paper.style.height = (H * f).toFixed(1) + 'px';   // steady, like a thermal printer
+        if (f < 1) raf = requestAnimationFrame(feed);
+        else timer = setTimeout(() => { finish(); stamp.classList.add('on'); paper.classList.add('jolt'); }, 250);
+      };
+      raf = requestAnimationFrame(feed);
+    }
     window.addEventListener('resize', placeStamp);
+    // Measure only once the webfonts are in (Space Mono is bigger than the fallback); never wait more than 1.2s.
+    Promise.race([document.fonts ? document.fonts.ready : Promise.resolve(), new Promise((r) => setTimeout(r, 1200))]).then(() => setTimeout(print, 250));
+    return { print };
   })();
+  let helloAway = false;
 
   window.addEventListener('resize', () => { measure(); lastH = -1; });
   measure();
@@ -894,7 +900,7 @@ async function main() {
     dot(g, (640 - w) / 2 + 48, 64, 11, C.red);
     g.fillStyle = C.fg; g.textBaseline = 'middle'; g.fillText(text, (640 - w) / 2 + 76, 66);
     const s = new THREE.Sprite(new THREE.SpriteMaterial({ map: canvasTex(c), transparent: true, depthWrite: false, fog: false }));
-    s.scale.set(2.4, 0.48, 1); s.visible = false; stage.add(s);
+    s.scale.set(2.4, 0.48, 1); s.visible = false; s.renderOrder = 10; stage.add(s);
     return s;
   });
 
@@ -1121,6 +1127,8 @@ async function main() {
   const ringTex = canvasTex(ringC);
   const ringLabel = new THREE.Sprite(new THREE.SpriteMaterial({ map: ringTex, transparent: true, depthWrite: false, toneMapped: false, fog: false }));
   ringLabel.scale.set(2.0, 1.0, 1); ringLabel.position.set(0.3, 0, 0.6); stage.add(ringLabel);
+  // Transparent things draw after the (transparent) light floor, or the floor paints over them.
+  ringLabel.renderOrder = 10;
   let ringSig = '';
   function drawLabel(sig, draw, light) {
     if (sig === ringSig) return; ringSig = sig;
@@ -1223,6 +1231,8 @@ async function main() {
   ];
 
   const m4 = new THREE.Matrix4(), q = new THREE.Quaternion(), e3 = new THREE.Euler(), v = new THREE.Vector3(), sc = new THREE.Vector3(), col = new THREE.Color();
+  let lastGoal = '', pulseAt = -10;
+  const ringNow = new THREE.Vector3(), ringAlt = new THREE.Color('#9DEFCB');
   const origin = new THREE.Vector3(), orbit = new THREE.Vector3(), look = new THREE.Vector3(), bar = new THREE.Vector3(), dlPos = new THREE.Vector3();
 
   function update(T, time) {
@@ -1330,7 +1340,7 @@ async function main() {
     } else if (T < 10.75) {
       // The goal screen: the dots fly in, the savings bar fills, then the same phone prints the receipt.
       const g = window.filmGoal ? window.filmGoal() : { name: 'HEADPHONES', cost: 3000, perDay: 95, days: 32 };
-      const fill = Math.round(100 * smooth(range(T, 8.95, 9.35))) / 100, printing = T > 9.6;
+      const fill = Math.round(100 * smooth(range(T, 9.0, 9.4))) / 100, printing = T > 9.62;
       setScreen(lit01 + 'g' + g.name + g.perDay + fill + printing, () => drawGoal(g, fill, printing));
     } else setScreen(lit01 + 'lock', drawLock);
 
@@ -1359,6 +1369,9 @@ async function main() {
     const pre = smooth(range(T, -1.75, -1.35)) * (1 - smooth(range(T, -0.6, -0.2)));
     const preLit = Math.round(100 * (window.filmDays() - 1) / (window.filmDayCount - 1));
     const dl = smooth(range(T, 12.85, 13.25)), dlLit = Math.floor(100 * dl);
+    const gNow = window.filmGoal ? window.filmGoal().name : '';
+    if (gNow !== lastGoal) { if (lastGoal) pulseAt = time; lastGoal = gNow; }
+    const pulse = Math.exp(-(time - pulseAt) * 5) * (time - pulseAt < 2 ? 1 : 0);
     for (let k = 0; k < N; k++) {
       if (pre > 0.001) {
         const a = Math.PI / 2 - (Math.PI * 2 * k) / N;
@@ -1370,8 +1383,8 @@ async function main() {
       }
       const ary = k < aryPos.length;
       const e8 = range(T, 7.35 + k * 0.003, 7.7 + k * 0.003);
-      const e9 = smooth(range(T, 8.15 + k * 0.0015, 8.45 + k * 0.0015));
-      const eAbs = smooth(range(T, 8.62 + k * 0.0015, 8.88 + k * 0.0015));
+      const e9 = smooth(range(T, 8.12 + k * 0.001, 8.36 + k * 0.001));
+      const eAbs = smooth(range(T, 8.64 + k * 0.003, 8.8 + k * 0.003)); // one after another: a stream, not a jump
       const eStar = ary ? 0 : smooth(range(T, 11.3 + k * 0.002, 11.75 + k * 0.002));
       const e12 = ary ? smooth(range(T, 11.45 + k * 0.005, 11.85 + k * 0.005)) : 0;
       const e13 = smooth(range(T, 12.45 + k * 0.002, 12.8 + k * 0.002));
@@ -1381,10 +1394,12 @@ async function main() {
       let s = clamp(e8 * 1.4);
       catNow.copy(catColor[k]).lerp(catLight[k], L);
       col.copy(catNow);
-      // 2. empty goal ring
-      v.lerp(ringPos[k], e9); col.lerp(dimRing, e9);
-      // 3. into the phone: KaChingg does the saving
-      v.lerp(bar, eAbs); col.lerp(mint, eAbs); s *= 1 - eAbs;
+      // 2. the goal ring: mint, slowly turning and breathing; it pulses when you pick a goal
+      const ra = Math.PI / 2 - (Math.PI * 2 * k) / N + time * 0.25, rr2 = 1.5 * (1 + 0.025 * Math.sin(time * 2)) * (1 + 0.12 * pulse);
+      ringNow.set(0.3 + Math.cos(ra) * rr2, Math.sin(ra) * rr2, 0.6);
+      v.lerp(ringNow, e9); col.lerp(k % 2 ? mint : ringAlt, e9); s = lerp(s, 0.95 * (1 + 0.4 * pulse), e9);
+      // 3. into the phone, in an arc: KaChingg does the saving
+      v.lerp(bar, eAbs); v.y += Math.sin(eAbs * Math.PI) * 0.9; col.lerp(mint, eAbs); s *= 1 - eAbs * eAbs;
       // 4. stars, or the name
       if (ary) {
         v.lerp(aryPos[k], e12);
@@ -1410,19 +1425,20 @@ async function main() {
     dots.instanceMatrix.needsUpdate = true; dots.instanceColor.needsUpdate = true;
 
     // The label in the middle of the goal ring, then under the download ring.
-    const goalVis = range(T, 8.35, 8.55) * (1 - range(T, 8.75, 8.9));
+    const goalVis = range(T, 8.25, 8.42) * (1 - range(T, 8.62, 8.75));
     const dlVis = range(T, 12.8, 12.95) * (1 - range(T, 13.4, 13.6));
     ringLabel.visible = goalVis > 0.01 || dlVis > 0.01;
     if (goalVis > 0.01) {
       const g = window.filmGoal ? window.filmGoal() : { name: 'HEADPHONES', cost: 3000 };
       ringLabel.position.set(0.3, 0, 0.6); ringLabel.material.opacity = goalVis;
+      ringLabel.scale.set(2.4 * (1 + 0.15 * pulse), 1.2 * (1 + 0.15 * pulse), 1);
       drawLabel('g' + g.name + g.cost + (L > 0.5), (light) => {
-        mono(rg, 26, false, 6); rg.fillStyle = light ? '#6B6B70' : C.muted; rg.fillText('SAVING FOR', 256, 70);
-        mono(rg, 52, true, 1); rg.fillStyle = light ? '#111111' : C.fg; rg.fillText(g.name, 256, 140);
-        mono(rg, 30, false, 2); rg.fillStyle = light ? '#0E8A5F' : C.mint; rg.fillText('₹' + g.cost.toLocaleString('en-IN'), 256, 196);
+        mono(rg, 24, false, 6); rg.fillStyle = light ? '#6B6B70' : C.muted; rg.fillText('SAVING FOR', 256, 62);
+        mono(rg, g.name.length > 9 ? 54 : 64, true, 0); rg.fillStyle = light ? '#111111' : C.fg; rg.fillText(g.name, 256, 140);
+        mono(rg, 40, true, 1); rg.fillStyle = light ? '#0A6E4A' : C.mint; rg.fillText('₹' + g.cost.toLocaleString('en-IN'), 256, 200);
       }, L > 0.5);
     } else if (dlVis > 0.01) {
-      ringLabel.position.set(hero.position.x, hero.position.y - 2.15, hero.position.z + 0.3); ringLabel.material.opacity = dlVis;
+      ringLabel.position.set(hero.position.x, hero.position.y - 2.15, hero.position.z + 0.3); ringLabel.material.opacity = dlVis; ringLabel.scale.set(2.0, 1.0, 1);
       drawLabel('d' + dlLit, () => {
         mono(rg, 26, false, 6); rg.fillStyle = C.muted; rg.fillText(dlLit < 100 ? 'DOWNLOADING' : 'READY TO INSTALL', 256, 96);
         mono(rg, 64, true, -2); rg.fillStyle = C.mint; rg.fillText(dlLit + '%', 256, 172);
