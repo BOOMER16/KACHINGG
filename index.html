@@ -811,9 +811,15 @@ async function main() {
       const kx = x + 26 + i * (kw + 16), down = i === 0 && pressed ? 5 : 0;
       rr(sg, kx, ky + 5, kw, 88, 22); sg.fillStyle = S.lip; sg.fill();
       rr(sg, kx, ky + down, kw, 88, 22); sg.fillStyle = down ? S.keyDown : S.key; sg.fill(); sg.strokeStyle = S.line; sg.stroke();
-      mono(sg, 22, false, 4); sg.fillStyle = S.fg;
-      if (i === 0) { dot(sg, kx + 52, ky + down + 44, 9, C.red); sg.fillText('SPENT', kx + 76, ky + down + 52); }
-      else { rr(sg, kx + 30, ky + 29, 30, 30, 6); sg.fillStyle = '#7CE0B6'; sg.fill(); sg.fillStyle = '#0A0A0A'; mono(sg, 26, true, 0); sg.fillText('+', kx + 37, ky + 54); mono(sg, 22, false, 4); sg.fillStyle = S.fg; sg.fillText('RECEIVED', kx + 72, ky + 52); }
+      // Measure, then centre icon + label inside the key (shrinking the text if it still won't fit).
+      const label = i === 0 ? 'SPENT' : 'RECEIVED', iconW = i === 0 ? 18 : 30, gap = 14, pad = 18;
+      let size = 22, spacing = 4;
+      mono(sg, size, false, spacing);
+      while (iconW + gap + sg.measureText(label).width > kw - pad * 2 && size > 14) { size -= 1; spacing = Math.max(1, spacing - 0.5); mono(sg, size, false, spacing); }
+      const textW = sg.measureText(label).width, startX = kx + (kw - (iconW + gap + textW)) / 2, cy = ky + down + 44;
+      if (i === 0) dot(sg, startX + 9, cy, 9, C.red);
+      else { rr(sg, startX, cy - 15, 30, 30, 6); sg.fillStyle = '#7CE0B6'; sg.fill(); sg.fillStyle = '#0A0A0A'; mono(sg, 26, true, 0); sg.fillText('+', startX + 7, cy + 10); mono(sg, size, false, spacing); }
+      sg.fillStyle = S.fg; sg.fillText(label, startX + iconW + gap, cy + 8);
     });
     mono(sg, 19, false, 2); sg.fillStyle = S.muted;
     sg.fillText(n === 0 ? 'NO ENTRIES YET' : 'LAST  ' + CATCH[n - 1], x + 30, y + 348);
