@@ -74,6 +74,7 @@ body::before { content: ""; position: fixed; inset: 0 0 auto; height: env(safe-a
 .btn:active { transform: translateY(2px); }
 .btn:focus-visible, .brand:focus-visible { outline: 2px solid var(--mint); outline-offset: 3px; }
 .btn-light { background: var(--fg); color: var(--ink); }
+.bar .btn { min-height: 36px; padding: 0 14px; font-size: 11px; border-radius: 10px; }
 .btn-light:hover { background: #FFFFFF; }
 
 /* Chapter tabs along the bottom: where you are, and a way to jump anywhere. */
@@ -133,30 +134,31 @@ main { position: relative; z-index: 2; }
 
 /* ---------- the opening receipt (always paper-coloured, in any theme) ---------- */
 .copy.art { max-width: none; margin-left: auto; margin-right: 6vw; }
-.rig { --paper: #F5F4EF; width: 360px; height: min(460px, 60vh); display: flex; flex-direction: column; justify-content: flex-end; align-items: center; }
-.paper { flex-shrink: 0; width: 320px; height: 0; overflow: hidden; transform: rotate(-1.5deg); transform-origin: bottom center;
-  filter: drop-shadow(0 18px 30px rgba(0,0,0,.35)); }
-.r-inner { position: relative; background: var(--paper); color: #111111; padding: 0 22px 18px; font-family: var(--f-mono); font-size: 13px; letter-spacing: .03em; }
-.zig { height: 10px; margin: 0 -22px 10px; background: linear-gradient(135deg, #0000 50%, var(--ink) 50%) 0 0 / 14px 14px, linear-gradient(225deg, #0000 50%, var(--ink) 50%) 0 0 / 14px 14px; }
-.r-line { display: flex; justify-content: space-between; gap: 12px; padding: 3px 0; }
-.r-line span:first-child { min-width: 0; }
-.r-c { justify-content: center; text-align: center; }
-.r-b { font-weight: 700; }
-.r-f { color: #6B6A66; font-size: 10px; letter-spacing: .14em; }
-.r-brand { font-size: 17px; letter-spacing: .32em; padding-top: 6px; }
-.r-rule { height: 0; padding: 0; margin: 9px 0; border-top: 1.5px dashed #9A9994; }
-.r-total { font-size: 15px; }
-.r-q { font-weight: 700; }
-.r-q .qq { color: #D93A2B; }
-.r-code { height: 46px; margin-top: 4px; background: repeating-linear-gradient(90deg, #111 0 2px, #0000 2px 5px, #111 5px 9px, #0000 9px 11px, #111 11px 12px, #0000 12px 16px); }
-.stamp { position: absolute; left: 50%; top: 0; white-space: nowrap; padding: 8px 12px; border: 3px solid #13A070; border-radius: 6px; color: #13A070;
-  font-family: var(--f-mono); font-weight: 700; font-size: 14px; line-height: 1.25; letter-spacing: .14em; text-align: center;
-  transform: translateX(-50%) rotate(-7deg) scale(1.8); opacity: 0; mix-blend-mode: multiply; pointer-events: none; }
+.rig { --paper: #F7F6F2; width: 340px; display: flex; flex-direction: column; align-items: center; }
+/* The feed clips the paper; the paper slides up out of the slot with a transform (GPU-animated, so it stays
+   smooth even while the 3D scene is busy loading). */
+.feed { width: 300px; overflow: hidden; flex-shrink: 0; }
+.paper { transform: translateY(101%); }
+.paper.printing { transform: translateY(0); transition: transform 2.2s cubic-bezier(.3, 0, .2, 1); }
+.paper.printed { transform: none; }
+.r-inner { position: relative; background: var(--paper); color: #111111; padding: 26px 26px 22px; border-radius: 4px 4px 0 0;
+  font-family: var(--f-mono); font-size: 13px; line-height: 1.9; box-shadow: 0 20px 40px rgba(0,0,0,.35); }
+.r-head { text-align: center; font-weight: 700; font-size: 15px; letter-spacing: .34em; line-height: 1.4; }
+.r-sub { text-align: center; color: #8A8984; font-size: 10px; letter-spacing: .16em; margin: 4px 0 18px; }
+.r-line { display: flex; justify-content: space-between; gap: 12px; }
+.r-rule { border-top: 1px dashed #B9B8B2; margin: 12px 0 10px; }
+.r-total { font-weight: 700; font-size: 15px; }
+.r-q { color: #6B6A66; font-size: 12px; letter-spacing: .06em; }
+.r-q .qq { color: #D93A2B; font-weight: 700; }
+.r-q .qq.done { color: #13A070; }
+.r-more { color: #8A8984; font-size: 11px; letter-spacing: .06em; }
+.stamp.on.off { animation: none; transform: translateX(-50%) rotate(-6deg) scale(1); opacity: 0; transition: opacity .5s ease; }
+.stamp { position: absolute; left: 50%; top: 0; white-space: nowrap; padding: 5px 10px; border: 2px solid #13A070; border-radius: 5px; color: #13A070;
+  font-family: var(--f-mono); font-weight: 700; font-size: 11px; letter-spacing: .16em; line-height: 1.4;
+  transform: translateX(-50%) rotate(-6deg) scale(1.7); opacity: 0; mix-blend-mode: multiply; pointer-events: none; }
 .stamp.on { animation: thump .22s cubic-bezier(.2, 1.6, .4, 1) forwards; }
-@keyframes thump { to { transform: translateX(-50%) rotate(-7deg) scale(1); opacity: .92; } }
-.paper.jolt { animation: jolt .18s ease-out; }
-@keyframes jolt { 50% { transform: rotate(-1.5deg) translateY(3px); } }
-.slot { width: 360px; height: 44px; box-sizing: border-box; padding: 0 16px; margin-top: -4px; border-radius: 12px; background: #000; border: 1px solid #1E1E1D;
+@keyframes thump { to { transform: translateX(-50%) rotate(-6deg) scale(1); opacity: .95; } }
+.slot { width: 340px; height: 42px; box-sizing: border-box; padding: 0 16px; margin-top: -2px; border-radius: 12px; background: #000; border: 1px solid #1E1E1D;
   box-shadow: inset 0 6px 8px -6px rgba(255,255,255,.15); display: flex; align-items: center; justify-content: space-between;
   font-family: var(--f-mono); font-size: 10px; letter-spacing: .18em; color: #8A8A85; position: relative; z-index: 2; } /* paper feeds out from under the slot */
 .slot::before { content: ""; position: absolute; left: 14px; right: 14px; top: 6px; height: 3px; border-radius: 2px; background: #2E2E2C; }
@@ -164,7 +166,7 @@ main { position: relative; z-index: 2; }
 .slot i.on { background: #6EE7B7; box-shadow: 0 0 10px rgba(110,231,183,.8); }
 @media (max-width: 900px) {
   .copy.art { position: absolute; top: calc(env(safe-area-inset-top, 0px) + 64px); left: 50%; margin: 0; transform-origin: top center; }
-  .copy.art .rig { transform: translateX(-50%) scale(.62); transform-origin: top center; height: 520px; }
+  .copy.art .rig { transform: translateX(-50%) scale(.7); transform-origin: top center; }
 }
 
 /* With JS, every scene's copy lives on one fixed layer and the script alone decides where it is and how visible,
@@ -251,30 +253,31 @@ html.flat body { background-image: radial-gradient(#1E1E1C 1px, transparent 1px)
      The APK link goes in data-apk-url; empty = the download button says "coming soon". -->
 <main id="film" data-apk-url="https://github.com/BOOMER16/KACHINGG/releases/latest/download/KaChingg.apk">
 
-  <section class="ch first" id="top" data-t="-4" data-chapter="HELLO" data-no="KACHINGG" data-title="HELLO" data-pos="l" data-move="0,-1">
+  <section class="ch first" id="top" data-t="-4" data-chapter="HELLO" data-no="" data-title="HELLO" data-pos="l" data-move="0,-1">
     <div class="stick"><div class="copy">
       <h1>Your month has a <em>receipt</em>.</h1>
       <p><strong>KaChingg</strong> is a tiny budgeting app for students that shows you where it all went.</p>
       <span class="cue"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M12 4v15"></path><path d="M6 13l6 6 6-6"></path></svg>SCROLL TO PLAY</span>
     </div>
     <!-- The opening receipt: prints itself out of the slot, line by line, then gets stamped. -->
-    <div class="copy art" aria-label="A receipt for a student's month: total 3,894 rupees, where it went: unknown, sorted by KaChingg">
+    <div class="copy art" aria-label="A bank statement of cryptic UPI payments totalling 3,894 rupees, which KaChingg sorts into chai, auto, Swiggy and cold coffee">
       <div class="rig" id="rig">
-        <div class="paper" id="paper">
-          <div class="r-inner">
-            <div class="zig" aria-hidden="true"></div>
-            <div class="r-line r-c r-b r-brand">KACHINGG</div>
-            <div class="r-line r-rule"></div>
-            <div class="r-line"><span>CHAI ×30</span><span>₹600</span></div>
-            <div class="r-line"><span>AUTO ×22</span><span>₹990</span></div>
-            <div class="r-line"><span>SWIGGY ×6</span><span>₹1,494</span></div>
-            <div class="r-line"><span>"JUST ONE" COLD COFFEE ×9</span><span>₹810</span></div>
-            <div class="r-line r-rule"></div>
-            <div class="r-line r-b r-total"><span>TOTAL</span><span>₹3,894</span></div>
-            <div class="r-line r-q"><span>WHERE IT WENT</span><span class="qq">???</span></div>
-            <div class="r-line r-rule"></div>
-            <div class="r-line r-code" aria-hidden="true"></div>
-            <span class="stamp" id="stamp">SORTED BY KACHINGG</span>
+        <div class="feed">
+          <div class="paper" id="paper">
+            <div class="r-inner">
+              <!-- Prints as the bank shows it; data-to is what KaChingg turns each line into. -->
+              <div class="r-head" data-to="KACHINGG">UPI STATEMENT</div>
+              <div class="r-sub" data-to="OCTOBER · BANK / UPI">OCT · A/C XX4521</div>
+              <div class="r-line"><span data-to="Chai × 30">UPI/4521/PAYTM*QR</span><span data-to="₹600">₹20</span></div>
+              <div class="r-line"><span data-to="Auto × 22">UPI/8830/RAPIDO</span><span data-to="₹990">₹45</span></div>
+              <div class="r-line"><span data-to="Swiggy × 6">UPI/1193/SWGY8834</span><span data-to="₹1,494">₹249</span></div>
+              <div class="r-line"><span data-to="Cold coffee × 9">UPI/7712/98XXXX10</span><span data-to="₹810">₹90</span></div>
+              <div class="r-line r-more"><span data-to="67 payments, 4 habits">+ 63 MORE LIKE THESE</span></div>
+              <div class="r-rule"></div>
+              <div class="r-line r-total"><span>TOTAL</span><span>₹3,894</span></div>
+              <div class="r-line r-q"><span>WHERE IT WENT</span><span class="qq" data-to="SORTED">???</span></div>
+              <span class="stamp" id="stamp">SORTED BY KACHINGG</span>
+            </div>
           </div>
         </div>
         <div class="slot" aria-hidden="true"><span>KCH-01 · PRINTER</span><i id="slotLed"></i></div>
@@ -705,36 +708,57 @@ html.flat body { background-image: radial-gradient(#1E1E1C 1px, transparent 1px)
     }
   }
   // ---------- the opening receipt prints itself (once), then gets stamped ----------
-  // ---------- the opening receipt: one continuous paper feed, then the stamp ----------
-  // Prints by itself on load, and again whenever you come back to the first screen.
+  // ---------- the opening receipt: prints what the bank shows, then KaChingg sorts it ----------
+  // Prints by itself as soon as the film is ready, and again whenever you come back to the first screen.
   const printer = (function () {
-    const paper = document.getElementById('paper'), inner = paper.querySelector('.r-inner'), stamp = document.getElementById('stamp'), led = document.getElementById('slotLed');
-    let raf = 0, timer = 0;
-    const placeStamp = () => { const q = paper.querySelector('.r-q'); stamp.style.top = (q.offsetTop + q.offsetHeight / 2 - stamp.offsetHeight / 2) + 'px'; };
-    const finish = () => { paper.style.height = 'auto'; placeStamp(); led.classList.remove('on'); };
+    const paper = document.getElementById('paper'), stamp = document.getElementById('stamp'), led = document.getElementById('slotLed');
+    const swaps = Array.from(paper.querySelectorAll('[data-to]'));
+    swaps.forEach((el) => { el.dataset.from = el.textContent; });
+    const noise = '#/*0123456789XUPIQ';
+    let timers = [], loops = [];
+    const later = (fn, ms) => timers.push(setTimeout(fn, ms));
+    function stop() { timers.forEach(clearTimeout); loops.forEach(clearInterval); timers = []; loops = []; }
+    function placeStamp() {   // over the middle of the payment lines
+      const rows = paper.querySelectorAll('.r-line'), a = rows[0], z = rows[3];
+      stamp.style.top = ((a.offsetTop + z.offsetTop + z.offsetHeight) / 2 - stamp.offsetHeight / 2) + 'px';
+    }
+    // Each line scrambles, then settles letter by letter into its real meaning.
+    function decrypt(el, to) {
+      let f = 0;
+      const id = setInterval(() => {
+        f++;
+        el.textContent = [...to].map((c, i) => (c === ' ' || f > 5 + i ? c : noise[Math.floor(Math.random() * noise.length)])).join('');
+        if (f > 5 + to.length) { clearInterval(id); el.textContent = to; el.classList.add('done'); }
+      }, 26);
+      loops.push(id);
+    }
+    function sortIt() {
+      led.classList.remove('on'); placeStamp(); stamp.classList.add('on');
+      later(() => swaps.forEach((el, i) => later(() => decrypt(el, el.dataset.to), i * 90)), 420);
+      later(() => stamp.classList.add('off'), 1100);
+    }
     function print() {
-      cancelAnimationFrame(raf); clearTimeout(timer);
-      stamp.classList.remove('on'); paper.classList.remove('jolt'); void stamp.offsetWidth; // restart the CSS animations
-      if (reduce) { finish(); stamp.style.opacity = '.92'; stamp.style.transform = 'translateX(-50%) rotate(-7deg)'; return; }
-      const H = inner.offsetHeight, dur = 2400;
-      paper.style.height = '0px'; led.classList.add('on');
-      let t0 = 0;
-      const feed = (now) => {
-        if (!t0) t0 = now;
-        const f = Math.min(1, (now - t0) / dur);
-        paper.style.height = (H * f).toFixed(1) + 'px';   // steady, like a thermal printer
-        if (f < 1) raf = requestAnimationFrame(feed);
-        else timer = setTimeout(() => { finish(); stamp.classList.add('on'); paper.classList.add('jolt'); }, 250);
-      };
-      raf = requestAnimationFrame(feed);
+      stop();
+      swaps.forEach((el) => { el.textContent = el.dataset.from; el.classList.remove('done'); });
+      stamp.classList.remove('on', 'off'); paper.classList.remove('printing', 'printed');
+      if (reduce) { paper.classList.add('printed'); swaps.forEach((el) => { el.textContent = el.dataset.to; el.classList.add('done'); }); return; }
+      void paper.offsetWidth;            // commit the "hidden in the slot" position before animating
+      led.classList.add('on');
+      paper.classList.add('printing');
+      later(sortIt, 2900);               // let the cryptic version sink in for a moment first
     }
     window.addEventListener('resize', placeStamp);
-    // Measure only once the webfonts are in (Space Mono is bigger than the fallback); never wait more than 1.2s.
-    Promise.race([document.fonts ? document.fonts.ready : Promise.resolve(), new Promise((r) => setTimeout(r, 1200))]).then(() => setTimeout(print, 250));
+    // Start when the fonts are in AND the 3D has drawn its first frames (its setup is heavy); never wait over 3s.
+    const fonts = document.fonts ? document.fonts.ready : Promise.resolve();
+    const film = new Promise((r) => { window.addEventListener('film-ready', r, { once: true }); setTimeout(r, 3000); });
+    Promise.all([fonts, film]).then(() => setTimeout(print, 150));
     return { print };
   })();
   let helloAway = false;
 
+  // A film starts at the beginning: don't let the browser restore an old scroll position on reload.
+  if ('scrollRestoration' in history) history.scrollRestoration = 'manual';
+  window.scrollTo(0, 0);
   window.addEventListener('resize', () => { measure(); lastH = -1; });
   measure();
   renderNumbers();
@@ -1460,7 +1484,7 @@ async function main() {
   }
 
   // ---------- the loop ----------
-  let Ts = window.filmStory(), last = performance.now(), time = 0;
+  let Ts = window.filmStory(), last = performance.now(), time = 0, frames = 0;
   function frame(now) {
     const dt = Math.min(0.05, (now - last) / 1000); last = now;
     if (!reduceMotion) time += dt;
@@ -1471,6 +1495,7 @@ async function main() {
     applyTheme(L);
     update(Ts, time);
     if (composer) composer.render(dt); else renderer.render(scene, camera);
+    if (++frames === 8) window.dispatchEvent(new Event('film-ready'));   // the receipt waits for this
     requestAnimationFrame(frame);
   }
   requestAnimationFrame(frame);
