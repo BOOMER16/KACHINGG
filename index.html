@@ -44,8 +44,11 @@ body::before { content: ""; position: fixed; inset: 0 0 auto; height: env(safe-a
 
 #stage { position: fixed; inset: 0; width: 100vw; height: 100vh; display: block; z-index: 0; }
 /* Keeps copy readable over the 3D: darkens the left (desktop) or bottom (phone) edge only. */
-.veil { position: fixed; inset: 0; z-index: 1; pointer-events: none;
-  background: linear-gradient(90deg, rgba(10,10,10,.82) 0%, rgba(10,10,10,.45) 34%, rgba(10,10,10,0) 55%); }
+/* Veils keep copy readable over the 3D. The film fades between them as the text changes sides. */
+.veil { position: fixed; inset: 0; z-index: 1; pointer-events: none; }
+.veil-l { background: linear-gradient(90deg, rgba(10,10,10,.82) 0%, rgba(10,10,10,.45) 34%, rgba(10,10,10,0) 55%); }
+.veil-r { background: linear-gradient(270deg, rgba(10,10,10,.82) 0%, rgba(10,10,10,.45) 34%, rgba(10,10,10,0) 55%); opacity: 0; }
+.veil-b { display: none; background: linear-gradient(0deg, rgba(10,10,10,.92) 0%, rgba(10,10,10,.6) 38%, rgba(10,10,10,0) 60%); }
 
 /* ---------- chrome: top bar + film timeline ---------- */
 .bar { position: fixed; top: 0; left: 0; right: 0; z-index: 5; display: flex; align-items: center; justify-content: space-between; gap: 16px;
@@ -65,7 +68,7 @@ body::before { content: ""; position: fixed; inset: 0 0 auto; height: env(safe-a
   padding-bottom: calc(env(safe-area-inset-bottom, 0px) + 18px); padding-top: 12px;
   padding-left: max(24px, env(safe-area-inset-left, 0px)); padding-right: max(24px, env(safe-area-inset-right, 0px)); }
 .timeline .title { font-family: var(--f-mono); font-size: 11px; letter-spacing: .18em; color: var(--muted); min-width: 11em; white-space: nowrap; }
-.ticks { flex: 1; display: grid; grid-template-columns: repeat(14, minmax(0, 1fr)); gap: 6px; align-items: center; }
+.ticks { flex: 1; display: grid; grid-auto-flow: column; grid-auto-columns: minmax(0, 1fr); gap: 6px; align-items: center; }
 .ticks span { height: 2px; background: var(--line); border-radius: 1px; transition: background-color .3s ease, height .3s ease; }
 .ticks span.done { background: #4A4A47; }
 .ticks span.now { background: var(--mint); height: 4px; }
@@ -78,7 +81,16 @@ main { position: relative; z-index: 2; }
 /* The copy pins to the screen while its scene plays, then scrolls away. */
 .stick { position: sticky; top: 0; height: 100vh; box-sizing: border-box; display: flex; align-items: center;
   padding-left: max(24px, env(safe-area-inset-left, 0px)); padding-right: max(24px, env(safe-area-inset-right, 0px)); }
-.copy { max-width: min(34rem, 44vw); margin-left: 4vw; display: flex; flex-direction: column; gap: 22px; will-change: opacity, transform; }
+.copy { max-width: min(34rem, 42vw); margin-left: 4vw; display: flex; flex-direction: column; gap: 22px; will-change: opacity, transform; }
+/* Where each scene's copy sits (data-pos): l / r, optionally t(op) or b(ottom). The 3D pans to the other side. */
+/* With JS, every scene's copy lives on one fixed layer and the script alone decides where it is and how visible,
+   so text can never drift into the top bar or under the 3D. Hidden copies get visibility:hidden (no stray clicks). */
+html.js .stick { position: fixed; inset: 0; height: auto; pointer-events: none; }
+html.js .copy { pointer-events: auto; }
+.ch[data-pos="r"] .stick, .ch[data-pos="tr"] .stick, .ch[data-pos="br"] .stick { justify-content: flex-end; }
+.ch[data-pos="r"] .copy, .ch[data-pos="tr"] .copy, .ch[data-pos="br"] .copy { margin-left: 0; margin-right: 4vw; }
+.ch[data-pos="tl"] .stick, .ch[data-pos="tr"] .stick { align-items: flex-start; padding-top: 19vh; }
+.ch[data-pos="bl"] .stick, .ch[data-pos="br"] .stick { align-items: flex-end; padding-bottom: 17vh; }
 .eyebrow { font-family: var(--f-mono); font-size: 12px; letter-spacing: .2em; color: var(--muted); display: flex; align-items: center; gap: 10px; }
 .eyebrow i { width: 7px; height: 7px; border-radius: 50%; background: var(--red); display: block; }
 .eyebrow i.in { background: var(--mint); }
@@ -111,34 +123,35 @@ h2 { font-size: clamp(2.6rem, 5.2vw, 5.6rem); }
 .steps li { display: flex; gap: 14px; }
 .steps li::before { counter-increment: s; content: "0" counter(s); color: var(--red); font-weight: 700; }
 
-.credits { min-height: 100vh; box-sizing: border-box; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 36px; text-align: center;
-  padding-block: 120px; padding-left: max(24px, env(safe-area-inset-left, 0px)); padding-right: max(24px, env(safe-area-inset-right, 0px)); }
+.ch.credits { height: 100vh; }
 .credits dl { margin: 0; display: grid; grid-template-columns: auto auto; gap: 14px 28px; font-family: var(--f-mono); font-size: 13px; letter-spacing: .16em; }
-.credits dt { color: var(--muted); text-align: right; }
-.credits dd { margin: 0; color: var(--fg); text-align: left; }
+.credits dt { color: var(--muted); }
+.credits dd { margin: 0; color: var(--fg); }
 .credits .end { font-family: var(--f-display); font-weight: 900; font-size: clamp(2.6rem, 6vw, 5rem); }
 
 /* Phones: the stage takes the top, copy sits at the bottom. */
 @media (max-width: 900px) {
-  .veil { background: linear-gradient(0deg, rgba(10,10,10,.92) 0%, rgba(10,10,10,.6) 38%, rgba(10,10,10,0) 60%); }
-  .stick { align-items: flex-end; padding-bottom: 96px; }
+  .veil-l, .veil-r { display: none; }
+  .veil-b { display: block; }
+  .ch[data-pos] .stick { justify-content: flex-start; align-items: flex-end; padding-top: 0; padding-bottom: 96px; }
+  .ch[data-pos] .copy { margin-left: 0; margin-right: 0; }
   .copy { max-width: 100%; margin-left: 0; gap: 16px; }
   .scene-no { display: none; }
   .timeline .title { min-width: 0; }
-  .credits dl { grid-template-columns: 1fr; gap: 4px; }
-  .credits dt, .credits dd { text-align: center; }
-  .credits dd { margin-bottom: 12px; }
+  .credits dl { grid-template-columns: 1fr; gap: 2px; }
+  .credits dd { margin-bottom: 10px; }
 }
 /* No 3D available: a plain, readable page. */
 html.flat #stage, html.flat .veil { display: none; }
 html.flat body { background-image: radial-gradient(#1E1E1C 1px, transparent 1px); background-size: 14px 14px; }
-html.flat .copy { opacity: 1 !important; transform: none !important; }
 @media (prefers-reduced-motion: reduce) { .cue svg { animation: none; } .btn, .ticks span { transition: none; } }
 </style>
 </head>
 <body>
 <canvas id="stage" aria-hidden="true"></canvas>
-<div class="veil" aria-hidden="true"></div>
+<div class="veil veil-l" id="veilL" aria-hidden="true"></div>
+<div class="veil veil-r" id="veilR" aria-hidden="true"></div>
+<div class="veil veil-b" aria-hidden="true"></div>
 
 <header class="bar">
   <a class="brand" href="#top">KACHINGG</a>
@@ -147,77 +160,70 @@ html.flat .copy { opacity: 1 !important; transform: none !important; }
 </header>
 
 <!-- The APK link: paste it into data-apk-url below. Empty = the download button says "coming soon". -->
-<main id="film" data-apk-url="">
-
-  <section class="ch first" id="top" data-title="OPENING">
+<!-- data-pos: where the copy sits (l, r, tl, tr, bl, br). data-move: which way it drifts as you scroll (x,y). -->
+<main id="film" data-apk-url="https://github.com/BOOMER16/KACHINGG/releases/latest/download/KaChingg.apk">
+  <section class="ch first" id="top" data-title="OPENING" data-pos="l" data-move="0,-1">
     <div class="stick"><div class="copy">
       <span class="eyebrow"><i class="in"></i>A SHORT FILM ABOUT YOUR MONEY</span>
       <h1>Know where it went.</h1>
-      <p><strong>KaChingg</strong> is a tiny budgeting app for college students.</p>
+      <p><strong>KaChingg</strong> is a tiny budgeting app for every college student who has ever said <strong>"bro, where did my money go?"</strong></p>
       <span class="cue"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M12 4v15"></path><path d="M6 13l6 6 6-6"></path></svg>SCROLL TO PLAY</span>
     </div></div>
   </section>
-
-  <section class="ch" data-title="DAY ONE">
+  <section class="ch" data-title="DAY ONE" data-pos="tr" data-move="-1,0">
     <div class="stick"><div class="copy">
       <span class="eyebrow"><i class="in"></i>SC. 01 · DAY ONE</span>
       <h2>It starts on the 1st.</h2>
-      <p>The allowance lands. <strong>₹5,000.</strong> Feels like plenty.</p>
+      <p>The allowance lands. <strong>₹5,000.</strong> For about 48 hours, you're basically a billionaire.</p>
     </div></div>
   </section>
-
-  <section class="ch" data-title="THE LEAK">
+  <section class="ch" data-title="THE LEAK" data-pos="bl" data-move="-1,1">
     <div class="stick"><div class="copy">
       <span class="eyebrow"><i></i>SC. 02 · THE LEAK</span>
       <h2>Then it leaks.</h2>
-      <p>Never all at once. <strong>₹20 at a time.</strong></p>
+      <p>Chai ₹20. Auto ₹45. Maggi ₹30. <strong>Not one of them felt like spending.</strong></p>
     </div></div>
   </section>
-
-  <section class="ch" data-title="INVISIBLE">
+  <section class="ch" data-title="INVISIBLE" data-pos="r" data-move="-1,-1">
     <div class="stick"><div class="copy">
       <span class="eyebrow"><i></i>SC. 03 · INVISIBLE</span>
       <h2>UPI made it invisible.</h2>
-      <p>No cash leaves your hand, so you never feel it go.</p>
+      <p>Scan. Beep. Done. No cash leaves your hand, so your brain never files it under "spent".</p>
     </div></div>
   </section>
-
-  <section class="ch" data-title="WEEK THREE">
+  <section class="ch" data-title="WEEK THREE" data-pos="tl" data-move="0,-1">
     <div class="stick"><div class="copy">
       <span class="eyebrow"><i></i>SC. 04 · WEEK THREE</span>
       <h2>Where did it all go?</h2>
-      <p>Nobody blew it on one big thing. That's exactly the problem.</p>
+      <p>Week three. You open your bank app like it's your exam result.</p>
     </div></div>
   </section>
-
-  <section class="ch" data-title="THE IDEA">
+  <section class="ch" data-title="THE IDEA" data-pos="br" data-move="-1,0">
     <div class="stick"><div class="copy">
       <span class="eyebrow"><i class="in"></i>SC. 05 · THE IDEA</span>
       <h2>Make logging faster than forgetting.</h2>
-      <p>So the app lives where your thumb already is.</p>
+      <p>If writing it down takes longer than paying, you won't do it. Nobody does. So it takes two taps.</p>
     </div></div>
   </section>
-
-  <section class="ch" data-title="TWO TAPS">
+  <section class="ch" data-title="TWO TAPS" data-pos="l" data-move="-1,1">
     <div class="stick"><div class="copy">
       <span class="eyebrow"><i class="in"></i>SC. 06 · TWO TAPS</span>
       <h2>Spent. Amount. Done.</h2>
-      <p>Log from the home-screen widget before the auto pulls away.</p>
+      <p>Straight from your home screen, before the auto even pulls away.</p>
     </div></div>
   </section>
-
-  <section class="ch" data-title="ONE NUMBER">
+  <section class="ch" data-title="ONE NUMBER" data-pos="tr" data-move="-1,-1">
     <div class="stick"><div class="copy">
       <span class="eyebrow"><i class="in"></i>SC. 07 · ONE NUMBER</span>
       <h2>Safe to spend today.</h2>
-      <p>What's left this month, split across the days left. Check it before you pay.</p>
+      <p>One number that answers <strong>"can I afford the momos?"</strong> before you order them.</p>
     </div></div>
   </section>
-
-  <section class="ch" data-title="WHERE IT WENT">
+  <section class="ch" data-title="WHERE IT WENT" data-pos="bl" data-move="0,-1">
     <div class="stick"><div class="copy">
       <span class="eyebrow"><i class="in"></i>SC. 08 · WHERE IT WENT</span>
       <h2>Every rupee, as 100 dots.</h2>
+      <p>Plot twist: 23 of them were "just one more Swiggy order".</p>
       <div class="legend" aria-label="This month: food 41, fun 23, travel 21, other 15">
         <span><b style="background: #EDEDE8"></b>FOOD 41</span>
         <span><b style="background: #F0442E"></b>FUN 23</span>
@@ -226,32 +232,28 @@ html.flat .copy { opacity: 1 !important; transform: none !important; }
       </div>
     </div></div>
   </section>
-
-  <section class="ch" data-title="SAVING FOR">
+  <section class="ch" data-title="SAVING FOR" data-pos="r" data-move="-1,0">
     <div class="stick"><div class="copy">
       <span class="eyebrow"><i class="in"></i>SC. 09 · SAVING FOR</span>
       <h2>Save up for the thing you want.</h2>
-      <p>Set money aside. See the day you'll get there.</p>
+      <p>Headphones. The Goa trip. Concert tickets. Watch the ring fill, and know the day you'll get there.</p>
     </div></div>
   </section>
-
-  <section class="ch" data-title="THE RECEIPT">
+  <section class="ch" data-title="THE RECEIPT" data-pos="tl" data-move="-1,1">
     <div class="stick"><div class="copy">
       <span class="eyebrow"><i class="in"></i>SC. 10 · THE RECEIPT</span>
       <h2>Print today's receipt.</h2>
-      <p>Line by line, with a little buzz for each. Going over is a fact, never a scolding.</p>
+      <p>Close out the day like a shopkeeper. Went over? It just says so. No lecture. Tomorrow's a fresh receipt.</p>
     </div></div>
   </section>
-
-  <section class="ch" data-title="PRIVATE">
+  <section class="ch" data-title="PRIVATE" data-pos="br" data-move="-1,-1">
     <div class="stick"><div class="copy">
       <span class="eyebrow"><i class="in"></i>SC. 11 · PRIVATE</span>
       <h2>It stays on your phone.</h2>
-      <p>No account. No bank login. No servers.</p>
+      <p>No account. No bank login. No servers. <strong>Not even I can see what you spend.</strong></p>
     </div></div>
   </section>
-
-  <section class="ch long" data-title="A FILM BY ARY">
+  <section class="ch long" data-title="A FILM BY ARY" data-pos="l" data-move="0,-1">
     <div class="stick"><div class="copy maker">
       <span class="eyebrow"><i class="in"></i>SC. 12 · A FILM BY</span>
       <h2 class="hello">Hi, I'm<span class="name" id="aryName" aria-hidden="true">ARY</span><span class="sr">ARY</span></h2>
@@ -260,12 +262,11 @@ html.flat .copy { opacity: 1 !important; transform: none !important; }
       <p>A community I started with my friends. B.Tech students, learning and building together.</p>
     </div></div>
   </section>
-
-  <section class="ch" id="get" data-title="YOUR TURN">
+  <section class="ch" id="get" data-title="YOUR TURN" data-pos="r" data-move="-1,0">
     <div class="stick"><div class="copy">
       <span class="eyebrow"><i class="in"></i>SC. 13 · YOUR TURN</span>
       <h2>Try it for three days.</h2>
-      <p>Log everything, even the ₹10 chai. Then tell me what felt off.</p>
+      <p>Log everything, even the ₹10 chai. Then roast it. I want to know what felt off.</p>
       <div class="cta-row">
         <a class="btn btn-mint" id="apk" href="#get">
           <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" aria-hidden="true"><path d="M12 4v12"></path><path d="M6 10l6 6 6-6"></path><path d="M4 20h16"></path></svg>
@@ -281,15 +282,19 @@ html.flat .copy { opacity: 1 !important; transform: none !important; }
     </div></div>
   </section>
 
-  <footer class="credits" data-title="CREDITS">
-    <dl>
-      <dt>WRITTEN, DESIGNED &amp; BUILT BY</dt><dd>ARY</dd>
-      <dt>WITH</dt><dd>SYNTAX TERROR</dd>
-      <dt>STARRING</dt><dd>YOUR ALLOWANCE</dd>
-      <dt>FEEDBACK</dt><dd>IN THE APP · SETTINGS → SEND FEEDBACK</dd>
-    </dl>
-    <span class="end">KaChingg</span>
-    <span class="fine">© 2026</span>
+  <footer class="ch credits" data-title="CREDITS" data-pos="l" data-move="0,-1">
+    <div class="stick"><div class="copy">
+      <span class="eyebrow"><i class="in"></i>END CREDITS</span>
+      <dl>
+        <dt>WRITTEN, DESIGNED &amp; BUILT BY</dt><dd>ARY</dd>
+        <dt>WITH</dt><dd>SYNTAX TERROR</dd>
+        <dt>STARRING</dt><dd>YOUR ALLOWANCE</dd>
+        <dt>SPECIAL APPEARANCE</dt><dd>2 AM MAGGI</dd>
+        <dt>FEEDBACK</dt><dd>SETTINGS → SEND FEEDBACK</dd>
+      </dl>
+      <span class="end">KaChingg</span>
+      <span class="fine">NO RUPEES WERE HARMED IN THE MAKING OF THIS FILM · © 2026</span>
+    </div></div>
   </footer>
 </main>
 
@@ -308,6 +313,7 @@ html.flat .copy { opacity: 1 !important; transform: none !important; }
 <script>
 // ---- Copy, timeline and download link: plain DOM, works even if the 3D never loads. ----
 (function () {
+  document.documentElement.classList.add('js');
   const sections = Array.from(document.querySelectorAll('#film > section, #film > footer'));
   const ticks = document.getElementById('ticks');
   sections.forEach(() => ticks.appendChild(document.createElement('span')));
@@ -336,6 +342,8 @@ html.flat .copy { opacity: 1 !important; transform: none !important; }
     return n - 1;
   };
   const reduce = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+  // Which way each scene's copy drifts as you scroll through it (data-move="x,y").
+  const moves = sections.map((s) => (s.dataset.move || '0,-1').split(',').map(Number));
   const nameEl = document.getElementById('aryName');
   let nameShown = false, nameTimer = 0;
   // Cybersecurity nod: the name "decrypts" out of noise, letter by letter, each time it arrives.
@@ -365,7 +373,9 @@ html.flat .copy { opacity: 1 !important; transform: none !important; }
       const d = T - k;
       const o = Math.max(0, Math.min(1, 1 - Math.max(0, Math.abs(d) - 0.2) * 3.4));
       copy.style.opacity = o.toFixed(3);
-      copy.style.transform = 'translateY(' + (d * -24).toFixed(1) + 'px)';
+      copy.style.visibility = o < 0.02 ? 'hidden' : 'visible';
+      const k2 = reduce ? 0 : (window.innerWidth > 900 ? 1 : 0.4);
+      copy.style.transform = 'translate(' + (d * moves[k][0] * 170 * k2).toFixed(1) + 'px, ' + (d * moves[k][1] * 120 * k2).toFixed(1) + 'px)';
       if (copy.classList.contains('maker')) {
         if (o > 0.6 && !nameShown) { nameShown = true; decrypt(); }
         if (o < 0.05) nameShown = false;
@@ -685,7 +695,7 @@ async function main() {
   const gridPos = [], ringPos = [], starPos = [], aryPos = [];
   const sr = seeded(3);
   for (let k = 0; k < N; k++) {
-    gridPos.push(new THREE.Vector3(((k % 10) - 4.5) * 0.34 + 0.3, (4.5 - Math.floor(k / 10)) * 0.34, 0.8));
+    gridPos.push(new THREE.Vector3(((k % 10) - 4.5) * 0.34 + 0.3, (4.5 - Math.floor(k / 10)) * 0.34 - 0.35, 0.8));
     const a = Math.PI / 2 - (Math.PI * 2 * k) / N;
     ringPos.push(new THREE.Vector3(Math.cos(a) * 1.75 + 0.3, Math.sin(a) * 1.75, 0.6));
     starPos.push(new THREE.Vector3((sr() - 0.5) * 22, -2 + sr() * 9, -6 - sr() * 12));
@@ -743,12 +753,27 @@ async function main() {
     camera.aspect = w / h;
     wide = w > 900;
     distMul = wide ? 1 : clamp(1.5 / camera.aspect, 1, 2.4);
-    // Shift the picture, not the world: the camera still looks at the stage, it just lands off-centre.
-    if (wide) camera.setViewOffset(w, h, -w * 0.2, 0, w, h);
-    else camera.setViewOffset(w, h, 0, h * 0.17, w, h);
     camera.updateProjectionMatrix();
   }
   window.addEventListener('resize', resize); resize();
+
+  // Where the stage sits on screen, scene by scene: always opposite the copy.
+  // sx > 0 pushes the 3D right, sy > 0 lifts it. Shifting the picture (not the world) keeps the camera moves intact.
+  const SIDE = { l: [0.2, 0], r: [-0.2, 0], tl: [0.2, -0.07], tr: [-0.2, -0.07], bl: [0.2, 0.07], br: [-0.2, 0.07] };
+  // Each side is held while that scene's text is readable; the pan happens only in the crossfade between scenes.
+  const VIEW = Array.from(document.querySelectorAll('#film > section, #film > footer'))
+    .flatMap((el, i) => { const v = SIDE[el.dataset.pos] || SIDE.l; return [[i - 0.24, v], [i + 0.24, v]]; });
+  const veilL = document.getElementById('veilL'), veilR = document.getElementById('veilR');
+  function frameStage(T) {
+    const w = window.innerWidth, h = window.innerHeight;
+    if (wide) {
+      const [sx, sy] = track(VIEW, T);
+      camera.setViewOffset(w, h, -sx * w, sy * h, w, h);
+      const left = clamp(0.5 + sx / 0.4);
+      veilL.style.opacity = left.toFixed(3); veilR.style.opacity = (1 - left).toFixed(3);
+    } else camera.setViewOffset(w, h, 0, h * 0.17, w, h);
+    camera.updateProjectionMatrix();
+  }
 
   const pointer = { x: 0, y: 0, sx: 0, sy: 0 };
   if (!reduceMotion) window.addEventListener('pointermove', (e) => { pointer.x = e.clientX / window.innerWidth - 0.5; pointer.y = e.clientY / window.innerHeight - 0.5; }, { passive: true });
@@ -779,8 +804,8 @@ async function main() {
     [6.3, [0, 0, 0, 0.02, -0.12, 0]],
     [7.0, [0, 0, 0.3, 0, 0.32, 0]],
     [7.5, [0, 0, 0, 0, 0.2, 0]],
-    [8.0, [-1.4, -0.6, -3, 0.15, 0.55, 0]],
-    [9.4, [-1.4, -0.6, -3, 0.15, 0.55, 0]],
+    [8.0, [0, -9, -2, 0.6, 0.8, 0]],
+    [9.4, [0, -9, -2, 0.6, 0.8, 0]],
     [10.0, [0, -1.3, 0, -0.28, -0.2, 0]],
     [10.7, [0, -1.3, 0, -0.22, 0.25, 0]],
     [11.0, [0, 0, 0, 0.04, -0.2, 0]],
@@ -799,6 +824,7 @@ async function main() {
 
   function update(T, time) {
     // ---- camera ----
+    frameStage(T);
     const cam = track(CAM, T);
     pointer.sx += (pointer.x - pointer.sx) * 0.05; pointer.sy += (pointer.y - pointer.sy) * 0.05;
     camera.position.set(cam[0] + pointer.sx * 0.6, cam[1] - pointer.sy * 0.35, cam[2] * distMul);
@@ -838,7 +864,7 @@ async function main() {
         const l = range(T, 1.7 + k * 0.09, 2.15 + k * 0.09);
         if (l > 0) {
           const e = inQuad(l);
-          x += Math.cos(u.dir) * 7 * e; z += Math.sin(u.dir) * 5 * e; y += u.lift * 2 * e + Math.sin(l * Math.PI) * 0.6;
+          x += Math.cos(u.dir) * 2.4 * e; z += -6 - Math.abs(Math.sin(u.dir)) * 6 * e; z = lerp(u.jitter * 0.5, z, e); y += u.lift * 0.9 * e + Math.sin(l * Math.PI) * 0.5;
           rx += u.spin * l; rz += u.spin * 0.6 * l;
           // The first few you can still see go; after that (scene 03) they vanish fast: invisible money.
           op *= k < 8 ? 1 - range(l, 0.45, 1) : 1 - range(l, 0.05, 0.5);
@@ -872,7 +898,7 @@ async function main() {
       if (c.visible) {
         const e = outCubic(t);
         origin.set(0, -0.15, PD / 2 + 0.1); phone.localToWorld(origin); stage.worldToLocal(origin);
-        c.position.set(lerp(-3.8 - j * 0.35, origin.x, e), lerp(3.2 + (j % 2) * 0.6, origin.y, e) + Math.sin(t * Math.PI) * 0.8, lerp(1.6, origin.z, e));
+        c.position.set(lerp(3.8 + j * 0.35, origin.x, e), lerp(3.2 + (j % 2) * 0.6, origin.y, e) + Math.sin(t * Math.PI) * 0.8, lerp(1.6, origin.z, e));
         c.rotation.set(time * 2 + j, time * 3, 0);
         c.scale.setScalar(lerp(0.45, 0.06, inQuad(t)));
       }
@@ -903,11 +929,11 @@ async function main() {
 
     // ---- dots ----
     origin.set(0, 0, PD / 2); phone.localToWorld(origin); stage.worldToLocal(origin);
-    const e9fill = range(T, 8.9, 9.35);
+    const e9fill = range(T, 8.7, 9.1);
     const lit = Math.floor(42 * e9fill);
     for (let k = 0; k < N; k++) {
-      const e8 = range(T, 7.5 + k * 0.004, 7.95 + k * 0.004);
-      const e9 = smooth(range(T, 8.45 + k * 0.003, 8.9 + k * 0.003));
+      const e8 = range(T, 7.35 + k * 0.003, 7.7 + k * 0.003);
+      const e9 = smooth(range(T, 8.3 + k * 0.002, 8.65 + k * 0.002));
       const e10 = smooth(range(T, 9.5 + k * 0.003, 10.1 + k * 0.003));
       const ary = k < aryPos.length;
       const e12 = ary ? smooth(range(T, 11.45 + k * 0.005, 11.85 + k * 0.005)) : 0;
@@ -917,7 +943,7 @@ async function main() {
       v.lerp(starPos[k], e10);
       if (ary) v.lerp(aryPos[k], e12);
       const a = (Math.PI * 2 * k) / N + time * 0.25;
-      orbit.set(0.3 + Math.cos(a) * 2.6, 0.4 + Math.sin(a) * 0.55, Math.sin(a) * 2.6);
+      orbit.set(0.3 + Math.cos(a) * 1.85, 0.4 + Math.sin(a) * 0.95, Math.sin(a) * 1.35);
       v.lerp(orbit, e13);
       let s = clamp(e8 * 1.4) * lerp(1, 0.55, e10);
       if (e10 > 0 && !(ary && e12 > 0)) s *= 0.8 + 0.4 * Math.sin(time * 2 + k * 1.7) * e10; // stars twinkle
@@ -933,7 +959,7 @@ async function main() {
     }
     dots.instanceMatrix.needsUpdate = true; dots.instanceColor.needsUpdate = true;
 
-    const ringVis = range(T, 8.75, 9.0) * (1 - range(T, 9.45, 9.7));
+    const ringVis = range(T, 8.55, 8.8) * (1 - range(T, 9.45, 9.7));
     ringLabel.visible = ringVis > 0.01; ringLabel.material.opacity = ringVis;
     if (ringLabel.visible) drawRing(lit);
   }
