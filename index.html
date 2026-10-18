@@ -60,7 +60,7 @@ body::before { content: ""; position: fixed; inset: 0 0 auto; height: env(safe-a
 .veil { position: fixed; inset: 0; z-index: 1; pointer-events: none; }
 .veil-l { background: linear-gradient(90deg, rgba(var(--veil), .82) 0%, rgba(var(--veil), .45) 34%, rgba(var(--veil), 0) 55%); }
 .veil-r { background: linear-gradient(270deg, rgba(var(--veil), .82) 0%, rgba(var(--veil), .45) 34%, rgba(var(--veil), 0) 55%); opacity: 0; }
-.veil-b { display: none; background: linear-gradient(0deg, rgba(var(--veil), .92) 0%, rgba(var(--veil), .6) 30%, rgba(var(--veil), 0) 50%); }
+.veil-b { display: none; background: linear-gradient(0deg, rgba(var(--veil), .9) 0%, rgba(var(--veil), .55) 22%, rgba(var(--veil), 0) 40%); }
 
 /* ---------- chrome: top bar + film timeline ---------- */
 .bar { position: fixed; top: 0; left: 0; right: 0; z-index: 5; display: flex; align-items: center; justify-content: space-between; gap: 16px;
@@ -196,6 +196,7 @@ h1, h2 { margin: 0; font-family: var(--f-display); font-weight: 700; line-height
 h1 em, h2 em { font-style: normal; }
 h1 { font-size: clamp(3rem, 5.6vw, 6.2rem); }
 h2 { font-size: clamp(2.6rem, 5.2vw, 5.6rem); }
+.phone-only { display: none; }
 .copy p { margin: 0; font-size: clamp(1.05rem, 1.35vw, 1.3rem); line-height: 1.55; color: var(--dim); max-width: 30rem; }
 .copy p strong { color: var(--fg); font-weight: 500; }
 .mono { font-family: var(--f-mono); }
@@ -260,6 +261,10 @@ h2 { font-size: clamp(2.6rem, 5.2vw, 5.6rem); }
   .scene-no { display: none; }
   .credits dl { grid-template-columns: 1fr; gap: 2px; }
   .credits dd { margin-bottom: 10px; }
+  @media (max-height: 800px) { .credits dl { font-size: 11px; } .credits dd { margin-bottom: 5px; } .credits .end { font-size: 2.2rem; } }   /* short phones: the whole credits fit */
+  .wide-only { display: none; }   /* phones: captions, not paragraphs */
+  .phone-only { display: inline; }
+  h2 { font-size: clamp(2rem, 9vw, 2.6rem); }
   /* Thumbs, not wheels: a shorter film. 200vh a scene was about 45 swipes to the download button. */
   .ch { height: 130vh; }
   .ch.long { height: 210vh; }
@@ -355,7 +360,7 @@ html.flat body { background-image: radial-gradient(#1E1E1C 1px, transparent 1px)
     <div class="stick"><div class="copy">
       <span class="eyebrow"><i class="in"></i>SC. 01 · DAY ONE</span>
       <h2>It starts on the <em>1st</em>.</h2>
-      <p>The allowance lands. <strong>₹5,000.</strong> For about 48 hours, you're basically a billionaire.</p>
+      <p><span class="wide-only">The allowance lands. <strong>₹5,000.</strong> For about 48 hours, you're basically a billionaire.</span><span class="phone-only"><strong>₹5,000</strong> lands. You feel rich.</span></p>
     </div></div>
   </section>
 
@@ -363,7 +368,7 @@ html.flat body { background-image: radial-gradient(#1E1E1C 1px, transparent 1px)
     <div class="stick"><div class="copy">
       <span class="eyebrow"><i></i>SC. 02 · THE LEAK</span>
       <h2>Then it <em>leaks</em>.</h2>
-      <p>Chai ₹20. Auto ₹45. Maggi ₹30. <strong>Not one of them felt like spending.</strong></p>
+      <p><span class="wide-only">Chai ₹20. Auto ₹45. Maggi ₹30. <strong>Not one of them felt like spending.</strong></span><span class="phone-only">Chai ₹20. Auto ₹45. Maggi ₹30.</span></p>
     </div></div>
   </section>
 
@@ -371,7 +376,7 @@ html.flat body { background-image: radial-gradient(#1E1E1C 1px, transparent 1px)
     <div class="stick"><div class="copy">
       <span class="eyebrow"><i></i>SC. 03 · INVISIBLE</span>
       <h2>UPI made it <em>invisible</em>.</h2>
-      <p>Scan. Beep. Done. No cash leaves your hand, so your brain never files it under "spent".</p>
+      <p><span class="wide-only">Scan. Beep. Done. No cash leaves your hand, so your brain never files it under "spent".</span><span class="phone-only">Scan. Beep. Gone.</span></p>
     </div></div>
   </section>
 
@@ -379,7 +384,7 @@ html.flat body { background-image: radial-gradient(#1E1E1C 1px, transparent 1px)
     <div class="stick"><div class="copy">
       <span class="eyebrow"><i></i>SC. 04 · WEEK THREE</span>
       <h2>Where did it all <em>go</em>?</h2>
-      <p>Week three. You check your balance with one eye closed.</p>
+      <p><span class="wide-only">Week three. You check your balance with one eye closed.</span><span class="phone-only">Balance check, one eye closed.</span></p>
     </div></div>
   </section>
 
@@ -387,7 +392,7 @@ html.flat body { background-image: radial-gradient(#1E1E1C 1px, transparent 1px)
     <div class="stick"><div class="copy">
       <span class="eyebrow"><i class="in"></i>SC. 05 · LIGHTS ON</span>
       <h2>Cut. Let's <em>reshoot</em> this month.</h2>
-      <p>Most money apps are a dark room full of charts. Let's turn the lights on.</p>
+      <p><span class="wide-only">Most money apps are a dark room full of charts. Let's turn the lights on.</span><span class="phone-only">Let's turn the lights on.</span></p>
       <button type="button" class="switch" id="lightSwitch" aria-pressed="false">
         <span class="knob-track" aria-hidden="true"><span class="knob"></span></span>
         <span id="lightLabel">LIGHTS OFF</span>
@@ -400,7 +405,7 @@ html.flat body { background-image: radial-gradient(#1E1E1C 1px, transparent 1px)
     <div class="stick"><div class="copy">
       <span class="eyebrow"><i class="in"></i>SC. 06 · THE IDEA</span>
       <h2>Make logging faster than <em>forgetting</em>.</h2>
-      <p>If writing it down takes longer than paying, you won't do it. Nobody does. So it's one tap away.</p>
+      <p><span class="wide-only">If writing it down takes longer than paying, you won't do it. Nobody does. So it's one tap away.</span><span class="phone-only">So it's one tap away.</span></p>
     </div></div>
   </section>
 
@@ -408,7 +413,7 @@ html.flat body { background-image: radial-gradient(#1E1E1C 1px, transparent 1px)
     <div class="stick"><div class="copy">
       <span class="eyebrow"><i class="in"></i>SC. 07 · THE ₹ KEY</span>
       <h2>Pay. Tap&nbsp;<em>₹</em>. Lock.</h2>
-      <p>A ₹ key the size of an app icon sits right next to your payment app. Your thumb's already there. Logged before the auto pulls away.</p>
+      <p><span class="wide-only">A ₹ key the size of an app icon sits right next to your payment app. Your thumb's already there. Logged before the auto pulls away.</span><span class="phone-only">A ₹ key right next to your payment app.</span></p>
     </div></div>
   </section>
 
@@ -416,7 +421,7 @@ html.flat body { background-image: radial-gradient(#1E1E1C 1px, transparent 1px)
     <div class="stick"><div class="copy">
       <span class="eyebrow"><i class="in"></i>SC. 08 · THE SHOOT</span>
       <h2>66 days. <em>One</em> habit.</h2>
-      <p>That's roughly how long a habit takes to stick. Every day you log lights a frame. Miss one? The strip keeps rolling, and <strong>comebacks count</strong>.</p>
+      <p><span class="wide-only">That's roughly how long a habit takes to stick. Every day you log lights a frame. Miss one? The strip keeps rolling, and <strong>comebacks count</strong>.</span><span class="phone-only">Miss one? <strong>Comebacks count.</strong></span></p>
     </div></div>
   </section>
 
@@ -424,7 +429,7 @@ html.flat body { background-image: radial-gradient(#1E1E1C 1px, transparent 1px)
     <div class="stick"><div class="copy">
       <span class="eyebrow"><i class="in"></i>SC. 09 · ONE NUMBER</span>
       <h2><em>Safe</em> to spend today.</h2>
-      <p>One number that answers <strong>"can I afford the momos?"</strong> before you order them.</p>
+      <p><span class="wide-only">One number that answers <strong>"can I afford the momos?"</strong> before you order them.</span><span class="phone-only"><strong>Can I afford the momos?</strong> Check first.</span></p>
     </div></div>
   </section>
 
@@ -432,7 +437,7 @@ html.flat body { background-image: radial-gradient(#1E1E1C 1px, transparent 1px)
     <div class="stick"><div class="copy">
       <span class="eyebrow"><i class="in"></i>SC. 10 · WHERE IT WENT</span>
       <h2>Every rupee, as <em>100 dots</em>.</h2>
-      <p>Plot twist: 23 of them were "just one more Swiggy order".</p>
+      <p><span class="wide-only">Plot twist: 23 of them were "just one more Swiggy order".</span><span class="phone-only">23 were "one more Swiggy order".</span></p>
       <div class="legend" aria-label="This month: food 41, fun 23, travel 21, other 15">
         <span><b style="background: var(--cat-food)"></b>FOOD 41</span>
         <span><b style="background: var(--cat-fun)"></b>FUN 23</span>
@@ -460,7 +465,7 @@ html.flat body { background-image: radial-gradient(#1E1E1C 1px, transparent 1px)
     <div class="stick"><div class="copy">
       <span class="eyebrow"><i class="in"></i>SC. 12 · YOUR GOAL</span>
       <h2 id="goalHeadline">New headphones in 32 days.</h2>
-      <p>KaChingg sets your ₹<span class="js-perday">95</span> a day aside, keeps it out of your safe-to-spend, and counts the days down with you.</p>
+      <p><span class="wide-only">KaChingg sets your ₹<span class="js-perday">95</span> a day aside, keeps it out of your safe-to-spend, and counts the days down with you.</span><span class="phone-only">Set aside first, counted down daily.</span></p>
     </div></div>
   </section>
 
@@ -468,7 +473,7 @@ html.flat body { background-image: radial-gradient(#1E1E1C 1px, transparent 1px)
     <div class="stick"><div class="copy">
       <span class="eyebrow"><i class="in"></i>SC. 13 · THE RECEIPT</span>
       <h2>Missed one? Tonight's <em>receipt</em> catches it.</h2>
-      <p>Close out the day like a shopkeeper. Forgot the auto ride? Add it before noon tomorrow and nothing's lost. Went over? It just says so. No lecture.</p>
+      <p><span class="wide-only">Close out the day like a shopkeeper. Forgot the auto ride? Add it before noon tomorrow and nothing's lost. Went over? It just says so. No lecture.</span><span class="phone-only">Fix it before noon. Nothing's lost.</span></p>
     </div></div>
   </section>
 
@@ -476,7 +481,7 @@ html.flat body { background-image: radial-gradient(#1E1E1C 1px, transparent 1px)
     <div class="stick"><div class="copy">
       <span class="eyebrow"><i class="in"></i>SC. 14 · PRIVATE</span>
       <h2>It stays on <em>your</em> phone.</h2>
-      <p>No account. No bank login. No servers. <strong>Not even I can see what you spend.</strong></p>
+      <p><span class="wide-only">No account. No bank login. No servers. <strong>Not even I can see what you spend.</strong></span><span class="phone-only">No account. No servers. <strong>Not even me.</strong></span></p>
     </div></div>
   </section>
 
@@ -494,7 +499,7 @@ html.flat body { background-image: radial-gradient(#1E1E1C 1px, transparent 1px)
     <div class="stick"><div class="copy">
       <span class="eyebrow"><i class="in"></i>SC. 16 · YOUR TURN</span>
       <h2>Your <em>Take 2</em> starts here.</h2>
-      <p>2-minute setup. You'll leave with a ₹ key next to your payment app and day 1 of 66 on the strip. Your ₹<span class="js-perday">95</span> a day is in there somewhere. Go find it, then roast the app. I want to know what felt off.</p>
+      <p>2-minute setup. You'll leave with a ₹ key next to your payment app and day 1 of 66 on the strip. <span class="wide-only">Your ₹<span class="js-perday">95</span> a day is in there somewhere. Go find it, then roast the app. I want to know what felt off.</span></p>
       <div class="cta-row">
         <a class="btn btn-mint" id="apk" href="#get">
           <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" aria-hidden="true"><path d="M12 4v12"></path><path d="M6 10l6 6 6-6"></path><path d="M4 20h16"></path></svg>
@@ -770,7 +775,13 @@ html.flat body { background-image: radial-gradient(#1E1E1C 1px, transparent 1px)
     let topSum = 0, topW = 0;
     sections.forEach((s, k) => s.querySelectorAll('.copy').forEach((copy) => {
       const d = I - k;
-      const o = clamp(1 - Math.max(0, Math.abs(d) - 0.24) * 3.6);
+      // Phones stack every scene's copy in the same place, so a crossfade double-exposes two headlines.
+      // There, the old copy is fully gone before the new one starts (|d| 0.2 -> 0.4: a clean cut-through-black).
+      // Show, then tell: a scene opens on the picture and its caption arrives a beat later (d -0.36 -> -0.1),
+      // so between scenes there's a moment of animation alone. Leaving: slow fade on wide screens; on phones
+      // (all captions in one spot) the old one is gone before the new one starts.
+      const o = d < 0 ? clamp(1 - Math.max(0, -d - 0.1) * 3.85)
+        : (narrow ? clamp(1 - Math.max(0, d - 0.2) * 5) : clamp(1 - Math.max(0, d - 0.24) * 3.6));
       if (narrow && o > 0.02 && !copy.classList.contains('art')) { topSum += copy.getBoundingClientRect().top * o; topW += o; }
       copy.style.opacity = o.toFixed(3);
       copy.style.visibility = o < 0.02 ? 'hidden' : 'visible';
@@ -1533,7 +1544,7 @@ async function main() {
   } catch (e) { composer = null; }
 
   // ---------- framing: stage on the right on wide screens, on top on phones ----------
-  let wide = true, distMul = 1, vw = 0, vh = 0, phoneLift = null, phoneZoom = 1;
+  let wide = true, distMul = 1, vw = 0, vh = 0, phoneLift = null, phoneZoom = 1, stageDim = null;
   // Sized from the canvas itself (100lvh in CSS), so the phone's address bar sliding in and out
   // changes nothing here: no re-allocated buffers, no stretched frame, no hitch.
   function resize() {
@@ -1562,6 +1573,7 @@ async function main() {
   function frameStage(T) {
     const w = vw, h = vh;
     if (wide) {
+      if (stageDim !== null) { stageDim = null; canvas.style.opacity = ''; }   // back from a phone-sized window
       const [sx, sy] = track(VIEW, T);
       camera.setViewOffset(w, h, -sx * w, sy * h, w, h);
       const left = clamp(0.5 + sx / 0.4);
@@ -1576,6 +1588,10 @@ async function main() {
       phoneLift = phoneLift === null ? wantLift : phoneLift + (wantLift - phoneLift) * k;
       phoneZoom += (wantZoom - phoneZoom) * k;
       camera.setViewOffset(w, h, 0, phoneLift, w, h);
+      // Not enough room above the copy (long scenes on short phones): the 3D fades back to ambience.
+      const wantDim = clamp((free - h * 0.17) / (h * 0.11), 0.15, 1);
+      stageDim = stageDim === null ? wantDim : stageDim + (wantDim - stageDim) * k;
+      canvas.style.opacity = stageDim.toFixed(3);
       scene.fog.near = 13 * distMul * phoneZoom; scene.fog.far = 32 * distMul * phoneZoom;   // the fog moves back with the camera
     }
     camera.updateProjectionMatrix();
