@@ -4,13 +4,13 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <title>KaChingg · know where it went</title>
-<meta name="description" content="A tiny budgeting app for college students. Log a spend in two taps from your home screen. Try the Android beta.">
+<meta name="description" content="A tiny budgeting app for college students. A ₹ key next to your payment app, and a 66-day shoot to make logging a habit. Free Android beta.">
 <meta name="theme-color" content="#0A0A0A">
 <!-- Link previews (WhatsApp, Instagram, Discord, LinkedIn). og:image must be a full URL. -->
 <meta property="og:type" content="website">
 <meta property="og:url" content="https://kachingg.vercel.app/">
 <meta property="og:title" content="KaChingg · your month has a receipt">
-<meta property="og:description" content="A tiny budgeting app for college students. Try the Android beta for 3 days.">
+<meta property="og:description" content="Tap ₹ when you pay. See where your month went. A tiny budgeting app for college students, free on Android.">
 <meta property="og:image" content="https://kachingg.vercel.app/og.png">
 <meta property="og:image:width" content="1200">
 <meta property="og:image:height" content="630">
@@ -106,8 +106,9 @@ main { position: relative; z-index: 2; }
 /* Centre (the cold open): copy low and centred, the 3D above it. */
 .ch[data-pos="c"] .stick { justify-content: center; align-items: flex-end; padding-bottom: 11vh; }
 .ch[data-pos="c"] .copy { margin: 0 auto; max-width: min(52rem, 92vw); align-items: center; text-align: center; }
+@media (min-width: 901px) and (max-height: 820px) { .ch[data-pos="c"] .stick { padding-bottom: 7vh; } }   /* short laptop screens: keep the copy clear of the coin */
 /* .copy .hook, not .hook: it must outrank the generic ".copy p" rule (specificity 0,1,1). */
-.copy .hook { margin: 0; max-width: none; color: var(--fg); font-family: var(--f-mono); font-weight: 700; font-size: clamp(2.6rem, 6.4vw, 6.4rem); line-height: .95; white-space: nowrap; letter-spacing: -.05em; } /* numbers in Space Mono, like the app's balance */
+.copy .hook { margin: 0; max-width: none; color: var(--fg); font-family: var(--f-mono); font-weight: 700; font-size: clamp(2.6rem, min(6.4vw, 11.5vh), 6.4rem); line-height: .95; white-space: nowrap; letter-spacing: -.05em; } /* numbers in Space Mono, like the app's balance */
 .hook .rs { font-family: var(--f-mono); font-weight: 700; font-size: .78em; vertical-align: .06em; margin-right: .04em; } /* Doto has no ₹; Space Mono does */
 .copy .hook-sub { margin: 0; max-width: 34rem; font-size: clamp(1.15rem, 1.6vw, 1.5rem); color: var(--dim); }
 .tally-line { font-family: var(--f-mono); font-size: 13px; letter-spacing: .2em; color: var(--muted); font-variant-numeric: tabular-nums; }
@@ -267,7 +268,6 @@ html.flat body { background-image: radial-gradient(#1E1E1C 1px, transparent 1px)
 </style>
 </head>
 <body>
-
 <canvas id="stage" aria-hidden="true"></canvas>
 <div class="veil veil-l" id="veilL" aria-hidden="true"></div>
 <div class="veil veil-r" id="veilR" aria-hidden="true"></div>
@@ -275,7 +275,7 @@ html.flat body { background-image: radial-gradient(#1E1E1C 1px, transparent 1px)
 
 <header class="bar">
   <a class="brand" href="#top">KACHINGG</a>
-  <span class="scene-no" id="sceneNo" aria-hidden="true">SC. 00 / 13</span>
+  <span class="scene-no" id="sceneNo" aria-hidden="true"></span>
   <a class="btn btn-light" href="#get">GET THE BETA</a>
 </header>
 
@@ -287,11 +287,11 @@ html.flat body { background-image: radial-gradient(#1E1E1C 1px, transparent 1px)
   <section class="ch first" id="top" data-t="-4" data-chapter="HELLO" data-no="" data-title="HELLO" data-pos="l" data-move="0,-1">
     <div class="stick"><div class="copy">
       <h1>Your month has a <em>receipt</em>.</h1>
-      <p><strong>KaChingg</strong> is a tiny budgeting app for students that shows you where it all went.</p>
+      <p>Tap <strong>₹</strong> when you pay. <strong>KaChingg</strong> shows you where it all went.</p>
       <span class="cue"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M12 4v15"></path><path d="M6 13l6 6 6-6"></path></svg>SCROLL TO PLAY</span>
     </div>
     <!-- The opening receipt: prints what the bank shows, then KaChingg reads it line by line and sorts it. -->
-    <div class="copy art" aria-label="A bank statement of cryptic UPI payments totalling 3,894 rupees, which KaChingg sorts into chai, auto, Swiggy and cold coffee">
+    <div class="copy art" aria-label="A bank statement of cryptic UPI payments totalling 3,894 rupees. Logged with KaChingg, the same payments sort into chai, auto, Swiggy and cold coffee">
       <div class="rig" id="rig">
         <div class="feed">
           <div class="paper" id="paper">
@@ -312,7 +312,7 @@ html.flat body { background-image: radial-gradient(#1E1E1C 1px, transparent 1px)
           </div>
         </div>
         <div class="slot" aria-hidden="true"><span>KCH-01 · PRINTER</span><i id="slotLed"></i></div>
-        <p class="r-cap" id="rcap" data-to="▲ WHAT KACHINGG SHOWS YOU">▲ WHAT YOUR BANK SHOWS YOU</p>
+        <p class="r-cap" id="rcap" data-to="▲ WHAT YOUR TAPS SHOW YOU">▲ WHAT YOUR BANK SHOWS YOU</p>
       </div>
     </div></div>
   </section>
@@ -343,12 +343,12 @@ html.flat body { background-image: radial-gradient(#1E1E1C 1px, transparent 1px)
     <div class="stick"><div class="copy">
       <span class="tally-line"><span class="rs-mini">₹</span><span class="js-perday">95</span> × DAY <span id="tallyDays">1,460</span></span>
       <p class="hook tally"><span class="rs">₹</span><span id="tally">1,38,700</span></p>
-      <p class="hook-sub" id="degreeLine">That's <strong>₹1.39 lakh</strong> over a 4-year degree. On stuff you won't even remember buying.</p>
+      <p class="hook-sub" id="degreeLine">That's <strong>₹1.39 lakh</strong> over a 4-year degree. Not wasted. Just <em>invisible</em>.</p>
     </div></div>
   </section>
 
 
-  <section class="ch" data-t="1" data-chapter="THE PROBLEM" data-no="SC. 01 / 15" data-title="DAY ONE" data-pos="l" data-move="-1,0">
+  <section class="ch" data-t="1" data-chapter="THE PROBLEM" data-no="SC. 01 / 16" data-title="DAY ONE" data-pos="l" data-move="-1,0">
     <div class="stick"><div class="copy">
       <span class="eyebrow"><i class="in"></i>SC. 01 · DAY ONE</span>
       <h2>It starts on the <em>1st</em>.</h2>
@@ -356,7 +356,7 @@ html.flat body { background-image: radial-gradient(#1E1E1C 1px, transparent 1px)
     </div></div>
   </section>
 
-  <section class="ch" data-t="2" data-chapter="THE PROBLEM" data-no="SC. 02 / 15" data-title="THE LEAK" data-pos="bl" data-move="-1,1">
+  <section class="ch" data-t="2" data-chapter="THE PROBLEM" data-no="SC. 02 / 16" data-title="THE LEAK" data-pos="bl" data-move="-1,1">
     <div class="stick"><div class="copy">
       <span class="eyebrow"><i></i>SC. 02 · THE LEAK</span>
       <h2>Then it <em>leaks</em>.</h2>
@@ -364,7 +364,7 @@ html.flat body { background-image: radial-gradient(#1E1E1C 1px, transparent 1px)
     </div></div>
   </section>
 
-  <section class="ch" data-t="3" data-chapter="THE PROBLEM" data-no="SC. 03 / 15" data-title="INVISIBLE" data-pos="l" data-move="-1,-1">
+  <section class="ch" data-t="3" data-chapter="THE PROBLEM" data-no="SC. 03 / 16" data-title="INVISIBLE" data-pos="l" data-move="-1,-1">
     <div class="stick"><div class="copy">
       <span class="eyebrow"><i></i>SC. 03 · INVISIBLE</span>
       <h2>UPI made it <em>invisible</em>.</h2>
@@ -372,7 +372,7 @@ html.flat body { background-image: radial-gradient(#1E1E1C 1px, transparent 1px)
     </div></div>
   </section>
 
-  <section class="ch" data-t="4" data-chapter="THE PROBLEM" data-no="SC. 04 / 15" data-title="WEEK THREE" data-pos="tl" data-move="0,-1">
+  <section class="ch" data-t="4" data-chapter="THE PROBLEM" data-no="SC. 04 / 16" data-title="WEEK THREE" data-pos="tl" data-move="0,-1">
     <div class="stick"><div class="copy">
       <span class="eyebrow"><i></i>SC. 04 · WEEK THREE</span>
       <h2>Where did it all <em>go</em>?</h2>
@@ -380,7 +380,7 @@ html.flat body { background-image: radial-gradient(#1E1E1C 1px, transparent 1px)
     </div></div>
   </section>
 
-  <section class="ch" data-t="4.5" data-chapter="LIGHTS ON" data-no="SC. 05 / 15" data-title="LIGHTS ON" data-pos="l" data-move="0,-1">
+  <section class="ch" data-t="4.5" data-chapter="LIGHTS ON" data-no="SC. 05 / 16" data-title="LIGHTS ON" data-pos="l" data-move="0,-1">
     <div class="stick"><div class="copy">
       <span class="eyebrow"><i class="in"></i>SC. 05 · LIGHTS ON</span>
       <h2>Cut. Let's <em>reshoot</em> this month.</h2>
@@ -393,33 +393,41 @@ html.flat body { background-image: radial-gradient(#1E1E1C 1px, transparent 1px)
     </div></div>
   </section>
 
-  <section class="ch" data-t="5" data-chapter="THE APP" data-no="SC. 06 / 15" data-title="THE IDEA" data-pos="r" data-move="-1,0">
+  <section class="ch" data-t="5" data-chapter="THE APP" data-no="SC. 06 / 16" data-title="THE IDEA" data-pos="r" data-move="-1,0">
     <div class="stick"><div class="copy">
       <span class="eyebrow"><i class="in"></i>SC. 06 · THE IDEA</span>
       <h2>Make logging faster than <em>forgetting</em>.</h2>
-      <p>If writing it down takes longer than paying, you won't do it. Nobody does. So it takes two taps.</p>
+      <p>If writing it down takes longer than paying, you won't do it. Nobody does. So it's one tap away.</p>
     </div></div>
   </section>
 
-  <section class="ch" data-t="6" data-chapter="THE APP" data-no="SC. 07 / 15" data-title="TWO TAPS" data-pos="br" data-move="-1,1">
+  <section class="ch" data-t="6" data-chapter="THE APP" data-no="SC. 07 / 16" data-title="THE ₹ KEY" data-pos="br" data-move="-1,1">
     <div class="stick"><div class="copy">
-      <span class="eyebrow"><i class="in"></i>SC. 07 · TWO TAPS</span>
-      <h2>Logged before the auto <em>pulls away</em>.</h2>
-      <p>Tap SPENT on your home screen, punch in the amount, pick a category. No digging through menus.</p>
+      <span class="eyebrow"><i class="in"></i>SC. 07 · THE ₹ KEY</span>
+      <h2>Pay. Tap&nbsp;<em>₹</em>. Lock.</h2>
+      <p>A ₹ key the size of an app icon sits right next to your payment app. Your thumb's already there. Logged before the auto pulls away.</p>
     </div></div>
   </section>
 
-  <section class="ch" data-t="7" data-chapter="THE APP" data-no="SC. 08 / 15" data-title="ONE NUMBER" data-pos="r" data-move="-1,-1">
+  <section class="ch" data-t="6.5" data-chapter="THE APP" data-no="SC. 08 / 16" data-title="THE SHOOT" data-pos="tr" data-move="0,-1">
     <div class="stick"><div class="copy">
-      <span class="eyebrow"><i class="in"></i>SC. 08 · ONE NUMBER</span>
+      <span class="eyebrow"><i class="in"></i>SC. 08 · THE SHOOT</span>
+      <h2>66 days. <em>One</em> habit.</h2>
+      <p>That's roughly how long a habit takes to stick. Every day you log lights a frame. Miss one? The strip keeps rolling, and <strong>comebacks count</strong>.</p>
+    </div></div>
+  </section>
+
+  <section class="ch" data-t="7" data-chapter="THE APP" data-no="SC. 09 / 16" data-title="ONE NUMBER" data-pos="r" data-move="-1,-1">
+    <div class="stick"><div class="copy">
+      <span class="eyebrow"><i class="in"></i>SC. 09 · ONE NUMBER</span>
       <h2><em>Safe</em> to spend today.</h2>
       <p>One number that answers <strong>"can I afford the momos?"</strong> before you order them.</p>
     </div></div>
   </section>
 
-  <section class="ch" data-t="8" data-chapter="THE APP" data-no="SC. 09 / 15" data-title="WHERE IT WENT" data-pos="tr" data-move="0,-1">
+  <section class="ch" data-t="8" data-chapter="THE APP" data-no="SC. 10 / 16" data-title="WHERE IT WENT" data-pos="tr" data-move="0,-1">
     <div class="stick"><div class="copy">
-      <span class="eyebrow"><i class="in"></i>SC. 09 · WHERE IT WENT</span>
+      <span class="eyebrow"><i class="in"></i>SC. 10 · WHERE IT WENT</span>
       <h2>Every rupee, as <em>100 dots</em>.</h2>
       <p>Plot twist: 23 of them were "just one more Swiggy order".</p>
       <div class="legend" aria-label="This month: food 41, fun 23, travel 21, other 15">
@@ -431,9 +439,9 @@ html.flat body { background-image: radial-gradient(#1E1E1C 1px, transparent 1px)
     </div></div>
   </section>
 
-  <section class="ch" data-t="8.55" data-chapter="GOALS" data-no="SC. 10 / 15" data-title="SAVING FOR" data-pos="r" data-move="-1,0">
+  <section class="ch" data-t="8.55" data-chapter="GOALS" data-no="SC. 11 / 16" data-title="SAVING FOR" data-pos="r" data-move="-1,0">
     <div class="stick"><div class="copy">
-      <span class="eyebrow"><i class="in"></i>SC. 10 · SAVING FOR</span>
+      <span class="eyebrow"><i class="in"></i>SC. 11 · SAVING FOR</span>
       <h2>What would you <em>save up</em> for?</h2>
       <div class="chips" role="group" aria-label="Pick a goal">
         <button type="button" class="chip goal" id="g-headphones" data-cost="3000" data-name="HEADPHONES" data-line="New headphones in {n} days." aria-pressed="true">HEADPHONES <b>~₹3K</b></button>
@@ -445,33 +453,33 @@ html.flat body { background-image: radial-gradient(#1E1E1C 1px, transparent 1px)
     </div></div>
   </section>
 
-  <section class="ch" data-t="9.2" data-chapter="GOALS" data-no="SC. 11 / 15" data-title="YOUR GOAL" data-pos="r" data-move="0,-1">
+  <section class="ch" data-t="9.2" data-chapter="GOALS" data-no="SC. 12 / 16" data-title="YOUR GOAL" data-pos="r" data-move="0,-1">
     <div class="stick"><div class="copy">
-      <span class="eyebrow"><i class="in"></i>SC. 11 · YOUR GOAL</span>
+      <span class="eyebrow"><i class="in"></i>SC. 12 · YOUR GOAL</span>
       <h2 id="goalHeadline">New headphones in 32 days.</h2>
       <p>KaChingg sets your ₹<span class="js-perday">95</span> a day aside, keeps it out of your safe-to-spend, and counts the days down with you.</p>
     </div></div>
   </section>
 
-  <section class="ch" data-t="10" data-chapter="THE DETAILS" data-no="SC. 12 / 15" data-title="THE RECEIPT" data-pos="tr" data-move="-1,1">
+  <section class="ch" data-t="10" data-chapter="THE DETAILS" data-no="SC. 13 / 16" data-title="THE RECEIPT" data-pos="tr" data-move="-1,1">
     <div class="stick"><div class="copy">
-      <span class="eyebrow"><i class="in"></i>SC. 12 · THE RECEIPT</span>
-      <h2>Print today's <em>receipt</em>.</h2>
-      <p>Close out the day like a shopkeeper. Went over? It just says so. No lecture. Tomorrow's a fresh receipt.</p>
+      <span class="eyebrow"><i class="in"></i>SC. 13 · THE RECEIPT</span>
+      <h2>Missed one? Tonight's <em>receipt</em> catches it.</h2>
+      <p>Close out the day like a shopkeeper. Forgot the auto ride? Add it before noon tomorrow and nothing's lost. Went over? It just says so. No lecture.</p>
     </div></div>
   </section>
 
-  <section class="ch" data-t="11" data-chapter="THE DETAILS" data-no="SC. 13 / 15" data-title="PRIVATE" data-pos="br" data-move="-1,-1">
+  <section class="ch" data-t="11" data-chapter="THE DETAILS" data-no="SC. 14 / 16" data-title="PRIVATE" data-pos="br" data-move="-1,-1">
     <div class="stick"><div class="copy">
-      <span class="eyebrow"><i class="in"></i>SC. 13 · PRIVATE</span>
+      <span class="eyebrow"><i class="in"></i>SC. 14 · PRIVATE</span>
       <h2>It stays on <em>your</em> phone.</h2>
       <p>No account. No bank login. No servers. <strong>Not even I can see what you spend.</strong></p>
     </div></div>
   </section>
 
-  <section class="ch long" data-t="12" data-chapter="THE MAKER" data-no="SC. 14 / 15" data-title="A FILM BY ARY" data-pos="l" data-move="0,-1">
+  <section class="ch long" data-t="12" data-chapter="THE MAKER" data-no="SC. 15 / 16" data-title="A FILM BY ARY" data-pos="l" data-move="0,-1">
     <div class="stick"><div class="copy maker">
-      <span class="eyebrow"><i class="in"></i>SC. 14 · A FILM BY</span>
+      <span class="eyebrow"><i class="in"></i>SC. 15 · A FILM BY</span>
       <h2 class="hello">Hi, I'm<span class="name" id="aryName" aria-hidden="true">ARY</span><span class="sr">ARY</span></h2>
       <p>First-year B.Tech CSE, specialising in cybersecurity. I made KaChingg.</p>
       <span class="tag">SYNTAX TERROR</span>
@@ -479,22 +487,22 @@ html.flat body { background-image: radial-gradient(#1E1E1C 1px, transparent 1px)
     </div></div>
   </section>
 
-  <section class="ch" id="get" data-t="13" data-chapter="DOWNLOAD" data-no="SC. 15 / 15" data-title="YOUR TURN" data-pos="r" data-move="-1,0">
+  <section class="ch" id="get" data-t="13" data-chapter="DOWNLOAD" data-no="SC. 16 / 16" data-title="YOUR TURN" data-pos="r" data-move="-1,0">
     <div class="stick"><div class="copy">
-      <span class="eyebrow"><i class="in"></i>SC. 15 · YOUR TURN</span>
-      <h2>Try it for <em>three days</em>.</h2>
-      <p>Your ₹<span class="js-perday">95</span> a day is in there somewhere. Go find it. Log everything, then roast the app. I want to know what felt off.</p>
+      <span class="eyebrow"><i class="in"></i>SC. 16 · YOUR TURN</span>
+      <h2>Your <em>Take 2</em> starts here.</h2>
+      <p>2-minute setup. You'll leave with a ₹ key next to your payment app and day 1 of 66 on the strip. Your ₹<span class="js-perday">95</span> a day is in there somewhere. Go find it, then roast the app. I want to know what felt off.</p>
       <div class="cta-row">
         <a class="btn btn-mint" id="apk" href="#get">
           <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" aria-hidden="true"><path d="M12 4v12"></path><path d="M6 10l6 6 6-6"></path><path d="M4 20h16"></path></svg>
           <span id="apkLabel">DOWNLOAD FOR ANDROID</span>
         </a>
-        <span class="fine">ANDROID 8+ · 1.0-BETA.1 · FREE</span>
+        <span class="fine">ANDROID 8+ · V1.1 BETA · FREE</span>
       </div>
       <ol class="steps">
         <li>Open the APK. Allow installs if your phone asks.</li>
         <li>"Unsafe app"? Tap More details, then Install anyway.</li>
-        <li>Long-press your home screen, add the KaChingg widget.</li>
+        <li>Do the 2-minute setup. It puts the ₹ key next to your payment app.</li>
       </ol>
     </div></div>
   </section>
@@ -508,6 +516,7 @@ html.flat body { background-image: radial-gradient(#1E1E1C 1px, transparent 1px)
         <dt>STARRING</dt><dd>YOUR ₹<span class="js-perday">95</span> A DAY</dd>
         <dt>SPECIAL APPEARANCE</dt><dd>2 AM MAGGI</dd>
         <dt>CATERING</dt><dd>₹350 POPCORN. WORTH IT.</dd>
+        <dt>CONTINUITY</dt><dd>THE 66-DAY SHOOT</dd>
         <dt>BEST SUPPORTING HABIT</dt><dd>"JUST ONE" COLD COFFEE</dd>
         <dt>STUNTS</dt><dd>THE AUTO DRIVER WITH NO CHANGE</dd>
         <dt>FEEDBACK</dt><dd>SETTINGS → SEND FEEDBACK</dd>
@@ -525,10 +534,10 @@ html.flat body { background-image: radial-gradient(#1E1E1C 1px, transparent 1px)
         <div class="t-main">
           <span class="t-kick">ADMIT ONE</span>
           <span class="t-title">KACHINGG</span>
-          <span class="t-sub">THE 3-DAY BETA</span>
+          <span class="t-sub">TAKE 2 · THE 66-DAY SHOOT</span>
           <dl class="t-rows">
             <dt>SEAT</dt><dd>YOUR HOME SCREEN</dd>
-            <dt>RUNTIME</dt><dd>3 DAYS</dd>
+            <dt>RUNTIME</dt><dd>66 DAYS</dd>
             <dt>YOUR LEAK</dt><dd>₹<span class="js-perday">95</span> / DAY</dd>
             <dt>PLOT TWIST</dt><dd id="ticketGoal">HEADPHONES IN 32 DAYS</dd>
           </dl>
@@ -610,7 +619,7 @@ html.flat body { background-image: radial-gradient(#1E1E1C 1px, transparent 1px)
       : "Tap what's true for you. Be honest, nobody's watching.";
     document.getElementById('degreeLine').innerHTML = pd === 0
       ? 'Zero rupees. You might not even need this app. <strong>Stay anyway.</strong>'
-      : "That's <strong>" + lakh(pd * DAYS) + "</strong> over a 4-year degree. On stuff you won't even remember buying.";
+      : "That's <strong>" + lakh(pd * DAYS) + "</strong> over a 4-year degree. Not wasted. Just <em>invisible</em>.";
     document.getElementById('goalHeadline').textContent = pd === 0 ? 'Pick a daily habit first. Scroll back up.' : g.line.replace('{n}', fmt(g.days));
     document.getElementById('ticketGoal').textContent = pd === 0 ? 'SAVING EVERYTHING' : g.name + ' IN ' + fmt(g.days) + ' DAYS';
     lastDays = -1;
@@ -646,7 +655,8 @@ html.flat body { background-image: radial-gradient(#1E1E1C 1px, transparent 1px)
   window.filmStory = () => storyOf(smoothI);
   // DAY 1 -> DAY 1,460 as you scroll through "the maths".
   const mathsAt = sections.findIndex((s) => s.dataset.title === 'THE MATHS');
-  window.filmDays = () => { const f = clamp((smoothI - (mathsAt - 0.38)) / 0.5); return 1 + Math.round((DAYS - 1) * f * f * (3 - 2 * f)); };
+  // It finishes just before the scene settles, so the big number always matches the sentence under it.
+  window.filmDays = () => { const f = clamp((smoothI - (mathsAt - 0.5)) / 0.42); return 1 + Math.round((DAYS - 1) * f * f * (3 - 2 * f)); };
   window.filmDayCount = DAYS;
   const tallyEl = document.getElementById('tally'), daysEl = document.getElementById('tallyDays');
 
@@ -970,13 +980,73 @@ async function main() {
   const stackBaseY = -3.2 + H / 2;
   const stack = [];
   const rand = seeded(7);
+  for (let i = 0; i < STACK; i++) { const c = makeCoin(true); stage.add(c); stack.push(c); }
+  // Coins must never pass through each other. Each one is checked against the others offline
+  // (every visible pair, every scroll position): they fall in with their tilt capped by the gap to
+  // their neighbours, leave by sliding flat off the top before they tumble, and leave on paths far apart.
+  const LEAKN = 8, U = [];   // LEAKN = how many leaving coins carry a label (LEAKS, below)
   for (let i = 0; i < STACK; i++) {
-    const c = makeCoin(true);
-    c.userData.dir = rand() * Math.PI * 2;
-    c.userData.lift = 2 + rand() * 3;
-    c.userData.spin = (rand() - 0.5) * 10;
-    c.userData.jitter = (rand() - 0.5) * 0.08;
-    stage.add(c); stack.push(c);
+    const k = STACK - 1 - i;
+    // Each leaving coin flies off in a straight line: up, back, mostly to the right (away from the copy
+    // on the left). Directions are spread evenly (an R2 low-discrepancy sequence), not randomly.
+    const az = 0.05 + ((k * 0.7548777) % 1) * 1.05, el = 0.04 + ((k * 0.5698403 + 0.5) % 1) * 0.16;
+    const dx = Math.sin(az) * Math.cos(el), dy = Math.sin(el), dz = -Math.cos(az) * Math.cos(el);
+    U.push({ dx, dy, dz, spin: 2.5 + rand() * 3, twist: (rand() - 0.5) * 6, jitter: (rand() - 0.5) * 0.08, tilt: rand() * Math.PI * 2 });
+  }
+  const P = U.map(() => ({ x: 0, y: 0, z: 0, op: 0, phi: 0, axis: new THREE.Vector3(), twist: 0, label: -1, labelOp: 0 }));
+  const LEAKV = 11;                       // how far a leaving coin travels over its exit
+  const flat = new THREE.Quaternion().setFromAxisAngle(new THREE.Vector3(1, 0, 0), -Math.PI / 2);
+  const qa = new THREE.Quaternion(), qt = new THREE.Quaternion(), zAxis = new THREE.Vector3(0, 0, 1);
+  // Positions first (they never depend on tilt), then each coin's tilt is capped by the room it has.
+  function stackPose(T, time) {
+    const sink = range(T, 4.1, 4.45), wob = range(T, 3.72, 3.95) * (1 - sink);
+    for (let i = 0; i < STACK; i++) {
+      const u = U[i], p = P[i], k = STACK - 1 - i;
+      const f = outCubic(range(T, 0.45 + i * 0.018, 0.8 + i * 0.018));
+      const rest = stackBaseY + i * (H + 0.012);
+      p.x = u.jitter; p.y = lerp(6 + i * 0.35, rest, f); p.z = u.jitter * 0.5; p.op = f > 0 ? 1 : 0;
+      p.phi = (1 - f) * 3; p.axis.set(Math.cos(u.tilt), 0, Math.sin(u.tilt)); p.twist = 0; p.free = false; p.label = -1;
+      if (i >= 2) {
+        const l = range(T, 1.7 + k * 0.09, 2.15 + k * 0.09);
+        if (l > 0) {
+          // Why it can't hit anything: coins leave LEAKV * 0.2 (more than two coin-widths) apart along
+          // their paths, so the one ahead is always clear; and each stays flat (it only moves up and
+          // away from the coin below) until it is clear of the column, and only then starts to tumble.
+          const go = LEAKV * l * (1 - Math.exp(-l / 0.04)), away = range(l, 0.2, 1);
+          p.x += u.dx * go; p.y += u.dy * go; p.z += u.dz * go;
+          p.axis.set(-u.dz, 0, u.dx).normalize();                 // tumbles end over end along its path
+          p.phi = u.spin * away * 1.2; p.twist = u.twist * away; p.free = true;
+          p.op *= k < LEAKN ? 1 - range(l, 0.45, 1) : 1 - range(l, 0.05, 0.5);
+          if (k < LEAKN) { p.label = k; p.labelOp = range(l, 0, 0.12) * (1 - range(l, 0.55, 0.9)); }
+        }
+      } else {
+        // The last two: rock in the dark (pivoting on the rim, so they lift as they tip), then slide out of shot.
+        p.phi = Math.sin(time * 3 + i) * 0.12 * wob * (i === 1 ? 1 : 0.3);
+        p.axis.set(0, 0, 1);
+        const s = inQuad(sink);
+        p.x += s * 7; p.op *= 1 - range(sink, 0.55, 1);
+      }
+    }
+    // rocking lifts: coin 0 on the floor, coin 1 on coin 0
+    const lift0 = R * Math.abs(Math.sin(P[0].phi)), lift1 = R * Math.abs(Math.sin(P[1].phi));
+    P[0].y += lift0; P[1].y += 2 * lift0 + lift1;
+    // Tilt caps. In the column, coins are stacked: a coin tilted by phi reaches R*phi above and below
+    // its centre (sin(phi) <= phi), so it gets half the gap to each neighbour that is still in the column.
+    // (A leaving coin needs no cap: it stays flat until it has slid clear of the column.)
+    for (let i = 2; i < STACK; i++) {
+      const p = P[i]; if (p.op <= 0 || p.free) continue;
+      let room = Infinity;
+      for (const j of [i - 1, i + 1]) {
+        const q = P[j]; if (!q || q.op <= 0 || q.free) continue;
+        room = Math.min(room, Math.abs(p.y - q.y) / 2);
+      }
+      if (room < Infinity) p.phi = Math.min(p.phi, Math.max(0, room - H / 2) / R);
+    }
+    return P;
+  }
+  function stackQuat(p, out) {
+    qa.setFromAxisAngle(p.axis, p.phi); qt.setFromAxisAngle(zAxis, p.twist);
+    return out.copy(qa).multiply(flat).multiply(qt);
   }
 
   // Labels on the first coins to leave: where the money actually goes.
@@ -1016,38 +1086,71 @@ async function main() {
     const grd = sg.createLinearGradient(0, 0, 0, 1140); grd.addColorStop(0, S.bg1); grd.addColorStop(1, S.bg2);
     sg.fillStyle = grd; sg.fillRect(0, 0, 540, 1140);
   }
+  // v1.1 home screen: a payment app with the 1x1 ₹ key right next to it. The flying
+  // coins are payments; each one presses the key and gets logged. (Generic "UPI" tile:
+  // no real brand logos.)
   function drawHome(pressed, n) {
     screenBg(); sg.textBaseline = 'alphabetic';
     mono(sg, 24, false, 4); sg.fillStyle = S.muted; sg.fillText('SAT 17 OCT', 52, 120);
     mono(sg, 72, true, 0); sg.fillStyle = S.fg; sg.fillText('21:40', 48, 200);
-    const x = 36, y = 270, w = 468, h = 380;
-    rr(sg, x, y, w, h, 40); sg.fillStyle = S.card; sg.fill(); sg.strokeStyle = S.line; sg.lineWidth = 2; sg.stroke();
-    mono(sg, 20, false, 3); sg.fillStyle = S.muted; sg.fillText('BANK / UPI', x + 32, y + 54);
-    dot(sg, x + w - 60, y + 47, 6, S.fg); sg.strokeStyle = S.muted; sg.lineWidth = 2; sg.beginPath(); sg.arc(x + w - 38, y + 47, 6, 0, Math.PI * 2); sg.stroke();
-    rr(sg, x + 26, y + 80, w - 52, 112, 24); sg.fillStyle = '#000'; sg.fill(); sg.strokeStyle = '#1E1E1D'; sg.stroke();
-    mono(sg, 34, false, 0); sg.fillStyle = C.muted; sg.fillText('₹', x + 56, y + 150);
-    for (let i = 0; i < 5; i++) dot(sg, x + 112 + i * 30, y + 138, 8, C.fg);
-    mono(sg, 18, false, 3); sg.fillStyle = C.muted; sg.fillText('TAP', x + w - 92, y + 145);
-    const kw = (w - 52 - 16) / 2, ky = y + 214;
-    [0, 1].forEach((i) => {
-      const kx = x + 26 + i * (kw + 16), down = i === 0 && pressed ? 5 : 0;
-      rr(sg, kx, ky + 5, kw, 88, 22); sg.fillStyle = S.lip; sg.fill();
-      rr(sg, kx, ky + down, kw, 88, 22); sg.fillStyle = down ? S.keyDown : S.key; sg.fill(); sg.strokeStyle = S.line; sg.stroke();
-      // Measure, then centre icon + label inside the key (shrinking the text if it still won't fit).
-      const label = i === 0 ? 'SPENT' : 'RECEIVED', iconW = i === 0 ? 18 : 30, gap = 14, pad = 18;
-      let size = 22, spacing = 4;
-      mono(sg, size, false, spacing);
-      while (iconW + gap + sg.measureText(label).width > kw - pad * 2 && size > 14) { size -= 1; spacing = Math.max(1, spacing - 0.5); mono(sg, size, false, spacing); }
-      const textW = sg.measureText(label).width, startX = kx + (kw - (iconW + gap + textW)) / 2, cy = ky + down + 44;
-      if (i === 0) dot(sg, startX + 9, cy, 9, C.red);
-      else { rr(sg, startX, cy - 15, 30, 30, 6); sg.fillStyle = '#7CE0B6'; sg.fill(); sg.fillStyle = '#0A0A0A'; mono(sg, 26, true, 0); sg.fillText('+', startX + 7, cy + 10); mono(sg, size, false, spacing); }
-      sg.fillStyle = S.fg; sg.fillText(label, startX + iconW + gap, cy + 8);
-    });
+    const col = (c) => 52 + c * 116, row = (r) => 300 + r * 124, size = 88;
+    const tile = (x, y) => { rr(sg, x, y, size, size, 24); sg.fillStyle = S.icon; sg.fill(); sg.strokeStyle = S.line; sg.lineWidth = 2; sg.stroke(); };
+    // plain app icons
+    for (let r = 0; r < 3; r++) for (let c = 0; c < 4; c++) if (!(r === 2 && c < 2)) tile(col(c), row(r));
+    // the payment app
+    const px = col(0), py = row(2);
+    tile(px, py);
+    sg.textAlign = 'center'; mono(sg, 22, true, 1); sg.fillStyle = S.fg; sg.fillText('UPI', px + size / 2, py + 52);
+    mono(sg, 14, false, 2); sg.fillStyle = S.muted; sg.fillText('PAY', px + size / 2, py + 74); sg.textAlign = 'left';
+    // the ₹ key: a raised key with the red "money out" dot
+    const kx = col(1), ky = row(2), down = pressed ? 5 : 0;
+    rr(sg, kx, ky + 5, size, size, 22); sg.fillStyle = S.lip; sg.fill();
+    rr(sg, kx, ky + down, size, size, 22); sg.fillStyle = down ? S.keyDown : S.key; sg.fill(); sg.strokeStyle = S.line; sg.lineWidth = 2; sg.stroke();
+    dot(sg, kx + size / 2, ky + down + 36, 9, C.red);
+    sg.textAlign = 'center'; mono(sg, 14, false, 2); sg.fillStyle = S.fg; sg.fillText('SPENT', kx + size / 2, ky + down + 70); sg.textAlign = 'left';
+    // the pair, ringed: this is the whole idea
+    rr(sg, px - 14, py - 14, (kx + size + 14) - (px - 14), size + 33, 32); sg.strokeStyle = S.accent; sg.lineWidth = 3; sg.stroke();
+    mono(sg, 16, true, 4); sg.fillStyle = S.accent; sg.fillText('PAY · TAP ₹ · LOCK', px - 6, py + size + 62);
+    // what just happened
     mono(sg, 19, false, 2); sg.fillStyle = S.muted;
-    sg.fillText(n === 0 ? 'NO ENTRIES YET' : 'LAST  ' + CATCH[n - 1], x + 30, y + 348);
-    if (n > 0) { mono(sg, 19, true, 3); sg.fillStyle = S.fg; sg.fillText('UNDO', x + w - 92, y + 348); }
-    if (n > 0) { mono(sg, 22, true, 3); sg.fillStyle = S.accent; sg.fillText(n + ' LOGGED', x + 4, y + h + 64); }
-    for (let r = 0; r < 2; r++) for (let c = 0; c < 4; c++) { rr(sg, 52 + c * 116, 820 + r * 124, 88, 88, 24); sg.fillStyle = S.icon; sg.fill(); sg.strokeStyle = S.line; sg.lineWidth = 2; sg.stroke(); }
+    sg.fillText(n === 0 ? 'NO ENTRIES YET' : 'LAST  ' + CATCH[n - 1], 52, 770);
+    if (n > 0) { mono(sg, 19, true, 3); sg.fillStyle = S.fg; sg.fillText('UNDO', 420, 770); }
+    if (n > 0) { mono(sg, 22, true, 3); sg.fillStyle = S.accent; sg.fillText(n + ' LOGGED', 52, 818); }
+    // dock
+    for (let c = 0; c < 4; c++) tile(col(c), 944);
+  }
+  // v1.1: the 66-day shoot, as it looks on the Stats tab. One frame per day: lit when logged,
+  // dim when missed (never red), mint for the comeback after a miss. The strip never resets.
+  function drawShoot(day) {
+    screenBg(); sg.textBaseline = 'alphabetic';
+    mono(sg, 24, true, 8); sg.fillStyle = S.fg; sg.fillText('KACHINGG', 44, 104);
+    mono(sg, 20, false, 4); sg.fillText('STATS', 44, 176); sg.fillStyle = S.muted; sg.fillText('LOG', 170, 176);
+    sg.fillStyle = S.accent; sg.fillRect(44, 190, 76, 4);
+    rr(sg, 36, 226, 468, 720, 34); sg.fillStyle = S.card; sg.fill(); sg.strokeStyle = S.line; sg.lineWidth = 2; sg.stroke();
+    mono(sg, 18, false, 4); sg.fillStyle = S.muted; sg.fillText('THE 66-DAY SHOOT', 66, 286);
+    mono(sg, 60, true, -2); sg.fillStyle = S.fg; sg.fillText('DAY ' + day, 66, 364);
+    const dw = sg.measureText('DAY ' + day).width;
+    mono(sg, 24, false, 2); sg.fillStyle = S.muted; sg.fillText('OF 66', 82 + dw, 362);
+    const MISS = 9, cell = 32, gap = 6, x0 = 64, y0 = 404;
+    for (let i = 1; i <= 66; i++) {
+      const x = x0 + ((i - 1) % 11) * (cell + gap), y = y0 + Math.floor((i - 1) / 11) * (cell + gap);
+      rr(sg, x, y, cell, cell, 7);
+      if (i < day) {
+        sg.fillStyle = i === MISS ? S.track : (i === MISS + 1 ? '#7CE0B6' : S.fg); sg.fill();
+      } else if (i === day) {
+        sg.save(); sg.setLineDash([5, 4]); sg.strokeStyle = S.fg; sg.lineWidth = 2; sg.stroke(); sg.restore();
+      } else { sg.strokeStyle = S.line; sg.lineWidth = 2; sg.stroke(); }
+    }
+    const missed = day > MISS ? 1 : 0, shot = day - 1 - missed, comebacks = day > MISS + 1 ? 1 : 0;
+    const run = day <= MISS ? day - 1 : day - 1 - MISS;   // the day after the miss, the run is 0 (today's still open)
+    mono(sg, 24, true, 1); sg.fillStyle = S.fg; sg.fillText(shot + ' FRAMES SHOT', 66, 694);
+    mono(sg, 20, false, 2);
+    sg.fillStyle = comebacks ? S.accent : S.muted; sg.fillText(comebacks + (comebacks === 1 ? ' COMEBACK' : ' COMEBACKS'), 66, 734);
+    sg.fillStyle = S.muted; sg.fillText('RUN ' + run, 330, 734);
+    rr(sg, 66, 772, 408, 2, 1); sg.fillStyle = S.line; sg.fill();
+    mono(sg, 17, false, 3); sg.fillStyle = S.muted;
+    sg.fillText(day > MISS + 1 ? 'MISSED ONE? THE STRIP KEEPS' : 'EVERY DAY YOU LOG LIGHTS', 66, 822);
+    sg.fillText(day > MISS + 1 ? 'ROLLING. COMEBACKS COUNT.' : 'A FRAME.', 66, 856);
   }
   function drawStats(v, printing, goalName) {
     screenBg(); sg.textBaseline = 'alphabetic';
@@ -1116,8 +1219,36 @@ async function main() {
     mono(sg, 18, false, 3); sg.fillStyle = S.muted; sg.fillText('NO ACCOUNT · NO BANK LOGIN', 270, 780); sg.fillText('NO SERVERS · JUST YOUR PHONE', 270, 816);
     sg.textAlign = 'left';
   }
-  let screenSig = '';
-  function setScreen(sig, draw) { if (sig === screenSig) return; screenSig = sig; draw(); screenTex.needsUpdate = true; }
+  // Page changes on the phone play like a real app's (Material's "shared axis"): the old page slides
+  // out and fades, the new one slides in. Forward in the film slides left; scrolling back slides right.
+  // Timed, not scrolled: an app's transition runs at its own speed whatever your thumb is doing.
+  const PAGE_MS = 450, PAGES = ['home', 'shoot', 'stats', 'goal', 'lock'];
+  const [fromC, fromG] = makeCanvas(540, 1140), [toC, toG] = makeCanvas(540, 1140);
+  let screenSig = '', screenPage = '', pageAt = 0, pageDir = 1, paging = false;
+  function setScreen(sig, draw, page) {
+    if (sig === screenSig) return;
+    screenSig = sig;
+    if (page !== screenPage) {
+      if (screenPage && !reduceMotion) {
+        fromG.drawImage(screenC, 0, 0);          // whatever is on screen right now, even mid-transition
+        pageAt = performance.now(); paging = true;
+        pageDir = PAGES.indexOf(page) > PAGES.indexOf(screenPage) ? 1 : -1;
+      }
+      screenPage = page;
+    }
+    draw(); toG.drawImage(screenC, 0, 0);
+    screenTex.needsUpdate = true;
+  }
+  function pageTick() {
+    if (!paging) return;
+    const p = Math.min(1, (performance.now() - pageAt) / PAGE_MS), e = outCubic(p), slide = 60 * pageDir;
+    screenBg();
+    sg.globalAlpha = 1 - smooth(Math.min(1, p / 0.45)); sg.drawImage(fromC, -slide * e, 0);   // out first...
+    sg.globalAlpha = smooth(clamp((p - 0.15) / 0.85)); sg.drawImage(toC, slide * (1 - e), 0);  // ...then in
+    sg.globalAlpha = 1;
+    screenTex.needsUpdate = true;
+    if (p >= 1) paging = false;
+  }
 
   // ---------- small coins the phone "catches" in scene 06 ----------
   // Matte: small shiny coins near the camera mirror the studio light and bloom into a white blob.
@@ -1183,8 +1314,17 @@ async function main() {
     };
     label('PROD.', 58, 86);     hand('Broke by the 20th', 66, 268, 176, 1300);
     label('SCENE', 58, 388);    hand('Week 3', 74, 585, 170, 380);
-    label('TAKE', 518, 388);    hand('1', 560, 590, 200, 120);
-    g.strokeStyle = chalk; g.lineWidth = 12; g.beginPath(); g.moveTo(540, 540); g.lineTo(640, 450); g.stroke();
+    label('TAKE', 518, 388);
+    // Take 1, struck out in red chalk, against the 1's lean (top-left to bottom-right). Caveat's 1 has a
+    // long flag: a strike parallel to it read as "/1", a flat one turned the 1 into a 4, an X hid it.
+    // The strike is measured off the glyph, so it lands in any fallback font too.
+    hand('1', 560, 590, 200, 120, 'rgba(240,239,230,.7)');
+    const m1 = g.measureText('1'), pad = 22;
+    const x0 = 560 - m1.actualBoundingBoxLeft - pad, x1 = 560 + m1.actualBoundingBoxRight + pad;
+    const y0 = 590 - m1.actualBoundingBoxAscent - pad * 0.5, y1 = 590 + pad * 0.5;
+    g.strokeStyle = C.red; g.lineWidth = 9; g.lineCap = 'round';
+    g.beginPath(); g.moveTo(x0 - 6, y0 + 20); g.lineTo(x1 + 6, y1 - 6); g.stroke();
+    g.lineCap = 'butt';
     hand('2', 720, 600, 240, 160, '#9FF0CF');
     label('BUDGET', 978, 388);  const vw = hand('vibes', 1000, 575, 170, 380);
     g.strokeStyle = 'rgba(240,239,230,.7)'; g.lineWidth = 6; g.beginPath();                      // a wobbly underline: the budget is a feeling
@@ -1311,10 +1451,12 @@ async function main() {
   const catColor = []; cats.forEach(([col, n]) => { for (let i = 0; i < n; i++) catColor.push(new THREE.Color(col)); });
   const catsLight = [['#1A1A1A', 41], [C.red, 23], ['#8E8E94', 21], ['#D4D4D8', 15]];
   const catLight = []; catsLight.forEach(([col, n]) => { for (let i = 0; i < n; i++) catLight.push(new THREE.Color(col)); });
+  // Centre of the 100-dot grid. It used to sit at -0.35, which parked the bottom row under the chapter tabs.
+  const GRID_Y = 0.2;
   const gridPos = [], ringPos = [], starPos = [], aryPos = [];
   const sr = seeded(3);
   for (let k = 0; k < N; k++) {
-    gridPos.push(new THREE.Vector3(((k % 10) - 4.5) * 0.34 + 0.3, (4.5 - Math.floor(k / 10)) * 0.34 - 0.35, 0.8));
+    gridPos.push(new THREE.Vector3(((k % 10) - 4.5) * 0.34 + 0.3, (4.5 - Math.floor(k / 10)) * 0.34 + GRID_Y, 0.8));
     const a = Math.PI / 2 - (Math.PI * 2 * k) / N;
     ringPos.push(new THREE.Vector3(Math.cos(a) * 1.5 + 0.3, Math.sin(a) * 1.5, 0.6));
     starPos.push(new THREE.Vector3((sr() - 0.5) * 22, -2 + sr() * 9, -9 - sr() * 12));
@@ -1428,14 +1570,14 @@ async function main() {
   ];
   const PHONE = [ // [T, [x, y, z, rx, ry, rz]]
     [4.5, [0, -9, 0, 0.6, -2.4, 0]],
-    [5.2, [0, 0, 0, 0.05, -0.25, 0]],
+    [5.05, [0, 0, 0, 0.05, -0.25, 0]],       // fully in frame by the time THE IDEA settles
     [6.3, [0, 0, 0, 0.02, -0.12, 0]],
-    [7.0, [0, 0, 0.3, 0, 0.32, 0]],
+    [7.0, [0, 0.2, 0.15, 0, 0.32, 0]],       // lifted: closer to camera, it dipped under the chapter tabs
     [7.5, [0, 0, 0, 0, 0.2, 0]],
     [8.0, [0, -9, -2, 0.6, 0.8, 0]],
     [8.6, [0, -9, -2, 0.6, 0.8, 0]],
-    [9.0, [0, -0.2, 0, 0.02, 0.3, 0]],          // back, showing the goal screen: the app does the saving
-    [9.45, [0, -0.2, 0, 0.02, 0.18, 0]],
+    [9.0, [0, 0.05, 0, 0.02, 0.3, 0]],          // back, showing the goal screen: the app does the saving
+    [9.45, [0, 0.05, 0, 0.02, 0.18, 0]],
     [10.0, [0, -1.3, 0, -0.28, -0.2, 0]],
     [10.7, [0, -1.3, 0, -0.22, 0.25, 0]],
     [11.0, [0, 0, 0, 0.04, -0.2, 0]],
@@ -1475,8 +1617,7 @@ async function main() {
     hero.rotation.y = time * 0.7 + T * 3.2 + outCubic(range(T, 13.2, 13.6)) * Math.PI * 4;   // a celebratory spin at 100%
     hero.visible = h[1] < 7 && T < 13.93;
 
-    // ---- the stack: fall in (scene 01), leak away (02-04), sink (05) ----
-    const sink = range(T, 4.1, 4.4);   // the last coins step aside for the clapperboard
+    // ---- the stack: fall in (scene 01), leak away (02-04), the last two slide out of shot (05) ----
     const dim = range(T, 3.4, 4.0) * (1 - range(T, 4.6, 5.0));
     // House lights down for the maker's scene.
     const spot = range(T, 11.5, 11.9) * (1 - range(T, 12.45, 12.8));
@@ -1489,35 +1630,15 @@ async function main() {
     scan.visible = scanT > 0 && scanT < 1;
     const ripple = range(T, 12.15, 12.3) * (1 - range(T, 12.55, 12.75));
     leakLight.intensity = 26 * range(T, 1.6, 2.4) * (1 - range(T, 4.2, 4.9));
-    let labelIdx = 0;
+    const SP = stackPose(T, time);
+    labels.forEach((lb) => { lb.visible = false; });
     for (let i = 0; i < STACK; i++) {
-      const c = stack[i], u = c.userData;
-      const f = outCubic(range(T, 0.45 + i * 0.018, 0.8 + i * 0.018));
-      const restY = stackBaseY + i * (H + 0.012);
-      let x = u.jitter, y = lerp(6 + i * 0.35, restY, f), z = u.jitter * 0.5;
-      let rx = -Math.PI / 2, ry = (1 - f) * 3, rz = 0, op = f > 0 ? 1 : 0;
-      const k = STACK - 1 - i; // top coin leaves first
-      if (i >= 2) {
-        const l = range(T, 1.7 + k * 0.09, 2.15 + k * 0.09);
-        if (l > 0) {
-          const e = inQuad(l);
-          x += Math.cos(u.dir) * 2.4 * e; z += -6 - Math.abs(Math.sin(u.dir)) * 6 * e; z = lerp(u.jitter * 0.5, z, e); y += u.lift * 0.9 * e + Math.sin(l * Math.PI) * 0.5;
-          rx += u.spin * l; rz += u.spin * 0.6 * l;
-          // The first few you can still see go; after that (scene 03) they vanish fast: invisible money.
-          op *= k < 8 ? 1 - range(l, 0.45, 1) : 1 - range(l, 0.05, 0.5);
-        }
-        if (k < LEAKS.length) {
-          const s = labels[k]; s.visible = l > 0 && l < 0.95;
-          if (s.visible) { s.position.set(x, y + 0.75, z); s.material.opacity = range(l, 0, 0.12) * (1 - range(l, 0.55, 0.9)); }
-          labelIdx++;
-        }
-      } else {
-        // The last two coins: wobble in the dark, then sink as the clapperboard comes in.
-        rz = Math.sin(time * 3 + i) * 0.12 * dim * (i === 1 ? 1 : 0.3);
-        y -= sink * 2.5; op *= 1 - sink;
+      const c = stack[i], p = SP[i];
+      c.position.set(p.x, p.y, p.z); stackQuat(p, c.quaternion);
+      c.userData.setOpacity(p.op);
+      if (p.label >= 0 && p.labelOp > 0.003) {   // the label floats clear above its coin, even when the coin stands on edge
+        const lb = labels[p.label]; lb.visible = true; lb.position.set(p.x, p.y + 1.2, p.z); lb.material.opacity = p.labelOp;
       }
-      c.position.set(x, y, z); c.rotation.set(rx, ry, rz);
-      c.userData.setOpacity(op);
     }
 
     // ---- phone ----
@@ -1598,7 +1719,7 @@ async function main() {
         }
         return;
       }
-      const t = range(T, 5.55 + j * 0.12, 5.95 + j * 0.12);
+      const t = range(T, 5.4 + j * 0.1, 5.75 + j * 0.1);   // all caught by 6.25, before the shoot screen
       if (t >= 1) caught++;
       if (t > 0.7 && t < 1) pressed = true;
       c.visible = t > 0 && t < 1;
@@ -1612,20 +1733,25 @@ async function main() {
     });
     const lit01 = L > 0.5 ? 'L' : 'D';
     S = L > 0.5 ? SCR.light : SCR.dark;
-    if (T < 6.45) setScreen(lit01 + 'h' + pressed + caught, () => drawHome(pressed, caught));
-    else if (T < 8.7) {
-      const val = Math.round(344 * outCubic(range(T, 6.55, 7.1)));
+    if (T < 6.3) setScreen(lit01 + 'h' + pressed + caught, () => drawHome(pressed, caught), 'home');
+    else if (T < 6.8) {
+      // The 66-day shoot: the strip fills as you scroll through the scene.
+      const day = 1 + Math.floor(22 * range(T, 6.35, 6.7));
+      setScreen(lit01 + 'shoot' + day, () => drawShoot(day), 'shoot');
+    } else if (T < 8.7) {
+      const val = Math.round(344 * outCubic(range(T, 6.85, 7.15)));
       const gname = window.filmGoal ? window.filmGoal().name : 'HEADPHONES';
-      setScreen(lit01 + 's' + val + gname, () => drawStats(val, false, gname));
+      setScreen(lit01 + 's' + val + gname, () => drawStats(val, false, gname), 'stats');
     } else if (T < 10.75) {
       // The goal screen: the dots fly in, the savings bar fills, then the same phone prints the receipt.
       const g = window.filmGoal ? window.filmGoal() : { name: 'HEADPHONES', cost: 3000, perDay: 95, days: 32 };
       const fill = Math.round(100 * smooth(range(T, 8.8, 9.35))) / 100, printing = T > 9.62;  // fills as the dots arrive
-      setScreen(lit01 + 'g' + g.name + g.perDay + fill + printing, () => drawGoal(g, fill, printing));
-    } else setScreen(lit01 + 'lock', drawLock);
+      setScreen(lit01 + 'g' + g.name + g.perDay + fill + printing, () => drawGoal(g, fill, printing), 'goal');
+    } else setScreen(lit01 + 'lock', drawLock, 'lock');
+    pageTick();
 
     // receipt: rises out of the top edge; the top of the paper (the header) comes out first
-    const pr = range(T, 9.75, 10.6) * (1 - range(T, 10.8, 11.1));
+    const pr = range(T, 9.75, 10.6) * (1 - range(T, 10.68, 10.95));   // fully back in before PRIVATE settles
     receipt.visible = pr > 0.002;
     if (receipt.visible) {
       receipt.scale.y = pr;
@@ -1744,9 +1870,27 @@ async function main() {
     mint.copy(mintD).lerp(mintL, l); dimRing.copy(dimRingD).lerp(dimRingL, l); starCol.copy(starColD).lerp(starColL, l);
   }
 
+  // ---------- quality governor: a budget phone gets a lighter picture, not a slideshow ----------
+  // Measures real frame times once the film is running. Under ~33 fps it drops to 1x resolution;
+  // if that's still too slow, it switches the glow (bloom) off. It only ever steps down.
+  let qStep = 0, qDone = false, qTimes = [];
+  function govern(ms) {
+    if (qDone || frames < 20) return;          // skip start-up hitches (shader compiles, textures)
+    qTimes.push(ms);
+    if (qTimes.length < 45) return;
+    const median = qTimes.sort((a, b) => a - b)[22]; qTimes = [];
+    if (median < 30) { qDone = true; return; }
+    qStep++;
+    if (qStep === 1) {
+      renderer.setPixelRatio(1);
+      if (composer) { composer.setPixelRatio(1); composer.setSize(window.innerWidth, window.innerHeight); }
+    } else { composer = null; qDone = true; }
+  }
+
   // ---------- the loop ----------
   let Ts = window.filmStory(), last = performance.now(), time = 0, frames = 0;
   function frame(now) {
+    govern(now - last);
     const dt = Math.min(0.05, (now - last) / 1000); last = now;
     if (!reduceMotion) time += dt;
     // Same smoothed clock as the copy (mapped to story time): a little inertia makes scrolling feel like a dolly.
