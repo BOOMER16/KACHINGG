@@ -54,13 +54,13 @@ html { background: var(--ink); scroll-behavior: auto; }
 body { background: var(--ink); color: var(--fg); font-family: var(--f-body); }
 body::before { content: ""; position: fixed; inset: 0 0 auto; height: env(safe-area-inset-top, 0px); z-index: 10; background: var(--ink); }
 
-#stage { position: fixed; inset: 0; width: 100vw; height: 100vh; display: block; z-index: 0; }
+#stage { position: fixed; inset: 0; width: 100vw; height: 100vh; height: 100lvh; display: block; z-index: 0; }   /* lvh: ignores the phone's sliding address bar */
 /* Keeps copy readable over the 3D: darkens the left (desktop) or bottom (phone) edge only. */
 /* Veils keep copy readable over the 3D. The film fades between them as the text changes sides. */
 .veil { position: fixed; inset: 0; z-index: 1; pointer-events: none; }
 .veil-l { background: linear-gradient(90deg, rgba(var(--veil), .82) 0%, rgba(var(--veil), .45) 34%, rgba(var(--veil), 0) 55%); }
 .veil-r { background: linear-gradient(270deg, rgba(var(--veil), .82) 0%, rgba(var(--veil), .45) 34%, rgba(var(--veil), 0) 55%); opacity: 0; }
-.veil-b { display: none; background: linear-gradient(0deg, rgba(var(--veil), .92) 0%, rgba(var(--veil), .6) 38%, rgba(var(--veil), 0) 60%); }
+.veil-b { display: none; background: linear-gradient(0deg, rgba(var(--veil), .92) 0%, rgba(var(--veil), .6) 30%, rgba(var(--veil), 0) 50%); }
 
 /* ---------- chrome: top bar + film timeline ---------- */
 .bar { position: fixed; top: 0; left: 0; right: 0; z-index: 5; display: flex; align-items: center; justify-content: space-between; gap: 16px;
@@ -260,6 +260,9 @@ h2 { font-size: clamp(2.6rem, 5.2vw, 5.6rem); }
   .scene-no { display: none; }
   .credits dl { grid-template-columns: 1fr; gap: 2px; }
   .credits dd { margin-bottom: 10px; }
+  /* Thumbs, not wheels: a shorter film. 200vh a scene was about 45 swipes to the download button. */
+  .ch { height: 130vh; }
+  .ch.long { height: 210vh; }
 }
 /* No 3D available: a plain, readable page. */
 html.flat #stage, html.flat .veil { display: none; }
@@ -630,9 +633,20 @@ html.flat body { background-image: radial-gradient(#1E1E1C 1px, transparent 1px)
   // ---------- film time ----------
   // Each scene's "anchor" is the scroll position where its copy sits mid-screen. The copy follows the
   // scene index; the 3D follows story time (data-t), so a scene can be added without retiming the 3D.
+  // On phones the address bar slides away as you scroll and the browser calls that a resize.
+  // Re-measuring then would jolt the film, so only a real change counts: a new width (rotation,
+  // a resized window) or a height change bigger than a toolbar.
+  const view = { w: window.innerWidth, h: window.innerHeight, resizes: 0, ignored: 0 };
+  window.filmView = view;
+  function realResize() {
+    const w = window.innerWidth, h = window.innerHeight;
+    view.resizes++;
+    if (w === view.w && Math.abs(h - view.h) < 160) { view.ignored++; return false; }
+    view.w = w; view.h = h; return true;
+  }
   let anchors = [];
   function measure() {
-    const vh = window.innerHeight;
+    const vh = view.h;
     anchors = sections.map((s, i) => (i === 0 || s.tagName === 'FOOTER') ? s.offsetTop : s.offsetTop + (s.offsetHeight - vh) / 2);
     lastH = -1;
   }
@@ -750,9 +764,14 @@ html.flat body { background-image: radial-gradient(#1E1E1C 1px, transparent 1px)
     if (smoothI === painted && h === lastH) return;
     painted = smoothI; lastH = h;
     const I = smoothI;
+    // Phones: where the visible copy starts, so the 3D can fit into the space above it (opacity-weighted,
+    // so it glides from one scene's copy to the next instead of jumping).
+    const narrow = window.innerWidth <= 900;
+    let topSum = 0, topW = 0;
     sections.forEach((s, k) => s.querySelectorAll('.copy').forEach((copy) => {
       const d = I - k;
       const o = clamp(1 - Math.max(0, Math.abs(d) - 0.24) * 3.6);
+      if (narrow && o > 0.02 && !copy.classList.contains('art')) { topSum += copy.getBoundingClientRect().top * o; topW += o; }
       copy.style.opacity = o.toFixed(3);
       copy.style.visibility = o < 0.02 ? 'hidden' : 'visible';
       const k2 = reduce ? 0 : (window.innerWidth > 900 ? 1 : 0.4);
@@ -766,6 +785,7 @@ html.flat body { background-image: radial-gradient(#1E1E1C 1px, transparent 1px)
         if (o < 0.05) nameShown = false;
       }
     }));
+    window.filmCopyTop = topW > 0.05 ? topSum / topW : null;
     chapters.forEach((c) => { c.fill.style.transform = 'scaleX(' + clamp((I - c.start + 0.5) / (c.end - c.start + 1)).toFixed(3) + ')'; });
     const i = Math.max(0, Math.min(sections.length - 1, Math.round(I)));
     if (i !== current) {
@@ -834,7 +854,7 @@ html.flat body { background-image: radial-gradient(#1E1E1C 1px, transparent 1px)
   // A film starts at the beginning: don't let the browser restore an old scroll position on reload.
   if ('scrollRestoration' in history) history.scrollRestoration = 'manual';
   window.scrollTo(0, 0);
-  window.addEventListener('resize', () => { measure(); lastH = -1; });
+  window.addEventListener('resize', () => { if (realResize()) { measure(); lastH = -1; } });
   measure();
   renderNumbers();
   smoothI = rawIndex();
@@ -892,7 +912,9 @@ async function main() {
     document.documentElement.classList.add('flat');
     return;
   }
-  renderer.setPixelRatio(Math.min(window.devicePixelRatio || 1, 1.75));
+  // Phones start one quality step down; the governor (below) steps up if there's headroom.
+  const isPhone = window.matchMedia('(pointer: coarse)').matches && Math.min(window.innerWidth, window.innerHeight) <= 900;
+  renderer.setPixelRatio(Math.min(window.devicePixelRatio || 1, isPhone ? 1.5 : 1.75));
   renderer.setSize(window.innerWidth, window.innerHeight, false);
   renderer.toneMapping = THREE.ACESFilmicToneMapping;
   renderer.toneMappingExposure = 1.05;
@@ -1420,7 +1442,8 @@ async function main() {
   }
   // Click the bucket: everything pops at once.
   const overBucket = (e) => {
-    popNdc.set((e.clientX / window.innerWidth) * 2 - 1, -(e.clientY / window.innerHeight) * 2 + 1);
+    const r = canvas.getBoundingClientRect();   // the canvas can be taller than the window (100lvh)
+    popNdc.set(((e.clientX - r.left) / r.width) * 2 - 1, -((e.clientY - r.top) / r.height) * 2 + 1);
     popCast.setFromCamera(popNdc, camera);
     return popCast.intersectObjects(bucket.userData.hit, false).length > 0;
   };
@@ -1510,14 +1533,21 @@ async function main() {
   } catch (e) { composer = null; }
 
   // ---------- framing: stage on the right on wide screens, on top on phones ----------
-  let wide = true, distMul = 1;
+  let wide = true, distMul = 1, vw = 0, vh = 0, phoneLift = null, phoneZoom = 1;
+  // Sized from the canvas itself (100lvh in CSS), so the phone's address bar sliding in and out
+  // changes nothing here: no re-allocated buffers, no stretched frame, no hitch.
   function resize() {
-    const w = window.innerWidth, h = window.innerHeight;
+    const w = canvas.clientWidth || window.innerWidth, h = canvas.clientHeight || window.innerHeight;
+    if (w === vw && h === vh) return;
+    vw = w; vh = h;
     renderer.setSize(w, h, false);
     if (composer) composer.setSize(w, h);
     camera.aspect = w / h;
     wide = w > 900;
-    distMul = wide ? 1 : clamp(1.5 / camera.aspect, 1, 2.4);
+    distMul = wide ? 1 : clamp(1.3 / camera.aspect, 1, 2.0);   // phones: back far enough to fit, close enough to read the phone's screen
+    // The fog was tuned for the laptop camera. On a phone the camera sits up to 2.4x further back,
+    // which put everything inside the fog and washed it out. Fog moves back with the camera.
+    scene.fog.near = 13 * distMul; scene.fog.far = 32 * distMul;
     camera.updateProjectionMatrix();
   }
   window.addEventListener('resize', resize); resize();
@@ -1530,13 +1560,24 @@ async function main() {
     .flatMap((el, i) => { const v = SIDE[el.dataset.pos] || SIDE.l; return [[i - 0.24, v], [i + 0.24, v]]; });
   const veilL = document.getElementById('veilL'), veilR = document.getElementById('veilR');
   function frameStage(T) {
-    const w = window.innerWidth, h = window.innerHeight;
+    const w = vw, h = vh;
     if (wide) {
       const [sx, sy] = track(VIEW, T);
       camera.setViewOffset(w, h, -sx * w, sy * h, w, h);
       const left = clamp(0.5 + sx / 0.4);
       veilL.style.opacity = left.toFixed(3); veilR.style.opacity = (1 - left).toFixed(3);
-    } else camera.setViewOffset(w, h, 0, h * 0.17, w, h);
+    } else {
+      // Phones: centre the 3D in the space between the header and the top of the current copy, and
+      // pull the camera back when that space is small (a long scene like the download). Eased per frame.
+      const ct = window.filmCopyTop, top = 64, bottom = Math.min(h * 0.66, ct ? ct - 14 : h * 0.62);
+      const free = Math.max(h * 0.2, bottom - top);
+      const wantLift = h / 2 - (top + bottom) / 2, wantZoom = clamp((h * 0.55) / free, 1, 1.75);
+      const k = reduceMotion || phoneLift === null ? 1 : 0.12;
+      phoneLift = phoneLift === null ? wantLift : phoneLift + (wantLift - phoneLift) * k;
+      phoneZoom += (wantZoom - phoneZoom) * k;
+      camera.setViewOffset(w, h, 0, phoneLift, w, h);
+      scene.fog.near = 13 * distMul * phoneZoom; scene.fog.far = 32 * distMul * phoneZoom;   // the fog moves back with the camera
+    }
     camera.updateProjectionMatrix();
   }
 
@@ -1606,7 +1647,7 @@ async function main() {
     frameStage(window.filmSmoothIndex());
     const cam = track(CAM, T);
     pointer.sx += (pointer.x - pointer.sx) * 0.05; pointer.sy += (pointer.y - pointer.sy) * 0.05;
-    camera.position.set(cam[0] + pointer.sx * 0.6, cam[1] - pointer.sy * 0.35, cam[2] * distMul);
+    camera.position.set(cam[0] + pointer.sx * 0.6, cam[1] - pointer.sy * 0.35, cam[2] * distMul * (wide ? 1 : phoneZoom));
     look.set(cam[3], cam[4], cam[5]);
     camera.lookAt(look);
 
@@ -1871,26 +1912,60 @@ async function main() {
   }
 
   // ---------- quality governor: a budget phone gets a lighter picture, not a slideshow ----------
-  // Measures real frame times once the film is running. Under ~33 fps it drops to 1x resolution;
-  // if that's still too slow, it switches the glow (bloom) off. It only ever steps down.
-  let qStep = 0, qDone = false, qTimes = [];
+  // Measures real frame times (45-frame windows, after start-up). Too slow (under ~33 fps): one step
+  // down, measure again. Lots of headroom (60 fps or better) and never stepped down: one step up.
+  // It can't yo-yo: once it has stepped down, it never steps up again.
+  const LEVELS = [
+    { pr: 1.75, bloom: true, name: 'HIGH' },
+    { pr: 1.5, bloom: true, name: 'MEDIUM' },
+    { pr: 1, bloom: true, name: 'LOW' },
+    { pr: 1, bloom: false, name: 'LOWEST' },
+  ];
+  let qLevel = isPhone ? 1 : 0, qDone = false, qDown = false, qTimes = [], useBloom = true;
+  function applyQuality() {
+    const q = LEVELS[qLevel], pr = Math.min(window.devicePixelRatio || 1, q.pr);
+    renderer.setPixelRatio(pr);
+    if (composer) { composer.setPixelRatio(pr); composer.setSize(vw, vh); }
+    useBloom = q.bloom;
+  }
   function govern(ms) {
     if (qDone || frames < 20) return;          // skip start-up hitches (shader compiles, textures)
     qTimes.push(ms);
     if (qTimes.length < 45) return;
     const median = qTimes.sort((a, b) => a - b)[22]; qTimes = [];
-    if (median < 30) { qDone = true; return; }
-    qStep++;
-    if (qStep === 1) {
-      renderer.setPixelRatio(1);
-      if (composer) { composer.setPixelRatio(1); composer.setSize(window.innerWidth, window.innerHeight); }
-    } else { composer = null; qDone = true; }
+    if (median > 30 && qLevel < LEVELS.length - 1) { qLevel++; qDown = true; applyQuality(); return; }
+    if (median < 18 && qLevel > 0 && !qDown) { qLevel--; applyQuality(); return; }
+    qDone = true;
+  }
+
+  // ---------- ?debug: a small read-out for testing on real phones ----------
+  // Open the site with ?debug (or #debug) and screenshot it in each scene.
+  let dbg = null, dbgTimes = [], dbgLast = 0;
+  if (/[?&#]debug/.test(location.search + location.hash)) {
+    dbg = document.createElement('pre');
+    dbg.style.cssText = 'position:fixed;top:56px;left:8px;z-index:20;margin:0;padding:8px 10px;border-radius:8px;background:rgba(0,0,0,.78);color:#6EE7B7;font:11px/1.5 ui-monospace,monospace;pointer-events:none;white-space:pre';
+    document.body.appendChild(dbg);
+  }
+  function debugTick(now, ms) {
+    if (!dbg) return;
+    dbgTimes.push(ms); if (dbgTimes.length > 60) dbgTimes.shift();
+    if (now - dbgLast < 500) return;
+    dbgLast = now;
+    const sorted = [...dbgTimes].sort((a, b) => a - b), med = sorted[sorted.length >> 1] || 0, worst = sorted[Math.floor(sorted.length * 0.95)] || 0;
+    const v = window.filmView || {}, sc = document.getElementById('sceneNo');
+    dbg.textContent = [
+      'FPS     ' + (med ? Math.round(1000 / med) : '-') + '   (slowest 5%: ' + (worst ? Math.round(1000 / worst) : '-') + ')',
+      'QUALITY ' + LEVELS[qLevel].name + ' · ' + renderer.getPixelRatio().toFixed(2) + 'x' + (useBloom && composer ? ' · glow' : '') + (qDone ? '' : ' · testing'),
+      'SCREEN  ' + vw + '×' + vh + ' · dpr ' + (window.devicePixelRatio || 1).toFixed(2),
+      'RESIZES ' + (v.resizes || 0) + ' (' + (v.ignored || 0) + ' address bar)',
+      'SCENE   ' + ((sc && sc.textContent) || 'HELLO') + ' · t ' + Ts.toFixed(2),
+    ].join('\n');
   }
 
   // ---------- the loop ----------
   let Ts = window.filmStory(), last = performance.now(), time = 0, frames = 0;
   function frame(now) {
-    govern(now - last);
+    govern(now - last); debugTick(now, now - last);
     const dt = Math.min(0.05, (now - last) / 1000); last = now;
     if (!reduceMotion) time += dt;
     // Same smoothed clock as the copy (mapped to story time): a little inertia makes scrolling feel like a dolly.
@@ -1899,7 +1974,7 @@ async function main() {
     L += ((window.filmLightState || 0) - L) * (1 - Math.exp(-dt * (window.filmLightFast ? 9 : 2.5)));
     applyTheme(L);
     update(Ts, time);
-    if (composer) composer.render(dt); else renderer.render(scene, camera);
+    if (composer && useBloom) composer.render(dt); else renderer.render(scene, camera);
     if (++frames === 8) window.dispatchEvent(new Event('film-ready'));   // the receipt waits for this
     requestAnimationFrame(frame);
   }
