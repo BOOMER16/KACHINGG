@@ -199,6 +199,13 @@ h2 { font-size: clamp(2.6rem, 5.2vw, 5.6rem); }
 .phone-only { display: none; }
 .copy p { margin: 0; font-size: clamp(1.05rem, 1.35vw, 1.3rem); line-height: 1.55; color: var(--dim); max-width: 30rem; }
 .copy p strong { color: var(--fg); font-weight: 500; }
+/* Chat bubbles: some scenes are told as the messages students actually send each other. */
+.chat { display: flex; flex-direction: column; gap: 8px; max-width: 26rem; }
+.msg { width: fit-content; max-width: 100%; padding: 9px 14px 10px; border-radius: 16px; font-size: clamp(1rem, 1.25vw, 1.2rem); line-height: 1.35; }
+.msg b { display: block; margin-bottom: 3px; font-family: var(--f-mono); font-weight: 400; font-size: 10px; letter-spacing: .18em; color: var(--muted); }
+.msg.them { background: var(--panel); border: 1px solid var(--line); color: var(--fg); border-bottom-left-radius: 4px; }
+.msg.me { align-self: flex-end; background: var(--fg); color: var(--ink); border-bottom-right-radius: 4px; }
+.msg.me b { color: inherit; opacity: .6; }
 .mono { font-family: var(--f-mono); }
 .cue { font-family: var(--f-mono); font-size: 11px; letter-spacing: .2em; color: var(--muted); display: inline-flex; align-items: center; gap: 12px; }
 .cue svg { animation: nudge 1.8s ease-in-out infinite; }
@@ -295,7 +302,7 @@ html.flat body { background-image: radial-gradient(#1E1E1C 1px, transparent 1px)
   <section class="ch first" id="top" data-t="-4" data-chapter="HELLO" data-no="" data-title="HELLO" data-pos="l" data-move="0,-1">
     <div class="stick"><div class="copy">
       <h1>Your month has a <em>receipt</em>.</h1>
-      <p>Tap <strong>₹</strong> when you pay. <strong>KaChingg</strong> shows you where it all went.</p>
+      <p><span class="wide-only">67 payments this month. Name ten. …Yeah. Tap <strong>₹</strong> when you pay, and <strong>KaChingg</strong> remembers for you.</span><span class="phone-only">Tap <strong>₹</strong> when you pay. <strong>KaChingg</strong> remembers for you.</span></p>
       <span class="cue"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M12 4v15"></path><path d="M6 13l6 6 6-6"></path></svg>SCROLL TO PLAY</span>
     </div>
     <!-- The opening receipt: prints what the bank shows, then KaChingg reads it line by line and sorts it. -->
@@ -360,7 +367,8 @@ html.flat body { background-image: radial-gradient(#1E1E1C 1px, transparent 1px)
     <div class="stick"><div class="copy">
       <span class="eyebrow"><i class="in"></i>SC. 01 · DAY ONE</span>
       <h2>It starts on the <em>1st</em>.</h2>
-      <p><span class="wide-only">The allowance lands. <strong>₹5,000.</strong> For about 48 hours, you're basically a billionaire.</span><span class="phone-only"><strong>₹5,000</strong> lands. You feel rich.</span></p>
+      <div class="chat"><div class="msg them"><b>PAPA</b>Sent ₹5,000. Make it last.</div></div>
+      <p><span class="wide-only">For about 48 hours, you're basically a billionaire.</span><span class="phone-only">48 hours of feeling rich.</span></p>
     </div></div>
   </section>
 
@@ -385,6 +393,7 @@ html.flat body { background-image: radial-gradient(#1E1E1C 1px, transparent 1px)
       <span class="eyebrow"><i></i>SC. 04 · WEEK THREE</span>
       <h2>Where did it all <em>go</em>?</h2>
       <p><span class="wide-only">Week three. You check your balance with one eye closed.</span><span class="phone-only">Balance check, one eye closed.</span></p>
+      <div class="chat"><div class="msg me"><b>YOU</b>bro I'll pay you back on the 1st</div></div>
     </div></div>
   </section>
 
@@ -392,7 +401,7 @@ html.flat body { background-image: radial-gradient(#1E1E1C 1px, transparent 1px)
     <div class="stick"><div class="copy">
       <span class="eyebrow"><i class="in"></i>SC. 05 · LIGHTS ON</span>
       <h2>Cut. Let's <em>reshoot</em> this month.</h2>
-      <p><span class="wide-only">Most money apps are a dark room full of charts. Let's turn the lights on.</span><span class="phone-only">Let's turn the lights on.</span></p>
+      <p><span class="wide-only">You've tried a budget app before. Day 3, it wanted you to sort 40 transactions, and you uninstalled it. Fair. Let's turn the lights on instead.</span><span class="phone-only">Budget apps lost you by day 3. Fair. Lights on.</span></p>
       <button type="button" class="switch" id="lightSwitch" aria-pressed="false">
         <span class="knob-track" aria-hidden="true"><span class="knob"></span></span>
         <span id="lightLabel">LIGHTS OFF</span>
@@ -405,7 +414,7 @@ html.flat body { background-image: radial-gradient(#1E1E1C 1px, transparent 1px)
     <div class="stick"><div class="copy">
       <span class="eyebrow"><i class="in"></i>SC. 06 · THE IDEA</span>
       <h2>Make logging faster than <em>forgetting</em>.</h2>
-      <p><span class="wide-only">If writing it down takes longer than paying, you won't do it. Nobody does. So it's one tap away.</span><span class="phone-only">So it's one tap away.</span></p>
+      <p><span class="wide-only">Be honest: nobody opens an app in the canteen queue to type "₹30, samosa, snacks". So it's one tap. That's the whole trick.</span><span class="phone-only">Nobody types "₹30, samosa" in a queue. So: one tap.</span></p>
     </div></div>
   </section>
 
@@ -421,7 +430,8 @@ html.flat body { background-image: radial-gradient(#1E1E1C 1px, transparent 1px)
     <div class="stick"><div class="copy">
       <span class="eyebrow"><i class="in"></i>SC. 08 · THE SHOOT</span>
       <h2>66 days. <em>One</em> habit.</h2>
-      <p><span class="wide-only">That's roughly how long a habit takes to stick. Every day you log lights a frame. Miss one? The strip keeps rolling, and <strong>comebacks count</strong>.</span><span class="phone-only">Miss one? <strong>Comebacks count.</strong></span></p>
+      <p data-ships="1.4"><span class="wide-only">Not a streak that dies the day you forget. Every day you log lights a frame. Spent nothing? Say so, it counts. Miss a day? It's a dot, <strong>not a disaster</strong>. By day 66, it's just something you do.</span><span class="phone-only">Miss a day? It's a dot, <strong>not a disaster.</strong></span></p>
+      <p data-until="1.4"><span class="wide-only">Not a streak that dies the day you forget. Every day you log lights a frame. Miss a day? It's a dot, <strong>not a disaster</strong>. By day 66, it's just something you do.</span><span class="phone-only">Miss a day? It's a dot, <strong>not a disaster.</strong></span></p>
     </div></div>
   </section>
 
@@ -429,7 +439,8 @@ html.flat body { background-image: radial-gradient(#1E1E1C 1px, transparent 1px)
     <div class="stick"><div class="copy">
       <span class="eyebrow"><i class="in"></i>SC. 09 · ONE NUMBER</span>
       <h2><em>Safe</em> to spend today.</h2>
-      <p><span class="wide-only">One number that answers <strong>"can I afford the momos?"</strong> before you order them.</span><span class="phone-only"><strong>Can I afford the momos?</strong> Check first.</span></p>
+      <div class="chat"><div class="msg them"><b>ROOMMATE</b>splitting a Blinkit order, you in?</div><div class="msg me"><b>YOU</b>₹344 safe today. I'm in.</div></div>
+      <p class="wide-only">One number answers <strong>"can I afford this Swiggy order?"</strong> before you hit Place Order, not after.</p>
     </div></div>
   </section>
 
@@ -465,7 +476,7 @@ html.flat body { background-image: radial-gradient(#1E1E1C 1px, transparent 1px)
     <div class="stick"><div class="copy">
       <span class="eyebrow"><i class="in"></i>SC. 12 · YOUR GOAL</span>
       <h2 id="goalHeadline">New headphones in 32 days.</h2>
-      <p><span class="wide-only">KaChingg sets your ₹<span class="js-perday">95</span> a day aside, keeps it out of your safe-to-spend, and counts the days down with you.</span><span class="phone-only">Set aside first, counted down daily.</span></p>
+      <p><span class="wide-only">Not "someday, when I have money". An actual day. Your ₹<span class="js-perday">95</span> a day goes aside first, so it isn't sitting there tempting you.</span><span class="phone-only">Not "someday". An actual day.</span></p>
     </div></div>
   </section>
 
@@ -473,7 +484,7 @@ html.flat body { background-image: radial-gradient(#1E1E1C 1px, transparent 1px)
     <div class="stick"><div class="copy">
       <span class="eyebrow"><i class="in"></i>SC. 13 · THE RECEIPT</span>
       <h2 data-ships="1.3">Missed one? Tonight's <em>receipt</em> catches it.</h2>
-      <p data-ships="1.3"><span class="wide-only">Close out the day like a shopkeeper. Forgot the auto ride? Add it before 2 pm tomorrow and nothing's lost. Went over? It just says so. No lecture.</span><span class="phone-only">Fix it by 2 pm. Nothing's lost.</span></p>
+      <p data-ships="1.3"><span class="wide-only">11 pm, in bed: "wait, did I log the auto?" Tonight's receipt shows you. Forgot? Add it before 2 pm tomorrow and nothing's lost. Went over? It just says so. No lecture.</span><span class="phone-only">Forgot the auto? Fix it by 2 pm. Nothing's lost.</span></p>
       <h2 data-until="1.3">Your day, printed as a <em>receipt</em>.</h2>
       <p data-until="1.3"><span class="wide-only">Close out the day like a shopkeeper: every spend on one slip. Went over? It just says so. No lecture.</span><span class="phone-only">Every spend, one slip. No lecture.</span></p>
     </div></div>
@@ -483,7 +494,7 @@ html.flat body { background-image: radial-gradient(#1E1E1C 1px, transparent 1px)
     <div class="stick"><div class="copy">
       <span class="eyebrow"><i class="in"></i>SC. 14 · PRIVATE</span>
       <h2>It stays on <em>your</em> phone.</h2>
-      <p><span class="wide-only">No account. No bank login. No servers. <strong>Not even I can see what you spend.</strong></span><span class="phone-only">No account. No servers. <strong>Not even me.</strong></span></p>
+      <p><span class="wide-only">No account. No bank login. No "sign in with Google". Your 2 am Maggi stays between you and your phone. <strong>Not even I can see it.</strong></span><span class="phone-only">No account. No login. <strong>Not even I can see it.</strong></span></p>
     </div></div>
   </section>
 
@@ -511,7 +522,7 @@ html.flat body { background-image: radial-gradient(#1E1E1C 1px, transparent 1px)
       </div>
       <ol class="steps">
         <li>Open the APK. Allow installs if your phone asks.</li>
-        <li>"Unsafe app"? Tap More details, then Install anyway.</li>
+        <li>"Unsafe app"? Android says that for every app outside the Play Store. Tap More details, then Install anyway.</li>
         <li data-ships="1.5">Do the 2-minute setup. It puts the ₹ key next to your payment app.</li>
         <li data-until="1.5">Hold your home screen → Widgets → KaChingg key. Put it next to your payment app.</li>
       </ol>
@@ -579,7 +590,7 @@ html.flat body { background-image: radial-gradient(#1E1E1C 1px, transparent 1px)
   // The page only shows what the app you can download actually does. Bump this when a release goes out:
   // anything marked data-ships="1.2" appears from 1.2 on; data-until="1.2" is the copy it replaces.
   // (Compared part by part, like the app's AppVersion: as decimals, 1.10 would equal 1.1.)
-  const SITE_VERSION = '1.3';
+  const SITE_VERSION = '1.4';
   const vcmp = (a, b) => {
     const x = a.split('.').map(Number), y = b.split('.').map(Number);
     for (let i = 0; i < Math.max(x.length, y.length); i++) { const d = (x[i] || 0) - (y[i] || 0); if (d) return d; }
