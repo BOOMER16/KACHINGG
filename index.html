@@ -18,6 +18,10 @@
 <link rel="icon" href="data:image/svg+xml,%3Csvg%20xmlns%3D%22http%3A//www.w3.org/2000/svg%22%20viewBox%3D%220%200%2040%2040%22%3E%3Ccircle%20cx%3D%2220%22%20cy%3D%2220%22%20r%3D%2219%22%20fill%3D%22%236EE7B7%22/%3E%3Ccircle%20cx%3D%2220%22%20cy%3D%2220%22%20r%3D%2215.5%22%20fill%3D%22none%22%20stroke%3D%22%230B3B2C%22%20stroke-opacity%3D%22.4%22%20stroke-width%3D%221.2%22/%3E%3Ccircle%20cx%3D%2210%22%20cy%3D%228.5%22%20r%3D%221.5%22%20fill%3D%22%230B3B2C%22/%3E%3Ccircle%20cx%3D%2230%22%20cy%3D%228.5%22%20r%3D%221.5%22%20fill%3D%22%230B3B2C%22/%3E%3Ccircle%20cx%3D%2210%22%20cy%3D%2212.0%22%20r%3D%221.5%22%20fill%3D%22%230B3B2C%22/%3E%3Ccircle%20cx%3D%2225%22%20cy%3D%2212.0%22%20r%3D%221.5%22%20fill%3D%22%230B3B2C%22/%3E%3Ccircle%20cx%3D%2210%22%20cy%3D%2215.5%22%20r%3D%221.5%22%20fill%3D%22%230B3B2C%22/%3E%3Ccircle%20cx%3D%2220%22%20cy%3D%2215.5%22%20r%3D%221.5%22%20fill%3D%22%230B3B2C%22/%3E%3Ccircle%20cx%3D%2210%22%20cy%3D%2219.0%22%20r%3D%221.5%22%20fill%3D%22%230B3B2C%22/%3E%3Ccircle%20cx%3D%2215%22%20cy%3D%2219.0%22%20r%3D%221.5%22%20fill%3D%22%230B3B2C%22/%3E%3Ccircle%20cx%3D%2210%22%20cy%3D%2222.5%22%20r%3D%221.5%22%20fill%3D%22%230B3B2C%22/%3E%3Ccircle%20cx%3D%2220%22%20cy%3D%2222.5%22%20r%3D%221.5%22%20fill%3D%22%230B3B2C%22/%3E%3Ccircle%20cx%3D%2210%22%20cy%3D%2226.0%22%20r%3D%221.5%22%20fill%3D%22%230B3B2C%22/%3E%3Ccircle%20cx%3D%2225%22%20cy%3D%2226.0%22%20r%3D%221.5%22%20fill%3D%22%230B3B2C%22/%3E%3Ccircle%20cx%3D%2210%22%20cy%3D%2229.5%22%20r%3D%221.5%22%20fill%3D%22%230B3B2C%22/%3E%3Ccircle%20cx%3D%2230%22%20cy%3D%2229.5%22%20r%3D%221.5%22%20fill%3D%22%230B3B2C%22/%3E%3C/svg%3E">
 <style>body { margin: 0; }</style>
 <link rel="preconnect" href="https://fonts.googleapis.com">
+<!-- Both themes are built in (the lights switch), so: no forced dark mode from the browser, and the
+     Dark Reader extension leaves the page alone (it would repaint the text but not the 3D canvas). -->
+<meta name="color-scheme" content="dark light">
+<meta name="darkreader-lock">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Caveat:wght@600&family=Doto:wght@900&family=Space+Grotesk:wght@400;500;700&family=Space+Mono:wght@400;700&display=swap">
 <style>
@@ -48,7 +52,10 @@ html.light {
   --ink: #F4F4F5; --panel: #FFFFFF; --line: #E2E2E4; --fg: #111111; --dim: #3F3F44; --muted: #6B6B70;
   --mint: #0E8A5F; --veil: 244, 244, 245; --tick-done: #B5B5BA;
   --cat-food: #0A0A0B; --cat-travel: #8E8E94; --cat-other: #D4D4D8;
-  color-scheme: light;
+  /* "light dark", not just "light": a page that says it ONLY does light gets repainted by browsers
+     with forced dark mode on (Chrome/Edge/Samsung auto-dark): our dark text turned white, while the
+     3D stage (a canvas, which they don't touch) stayed light. Saying we handle both turns that off. */
+  color-scheme: light dark;
 }
 html { background: var(--ink); scroll-behavior: auto; }
 body { background: var(--ink); color: var(--fg); font-family: var(--f-body); }
