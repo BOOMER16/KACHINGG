@@ -213,6 +213,16 @@ h2 { font-size: clamp(2.6rem, 5.2vw, 5.6rem); }
 .msg.them { background: var(--panel); border: 1px solid var(--line); color: var(--fg); border-bottom-left-radius: 4px; }
 .msg.me { align-self: flex-end; background: var(--fg); color: var(--ink); border-bottom-right-radius: 4px; }
 .msg.me b { color: inherit; opacity: .6; }
+/* v1.6: a shared receipt, as it lands in a chat. Paper-coloured in both lights, like the app's. */
+.msg.slip { padding: 8px 8px 9px; }
+.msg.slip b { padding: 1px 6px 0; }
+.slip-paper { display: flex; flex-direction: column; gap: 4px; min-width: 13.5rem; margin-top: 4px; padding: 14px 14px 12px; border-radius: 4px;
+  background: #F5F4EF; color: #111111; font-family: var(--f-mono); font-size: 11px; letter-spacing: .04em; line-height: 1.35;
+  box-shadow: 0 0 0 1px rgba(0, 0, 0, .14); }   /* the edge, so paper reads as paper on the light bubble too */
+.slip-paper .t { text-align: center; font-weight: 700; font-size: 13px; letter-spacing: .06em; }
+.slip-paper .s { text-align: center; color: #5E5D59; font-size: 10px; letter-spacing: .14em; }
+.slip-paper .l { display: flex; justify-content: space-between; gap: 18px; }
+.slip-paper .rule { border-top: 1px dashed #B5B2A8; margin: 4px 0; }
 .mono { font-family: var(--f-mono); }
 .cue { font-family: var(--f-mono); font-size: 11px; letter-spacing: .2em; color: var(--muted); display: inline-flex; align-items: center; gap: 12px; }
 .cue svg { animation: nudge 1.8s ease-in-out infinite; }
@@ -455,7 +465,7 @@ html.flat body { background-image: radial-gradient(#1E1E1C 1px, transparent 1px)
     <div class="stick"><div class="copy">
       <span class="eyebrow"><i class="in"></i>SC. 10 · WHERE IT WENT</span>
       <h2>Every rupee, as <em>100 dots</em>.</h2>
-      <p><span class="wide-only">Plot twist: 23 of them were "just one more Swiggy order".</span><span class="phone-only">23 were "one more Swiggy order".</span></p>
+      <p><span class="wide-only">Plot twist: 23 of them were "just one more Swiggy order".<span data-ships="1.6"> On the 1st, your whole month prints as one receipt. Post it or don't.</span></span><span class="phone-only">23 were "one more Swiggy order".</span></p>
       <div class="legend" aria-label="This month: food 41, fun 23, travel 21, other 15">
         <span><b style="background: var(--cat-food)"></b>FOOD 41</span>
         <span><b style="background: var(--cat-fun)"></b>FUN 23</span>
@@ -491,9 +501,42 @@ html.flat body { background-image: radial-gradient(#1E1E1C 1px, transparent 1px)
     <div class="stick"><div class="copy">
       <span class="eyebrow"><i class="in"></i>SC. 13 · THE RECEIPT</span>
       <h2 data-ships="1.3">Missed one? Tonight's <em>receipt</em> catches it.</h2>
-      <p data-ships="1.3"><span class="wide-only">11 pm, in bed: "wait, did I log the auto?" Tonight's receipt shows you. Forgot? Add it before 2 pm tomorrow and nothing's lost. Went over? It just says so. No lecture.</span><span class="phone-only">Forgot the auto? Fix it by 2 pm. Nothing's lost.</span></p>
+      <p data-ships="1.6"><span class="wide-only">11 pm, in bed: "wait, did I log the auto?" Tonight's receipt shows you, and you've got till 2 pm tomorrow to add it. Done with it? Tear it off with your finger.</span><span class="phone-only">Fix it by 2 pm. Then tear it off.</span></p>
+      <p data-ships="1.3" data-until="1.6"><span class="wide-only">11 pm, in bed: "wait, did I log the auto?" Tonight's receipt shows you. Forgot? Add it before 2 pm tomorrow and nothing's lost. Went over? It just says so. No lecture.</span><span class="phone-only">Forgot the auto? Fix it by 2 pm. Nothing's lost.</span></p>
       <h2 data-until="1.3">Your day, printed as a <em>receipt</em>.</h2>
       <p data-until="1.3"><span class="wide-only">Close out the day like a shopkeeper: every spend on one slip. Went over? It just says so. No lecture.</span><span class="phone-only">Every spend, one slip. No lecture.</span></p>
+    </div></div>
+  </section>
+
+  <section class="ch" data-ships="1.6" data-t="10.25" data-chapter="THE DETAILS" data-no="SC. 14 / 18" data-title="SHARE IT" data-pos="r" data-move="-1,0">
+    <div class="stick"><div class="copy">
+      <span class="eyebrow"><i class="in"></i>SC. 14 · SHARE IT</span>
+      <h2>A receipt you'd actually <em>post</em>.</h2>
+      <div class="chat">
+        <div class="msg me slip"><b>YOU · OCTOBER RECEIPT</b>
+          <div class="slip-paper" role="img" aria-label="A shared month receipt: Certified Foodie, survived October. Food 24 times, auto 11 times, 2 more lines. Amounts hidden.">
+            <span class="t">CERTIFIED FOODIE</span>
+            <span class="s">SURVIVED OCTOBER</span>
+            <span class="rule"></span>
+            <span class="l"><span>FOOD × 24</span><span>₹ • • •</span></span>
+            <span class="l"><span>AUTO × 11</span><span>₹ • • •</span></span>
+            <span class="l"><span>+ 2 MORE</span><span>₹ • • •</span></span>
+            <span class="rule"></span>
+            <span class="s">SEE YOU NEXT MONTH</span>
+          </div>
+        </div>
+        <div class="msg them"><b>ROOMMATE</b>food × 24 is so real. sending mine</div>
+      </div>
+      <p><span class="wide-only">Tonight's receipt, or your whole month on the 1st. Send it to the group chat or your story. Amounts stay hidden unless you show them. Hide lines, rename them, pick the title. The numbers? Always real. That's the fun.</span><span class="phone-only">Amounts hidden. Numbers real. Post it.</span></p>
+    </div></div>
+  </section>
+
+  <section class="ch" data-ships="1.6" data-t="10.5" data-chapter="THE DETAILS" data-no="SC. 15 / 18" data-title="THE NET" data-pos="r" data-move="-1,0">
+    <div class="stick"><div class="copy">
+      <span class="eyebrow"><i class="in"></i>SC. 14 · THE NET</span>
+      <h2>Forgot the auto? KaChingg <em>noticed</em>.</h2>
+      <div class="chat"><div class="msg them"><b>KACHINGG · 9:40 AM</b>No transport yesterday? You usually log ₹45.</div><div class="msg me"><b>YOU</b>+ ₹45</div></div>
+      <p><span class="wide-only">It knows what you log on most weekdays, so when something's missing, it asks about that one thing. And on Sunday evening, check your real bank balance against the app: whatever slipped by all week shows up as one number.</span><span class="phone-only">Sunday: one check against your bank catches the rest.</span></p>
     </div></div>
   </section>
 
@@ -548,6 +591,7 @@ html.flat body { background-image: radial-gradient(#1E1E1C 1px, transparent 1px)
         <dt>CONTINUITY</dt><dd data-ships="1.2">THE 66-DAY SHOOT</dd><dd data-until="1.2">EVERY SINGLE CHAI</dd>
         <dt>BEST SUPPORTING HABIT</dt><dd>"JUST ONE" COLD COFFEE</dd>
         <dt>STUNTS</dt><dd>THE AUTO DRIVER WITH NO CHANGE</dd>
+        <dt data-ships="1.6">CONTINUITY CHECK</dt><dd data-ships="1.6">SUNDAY'S BANK BALANCE</dd>
         <dt>FEEDBACK</dt><dd>SETTINGS → SEND FEEDBACK</dd>
       </dl>
       <span class="end">KaChingg</span>
@@ -597,7 +641,7 @@ html.flat body { background-image: radial-gradient(#1E1E1C 1px, transparent 1px)
   // The page only shows what the app you can download actually does. Bump this when a release goes out:
   // anything marked data-ships="1.2" appears from 1.2 on; data-until="1.2" is the copy it replaces.
   // (Compared part by part, like the app's AppVersion: as decimals, 1.10 would equal 1.1.)
-  const SITE_VERSION = '1.4';
+  const SITE_VERSION = '1.6';
   const vcmp = (a, b) => {
     const x = a.split('.').map(Number), y = b.split('.').map(Number);
     for (let i = 0; i < Math.max(x.length, y.length); i++) { const d = (x[i] || 0) - (y[i] || 0); if (d) return d; }
@@ -1744,7 +1788,11 @@ async function main() {
 
     // ---- hero coin ----
     const h = track(HERO, T);
-    hero.position.set(h[0], h[1] + Math.sin(time * 1.2) * 0.08, h[2]);
+    // Short laptop screens (under ~780 px tall): the cold open's copy and chips take most of the
+    // height, so lift the coin (and its habit coins) clear of "WHAT DO YOU SPEND ON".
+    // Only for that scene: "the maths" next needs the room above for its ring of days.
+    const coldLift = wide ? clamp((780 - window.innerHeight) / 180) * 0.45 * range(T, -2.9, -2.5) * (1 - range(T, -1.95, -1.6)) : 0;
+    hero.position.set(h[0], h[1] + coldLift + Math.sin(time * 1.2) * 0.08, h[2]);
     hero.scale.setScalar(h[3]);
     hero.rotation.y = time * 0.7 + T * 3.2 + outCubic(range(T, 13.2, 13.6)) * Math.PI * 4;   // a celebratory spin at 100%
     hero.visible = h[1] < 7 && T < 13.93;
@@ -1832,9 +1880,13 @@ async function main() {
         }
         c.visible = bt > 0 && bt < 1;
         if (c.visible) {
-          const a = (j / 6) * Math.PI * 2 + 0.4, d = 0.6 + 3.2 * outCubic(bt);
-          c.position.set(hero.position.x + Math.cos(a) * d, hero.position.y + Math.sin(a) * d * 0.7 + Math.sin(bt * Math.PI) * 0.8, hero.position.z + 0.6);
-          c.rotation.set(time * 4 + j, time * 5, 0);
+          // They pop out OF the progress ring (radius 1.6), never from inside the big coin, and fan out
+          // up and to the left (80° to 215°): the copy sits to the right and "KA-CHING!" right under
+          // the ring, and nothing may fly into either.
+          // Flat to the viewer, spinning in-plane like a coin on a table: never an edge-on sliver.
+          const a = ((80 + j * 27) * Math.PI) / 180, d = 1.6 + 0.95 * outCubic(bt);
+          c.position.set(hero.position.x + Math.cos(a) * d, hero.position.y + Math.sin(a) * d, hero.position.z + 0.3);
+          c.rotation.set(0, Math.sin(time * 3 + j) * 0.3, bt * 5 + j);
           c.scale.setScalar(0.4 * (1 - bt * bt));
         }
         return;
@@ -1844,10 +1896,22 @@ async function main() {
         u.ps = (u.ps || 0) + ((picks[j] ? 1 : 0) * pickVis - (u.ps || 0)) * 0.14;   // eases in = a little pop
         c.visible = u.ps > 0.01;
         if (c.visible) {
-          const a = time * 0.8 + (j * Math.PI * 2) / 6;
-          c.position.set(hero.position.x + Math.cos(a) * 1.15, hero.position.y + Math.sin(a) * 0.4, hero.position.z + Math.sin(a) * 0.9);
-          c.rotation.set(0, time * 2 + j, 0);
-          c.scale.setScalar(0.32 * u.ps);
+          // One coin per habit, in a tidy row either side of the big coin: 1st pick right, 2nd left,
+          // 3rd further right... Same plane as the big coin, so they never pass in front of it or
+          // each other. (They used to orbit in depth: crossing the big coin, going edge-on, and
+          // bunching on one side when you picked neighbouring chips.)
+          // Sizes: big coin radius 0.54, small 0.29; 1.0 apart from the centre, 0.72 between small ones.
+          if (picks[j]) {   // an unpicked coin fades where it stood instead of sliding under a neighbour
+            const slot = picks.slice(0, j).filter(Boolean).length;
+            u.tx = hero.position.x + (slot % 2 ? -1 : 1) * (1.0 + Math.floor(slot / 2) * 0.72);
+          }
+          if (u.tx !== undefined) u.px = u.px === undefined || u.ps < 0.05 ? u.tx : u.px + (u.tx - u.px) * 0.12;   // neighbours slide to close a gap
+          // Leaving for "the maths": your habits add up INTO the coin. They slide in behind it and
+          // are gone before the ring of days starts to grow (at -1.75), so the two never overlap.
+          const into = smooth(range(T, -2.0, -1.78));
+          c.position.set(lerp(u.px, hero.position.x, into), hero.position.y + Math.sin(time * 1.6 + j * 1.3) * 0.05 * (1 - into), hero.position.z - 0.25 * into);
+          c.rotation.set(0, Math.sin(time * 0.9 + j) * 0.35 * (1 - into), 0);   // a gentle turn, always facing you
+          c.scale.setScalar(0.32 * u.ps * (1 - into * into));
         }
         return;
       }
